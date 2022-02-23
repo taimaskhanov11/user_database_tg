@@ -1,5 +1,6 @@
 import sys
 from pathlib import Path
+from pprint import pprint
 
 from loguru import logger
 from tortoise import Tortoise, run_async
@@ -31,7 +32,7 @@ async def init_tortoise(
 
 async def create_users_():
     # await init_tortoise()
-    await init_tortoise(host="localhost")
+    await init_tortoise(host="localhost", password="postgres")
     users_data = parce_datafiles("/var/lib/postgresql/TO_IMPORT")
     for service, data in users_data.items():
         users_obj = [HackedUser(email=x[0], password=x[1], service=service) for x in data]
@@ -43,18 +44,28 @@ async def create_users_():
 @logger.catch
 async def create_users():
     # await init_tortoise()
+    # await init_tortoise(host="localhost", password="postgres")
     await init_tortoise(host="localhost")
     for path in Path("/var/lib/postgresql/TO_IMPORT").iterdir():
+        # for path in Path("../users_datafiles/").iterdir():
         service = path.name
 
         logger.debug(f"Парс {service}...")
         users_data = parce_datafiles(path)
         logger.debug(f"Запарсено данных {len(users_data)}")
         # for data in users_data:
+        # pprint(users_data)
         users_obj = [HackedUser(email=x[0], password=x[1], service=service) for x in users_data]
+
+        # for user in users_obj:
+        #     logger.trace(f"{user.email}{user.password}")
+        #     await user.save()
+        # HackedUser.save()
+
         await HackedUser.bulk_create(
             users_obj,
-            batch_size=100000
+            batch_size=20000,
+
         )
         logger.info(f"{service}| Все данные сохранены")
 

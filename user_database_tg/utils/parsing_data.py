@@ -77,10 +77,12 @@ def parce_datafiles(path: Path) -> list[tuple[str, str]]:
     for data_file in path.iterdir():
         if data_file.name != "err_file.dd":
             logger.trace(f"Парс файла {data_file.name}")
-            with open(data_file, encoding="utf-8") as f:
+            with open(data_file, encoding="cp1251") as f: #todo 2/24/2022 12:40 AM taima:
                 # print(f.readlines())
+
+                # continue
                 try:
-                    data = tuple(map(lambda x: re.findall(r"(.*):(.*)", x.strip())[0], f.readlines()))
+                    data = tuple(map(lambda x: re.findall(r"(.*):(.*)", x.strip())[0] if x.strip() else ("null", "null"), f.readlines()))
                     # users_da
                     users_data.extend(list(data))
                 except Exception as e:
@@ -91,6 +93,8 @@ def parce_datafiles(path: Path) -> list[tuple[str, str]]:
 
 
 if __name__ == '__main__':
-    for data in parce_datafiles(Path("../users_datafiles/0charges.com")):
+    for data in parce_datafiles(Path("../users_datafiles/webhost")):
+        if not data[1]:
+            break
         print(data[0], data[1])
         # users_obj = [HackedUser(email=x[0], password=x[1], service=service) for x in data]
