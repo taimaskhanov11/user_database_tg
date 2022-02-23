@@ -3,6 +3,8 @@ import re
 from pathlib import Path
 from pprint import pprint
 
+from loguru import logger
+
 
 def parce_datafile_dict(path: str) -> list[dict]:
     """Парсинг данных пользователя и файлов"""
@@ -31,22 +33,6 @@ def parce_datafile_dict(path: str) -> list[dict]:
     return users_data
 
 
-def parce_datafile(path: str) -> dict[tuple[str, str]]:
-    users_data = collections.defaultdict(list)
-    for data_dir in Path(path).iterdir():
-        for data_file in data_dir.iterdir():
-            with open(data_file, encoding="utf-8") as f:
-                # print(f.readlines())
-                data = tuple(map(lambda x: re.findall(r"(.*):(.*)", x.strip())[0], f.readlines()))
-                # users_da
-                users_data[data_dir.name].extend(list(data))
-                # users_data.extend(list(data))
-                # print(users_data)
-            # break
-        # break
-    return users_data
-
-
 def parce_datafile_alphabet(path: str) -> dict[str, tuple[str, str]]:
     """Парсинг данных пользователя и файлов по алфавиту"""
 
@@ -64,5 +50,27 @@ def parce_datafile_alphabet(path: str) -> dict[str, tuple[str, str]]:
     return users_data
 
 
+def parce_datafiles(path: str) -> dict[tuple[str, str]]:
+    users_data = collections.defaultdict(list)
+    for data_dir in Path(path).iterdir():
+        for data_file in data_dir.iterdir():
+            if data_file.name != "err_file.dd":
+                print(data_file.name)
+                with open(data_file, encoding="utf-8") as f:
+                    # print(f.readlines())
+                    try:
+                        data = tuple(map(lambda x: re.findall(r"(.*):(.*)", x.strip())[0], f.readlines()))
+                        # users_da
+                        users_data[data_dir.name].extend(list(data))
+                    except Exception as e:
+                        logger.exception(data_file.name)
+                        raise e
+                # users_data.extend(list(data))
+                # print(users_data)
+            # break
+        # break
+    return users_data
+
+
 if __name__ == '__main__':
-    pprint(parce_datafile("../users_datafiles"))
+    pprint(parce_datafiles("../users_datafiles"))

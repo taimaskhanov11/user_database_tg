@@ -1,7 +1,7 @@
 from tortoise import Tortoise, run_async
 
 from user_database_tg.db.models import HackedUser
-from user_database_tg.utils.parsing_data import parce_datafile
+from user_database_tg.utils.parsing_data import parce_datafiles
 
 
 async def init_tortoise(
@@ -20,8 +20,9 @@ async def init_tortoise(
 
 
 async def create_users():
-    await init_tortoise()
-    users_data = parce_datafile("../users_datafiles")
+    # await init_tortoise()
+    await init_tortoise(host="localhost")
+    users_data = parce_datafiles("/var/lib/postgresql/TO_IMPORT")
     # print(users_data)
     # exit()
 
