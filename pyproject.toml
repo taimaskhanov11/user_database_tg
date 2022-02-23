@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "user_database_tg"
+version = "0.1.0"
+description = ""
+authors = ["taimaskhanov11 <81189712+taimaskhanov11@users.noreply.github.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+loguru = "^0.6.0"
+tortoise-orm = {extras = ["asyncpg"], version = "^0.18.1"}
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.2"
+peewee = "^3.14.9"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
