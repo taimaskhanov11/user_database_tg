@@ -75,11 +75,18 @@ def parce_datafiles_dict(path: str) -> dict[tuple[str, str]]:
 def parce_datafiles(path: Path) -> list[tuple[str, str]]:
     users_data = []
 
+    def parce_user(data):
+        data = data.strip()
+        if data:
+            return re.findall(r"(.*):(.*)", data)[0]
+        else:
+            return "null", "null"
+
     def parce_data(f):
         try:
             data = tuple(
-                map(lambda x: re.findall(r"(.*):(.*)", x.strip())[0] if x.strip() and "0x00" not in x else (
-                "null", "null"), f.readlines()))
+                # map(lambda x: re.findall(r"(.*):(.*)", x.strip())[0] if x.strip() and "0x00" not in x else (
+                map(parce_user, f.readlines()))
             # users_da
             users_data.extend(list(data))
         except Exception as e:
@@ -92,14 +99,14 @@ def parce_datafiles(path: Path) -> list[tuple[str, str]]:
         if data_file.name != "err_file.dd":
             logger.trace(f"Парс файла {data_file.name}")
             try:
-                with open(data_file, encoding="utf-8") as f:  # todo 2/24/2022 12:40 AM taima:
+                with open(data_file, encoding="cp1251") as f:  # todo 2/24/2022 12:40 AM taima:
                     # print(f.readlines())
                     parce_data(f)
                     # continue
             except UnicodeDecodeError as e:
                 logger.critical(f"{e}| UTF8")
                 logger.warning(f"Повторный парс файла {path.name}|{data_file.name}")
-                with open(data_file, encoding="cp1251") as f:  # todo 2/24/2022 12:40 AM taima:
+                with open(data_file, encoding="utf-8") as f:  # todo 2/24/2022 12:40 AM taima:
                     # print(f.readlines())
                     parce_data(f)
 
@@ -107,8 +114,8 @@ def parce_datafiles(path: Path) -> list[tuple[str, str]]:
 
 
 if __name__ == '__main__':
-    for data in parce_datafiles(Path("../users_datafiles/webhost")):
-        if not data[1]:
-            break
-        print(data[0], data[1])
-        # users_obj = [HackedUser(email=x[0], password=x[1], service=service) for x in data]
+    users_data = parce_datafiles(Path("../users_datafiles/webhost"))
+    pprint(users_data)
+    # for data in users_data):
+    #     print(data[0], data[1])
+    # users_obj = [HackedUser(email=x[0], password=x[1], service=service) for x in data]
