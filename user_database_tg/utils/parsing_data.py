@@ -50,7 +50,7 @@ def parce_datafile_alphabet(path: str) -> dict[str, tuple[str, str]]:
     return users_data
 
 
-def parce_datafiles(path: str) -> dict[tuple[str, str]]:
+def parce_datafiles_dict(path: str) -> dict[tuple[str, str]]:
     users_data = collections.defaultdict(list)
     for data_dir in Path(path).iterdir():
         for data_file in data_dir.iterdir():
@@ -69,6 +69,23 @@ def parce_datafiles(path: str) -> dict[tuple[str, str]]:
                 # print(users_data)
             # break
         # break
+    return users_data
+
+
+def parce_datafiles(path: Path) -> list[tuple[str, str]]:
+    users_data = []
+    for data_file in path.iterdir():
+        if data_file.name != "err_file.dd":
+            logger.trace(f"Парс файла {data_file.name}")
+            with open(data_file, encoding="utf-8") as f:
+                # print(f.readlines())
+                try:
+                    data = tuple(map(lambda x: re.findall(r"(.*):(.*)", x.strip())[0], f.readlines()))
+                    # users_da
+                    users_data.extend(list(data))
+                except Exception as e:
+                    logger.exception(data_file.name)
+                    raise e
     return users_data
 
 
