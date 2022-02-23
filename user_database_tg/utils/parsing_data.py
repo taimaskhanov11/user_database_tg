@@ -82,8 +82,8 @@ def parce_datafiles(path: Path) -> list[tuple[str, str]]:
             # users_da
             users_data.extend(list(data))
         except Exception as e:
-            logger.critical(f"{path.name}|{data_file.name}")
-            logger.critical(e)
+            # logger.critical(f"{path.name}|{data_file.name}")
+            # logger.critical(e)
             raise e
             # raise e
 
@@ -96,6 +96,7 @@ def parce_datafiles(path: Path) -> list[tuple[str, str]]:
                     parce_data(f)
                     # continue
             except UnicodeDecodeError as e:
+                logger.warning(f"Повторный парс файла {path.name}|{data_file.name}")
                 logger.critical(f"{e}| UTF8")
                 with open(data_file, encoding="cp1251") as f:  # todo 2/24/2022 12:40 AM taima:
                     # print(f.readlines())
