@@ -39,7 +39,7 @@ async def create_users_():
             users_obj
         )
 
-
+logger.catch
 async def create_users():
     # await init_tortoise()
     await init_tortoise(host="localhost")
@@ -48,7 +48,7 @@ async def create_users():
 
         logger.debug(f"Парс {service}...")
         users_data = parce_datafiles(path)
-
+        logger.debug(f"Запарсено данных {len(users_data)}")
         for data in users_data:
             users_obj = [HackedUser(email=x[0], password=x[1], service=service) for x in data]
             await HackedUser.bulk_create(
