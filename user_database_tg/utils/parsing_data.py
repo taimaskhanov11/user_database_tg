@@ -74,21 +74,31 @@ def parce_datafiles_dict(path: str) -> dict[tuple[str, str]]:
 
 def parce_datafiles(path: Path) -> list[tuple[str, str]]:
     users_data = []
+
+    def parce_data(f):
+        try:
+            data = tuple(
+                map(lambda x: re.findall(r"(.*):(.*)", x.strip())[0] if x.strip() else ("null", "null"), f.readlines()))
+            # users_da
+            users_data.extend(list(data))
+        except Exception as e:
+            logger.exception(f"{path.name}|{data_file.name}")
+            logger.exception(e)
+            # raise e
+
     for data_file in path.iterdir():
         if data_file.name != "err_file.dd":
             logger.trace(f"Парс файла {data_file.name}")
-            with open(data_file, encoding="utf-8") as f: #todo 2/24/2022 12:40 AM taima:
-                # print(f.readlines())
-
-                # continue
-                try:
-                    data = tuple(map(lambda x: re.findall(r"(.*):(.*)", x.strip())[0] if x.strip() else ("null", "null"), f.readlines()))
-                    # users_da
-                    users_data.extend(list(data))
-                except Exception as e:
-                    logger.exception(f"{path.name}|{data_file.name}")
-                    logger.exception(e)
-                    # raise e
+            try:
+                with open(data_file, encoding="utf-8") as f:  # todo 2/24/2022 12:40 AM taima:
+                    # print(f.readlines())
+                    parce_data(f)
+                    # continue
+            except UnicodeDecodeError as e:
+                logger.exception(e)
+                with open(data_file, encoding="cp1251") as f:  # todo 2/24/2022 12:40 AM taima:
+                    # print(f.readlines())
+                    parce_data(f)
     return users_data
 
 
