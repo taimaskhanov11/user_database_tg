@@ -82,8 +82,8 @@ def parce_datafiles(path: Path) -> list[tuple[str, str]]:
             # users_da
             users_data.extend(list(data))
         except Exception as e:
-            logger.exception(f"{path.name}|{data_file.name}")
-            logger.exception(e)
+            logger.critical(f"{path.name}|{data_file.name}")
+            logger.critical(e)
             # raise e
 
     for data_file in path.iterdir():
@@ -95,10 +95,11 @@ def parce_datafiles(path: Path) -> list[tuple[str, str]]:
                     parce_data(f)
                     # continue
             except UnicodeDecodeError as e:
-                logger.exception(e)
+                logger.critical(e)
                 with open(data_file, encoding="cp1251") as f:  # todo 2/24/2022 12:40 AM taima:
                     # print(f.readlines())
                     parce_data(f)
+
     return users_data
 
 
