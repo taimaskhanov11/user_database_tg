@@ -84,6 +84,7 @@ def parce_datafiles(path: Path) -> list[tuple[str, str]]:
         except Exception as e:
             logger.critical(f"{path.name}|{data_file.name}")
             logger.critical(e)
+            raise e
             # raise e
 
     for data_file in path.iterdir():
