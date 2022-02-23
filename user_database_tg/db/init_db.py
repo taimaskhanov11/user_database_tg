@@ -10,7 +10,7 @@ from user_database_tg.utils.parsing_data import parce_datafiles
 BASE_DIR = Path(__file__).parent.parent.parent
 
 logger.remove()
-logger.add(sink=sys.stderr, level='DEBUG', enqueue=True, diagnose=True, )
+logger.add(sink=sys.stderr, level='TRACE', enqueue=True, diagnose=True, )
 logger.add(sink=Path(BASE_DIR, "paylog.log"), level='TRACE', enqueue=True, encoding='utf-8', diagnose=True, )
 
 
