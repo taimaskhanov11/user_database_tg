@@ -78,7 +78,8 @@ def parce_datafiles(path: Path) -> list[tuple[str, str]]:
     def parce_data(f):
         try:
             data = tuple(
-                map(lambda x: re.findall(r"(.*):(.*)", x.strip())[0] if x.strip() else ("null", "null"), f.readlines()))
+                map(lambda x: re.findall(r"(.*):(.*)", x.strip())[0] if x.strip() and "0x00" not in x else (
+                "null", "null"), f.readlines()))
             # users_da
             users_data.extend(list(data))
         except Exception as e:
