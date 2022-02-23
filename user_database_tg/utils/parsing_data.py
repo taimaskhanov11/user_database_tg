@@ -84,10 +84,13 @@ def parce_datafiles(path: Path) -> list[tuple[str, str]]:
                     # users_da
                     users_data.extend(list(data))
                 except Exception as e:
-                    logger.exception(data_file.name)
-                    raise e
+                    logger.exception(f"{path.name}|{data_file.name}")
+                    logger.exception(e)
+                    # raise e
     return users_data
 
 
 if __name__ == '__main__':
-    pprint(parce_datafiles("../users_datafiles"))
+    for data in parce_datafiles(Path("../users_datafiles/0charges.com")):
+        print(data[0], data[1])
+        # users_obj = [HackedUser(email=x[0], password=x[1], service=service) for x in data]
