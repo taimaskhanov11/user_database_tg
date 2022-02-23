@@ -64,7 +64,7 @@ async def create_users():
 
         await HackedUser.bulk_create(
             users_obj,
-            batch_size=20000,
+            batch_size=100000,
 
         )
         logger.info(f"{service}| Все данные сохранены")
