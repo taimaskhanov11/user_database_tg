@@ -11,7 +11,7 @@ BASE_DIR = Path(__file__).parent.parent.parent
 
 logger.remove()
 logger.add(sink=sys.stderr, level='TRACE', enqueue=True, diagnose=True, )
-logger.add(sink=Path(BASE_DIR, "paylog.log"), level='TRACE', enqueue=True, encoding='utf-8', diagnose=True, )
+logger.add(sink=Path(BASE_DIR, "logs/paylog.log"), level='TRACE', enqueue=True, encoding='utf-8', diagnose=True, )
 
 
 async def init_tortoise(
@@ -39,7 +39,7 @@ async def create_users_():
             users_obj
         )
 
-logger.catch
+@logger.catch
 async def create_users():
     # await init_tortoise()
     await init_tortoise(host="localhost")
