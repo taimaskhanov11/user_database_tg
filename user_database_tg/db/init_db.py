@@ -132,7 +132,7 @@ def run_async_create_users(path):
 
 
 @logger.catch
-def run_process_create_users(mp_context):
+def run_process_create_users():
     # logger.info(f"{current_process().name}| Всего юзеров {len(await HackedUser.all())}")
     if test:
         data_dir = Path("../users_datafiles/")
