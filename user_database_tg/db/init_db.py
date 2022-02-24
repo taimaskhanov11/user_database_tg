@@ -1,14 +1,11 @@
 import asyncio
-import multiprocessing
 import sys
 import time
-import unicodedata
-from concurrent.futures import ProcessPoolExecutor
-from pathlib import Path
-from pprint import pprint
 from multiprocessing import current_process, Process
+from pathlib import Path
+
 from loguru import logger
-from tortoise import Tortoise, run_async
+from tortoise import Tortoise
 
 from user_database_tg.db.models import HackedUser
 from user_database_tg.utils.parsing_data import parce_datafiles
@@ -50,77 +47,16 @@ async def create_users_():
 async def create_users(path):
     if test:
         await init_tortoise(host="localhost", password="postgres")
-        # data_dir = Path("../users_datafiles/")
     else:
         await init_tortoise(host="localhost")
-        # data_dir = Path("/var/lib/postgresql/TO_IMPORT")
 
-    @logger.catch
-    async def bulk_users_create(objs):
-        try:
-            # asyncio.create_task(HackedUser.bulk_create(
-            #     objs,
-            #     batch_size=batch_size,
-            # ))
-
-            await HackedUser.bulk_create(
-                objs,
-                batch_size=batch_size,
-            )
-        except Exception as e:
-            with open("incorrect_data/trash.txt", "w", encoding="utf-8") as f:
-                logger.debug("Запись в файл")
-                f.writelines(map(lambda x: f"{x[0]}:{x[1]}\n", users_data[pre:index]))
-            raise e
-
-    # for path in data_dir.iterdir():
     service = path.name
 
     logger.debug(f"{current_process()}| Парс {service}...")
     t = time.monotonic()
-    users_data = parce_datafiles(path)
+    count = await parce_datafiles(path, batch_size)
     t2 = time.monotonic() - t
-    logger.debug(f"{current_process().name}| Запарсено данных {len(users_data)}. {t2} s")
-    # for data in users_data:
-    # pprint(users_data)
-
-    # for a, b in users_data:
-    #     if a == "almacenestitch@hotmail.com" and b.startswith("ì"):
-    #         print(a, b)
-    #         print(b.replace("\x00", " "))
-    # exit()
-
-    pre = 0
-    for index in range(0, len(users_data), batch_size):
-        # for index in range(0, len(users_data), 10):
-        # print(pre, users_data)
-        logger.debug(f"{current_process().name}| Создание объектов {pre}:{index}")
-        users_objs = (HackedUser(email=x[0], password=x[1], service=service) for x in users_data[pre:index])
-
-        # loop.create_task(bulk_users_create(users_objs))
-        await bulk_users_create(users_objs)
-        logger.debug(f"{current_process().name}| Объекты созданы {pre}:{index}")
-        pre = index
-    logger.debug(f"{current_process().name}| Создание оставшихся {pre}: {len(users_data)}")
-    users_objs = (
-        HackedUser(email=x[0], password=x[1], service=service) for x in users_data[pre: len(users_data)]
-    )
-    # loop.create_task(bulk_users_create(users_objs))
-
-    await bulk_users_create(users_objs)
-    # logger.debug(f"{current_process().name}| Созданы оставшиеся {pre}:{len(users_data)}")
-
-    # users_obj = [HackedUser(email=x[0], password=x[1], service=service) for x in users_data]
-    # for user in users_obj:
-    #     logger.trace(f"{user.email}{user.password}")
-    #     await user.save()
-
-    # await HackedUser.bulk_create(
-    #     users_obj,
-    #     batch_size=100000,
-    #
-    # )
-    logger.info(f"{current_process().name}| {service}| Все данные сохранены")
+    logger.info(f"{current_process().name}|{service}| Все данные сохранены {t2}s.Всего запарсено {count}")
 
 
 @logger.catch
@@ -151,7 +87,12 @@ def run_process_create_users():
             for p in prs:
                 p.join()
             prs = []
-
+    if prs:
+        for p in prs:
+            p.start()
+        for p in prs:
+            p.join()
+        prs = []
     # mp_context = multiprocessing.get_context('fork') if not test else None
     # with multiprocessing.Pool(processes=3) as pool:
     #     results = pool.map(run_async_create_users, data_dirs)

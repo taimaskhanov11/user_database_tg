@@ -1,10 +1,13 @@
 import collections
 import re
+import time
 from multiprocessing import current_process
 from pathlib import Path
 from pprint import pprint
 
 from loguru import logger
+
+from user_database_tg.db.models import HackedUser
 
 
 def parce_datafile_dict(path: str) -> list[dict]:
@@ -72,61 +75,85 @@ def parce_datafiles_dict(path: str) -> dict[tuple[str, str]]:
         # break
     return users_data
 
+
 @logger.catch
-def parce_datafiles(path: Path) -> list[tuple[str, str]]:
+async def parce_datafiles(path: Path, batch_size):
     users_data = []
+    service = path.name
+    parce_count = 0
 
     def parce_user(data):
-        # data = data.strip() #todo 2/24/2022 6:38 PM taima:
-        # if data == "\n":
-        #     print(data)
-        # return re.findall(r"(.*):(.*)", data)[0] or "null", "null"
-        # logger.trace(data)
-        # if data:
-        #     login, password = re.findall(r"(.*):(.*)", data)[0]
-        #     return login.replace("\x00", " "), password.replace("\x00", " ")
-        # else:
-        #     logger.critical(data)
-        #     return "null", "null"
-        # if data:
         login, password = re.findall(r"(.*):(.*)", data)[0]
         return login.replace("\x00", " "), password.replace("\x00", " ")
-        # else:
-        #     logger.critical(data)
-        #     return "null", "null"
 
-    def parce_data(f):
-        # print(f.readlines())
-        data = list(
-            # map(lambda x: re.findall(r"(.*):(.*)", x.strip())[0] if x.strip() and "0x00" not in x else (
-            # map(lambda x: re.findall(r"(.*):(.*)", x.strip())[0] if x.strip() else ("null", "null"), f.readlines()))
-            map(parce_user, f.readlines()))  # todo 2/24/2022 2:00 AM taima: filter
-        # map(lambda x: re.findall(r"(.*):(.*)", x)[0], f.readlines()))  # todo 2/24/2022 2:00 AM taima: filter
-        # map(lambda x: re.findall(r"(.*):(.*)", x.decode("utf-8"))[0], f.readlines()))  # todo 2/24/2022 2:00 AM taima: filter
-        # users_da
-        logger.debug(f"{current_process().name}| Получено {data_file.name}|[{len(data)}]")
-        users_data.extend(data)
+    @logger.catch
+    async def bulk_users_create(objs):
+        try:
+            await HackedUser.bulk_create(
+                objs,
+                batch_size=batch_size,
+            )
+        except Exception as e:
+            with open("incorrect_data/trash.txt", "a", encoding="utf-8") as f:
+                logger.debug("Запись в файл")
+                f.write(f"{path.name}{data_file.name}\n")
+                # f.writelines(map(lambda x: f"{x[0]}:{x[1]}\n", users_data[pre:index]))
+            raise e
+
+    async def parce_data():
+        data = list(map(parce_user, users_data))
+        logger.debug(f"{current_process().name}|{service}|{data_file.name}| Создание объектов {len(data)}")
+        users_objs = (HackedUser(email=x[0], password=x[1], service=service) for x in data)
+        await bulk_users_create(users_objs)
+        logger.debug(f"{current_process().name}|{service}|{data_file.name}| Объекты созданы {len(data)}")
 
     for data_file in path.iterdir():
-        # for data_file in [Path(r"C:\Users\taima\PycharmProjects\user_database_tg\user_database_tg\db\trash.txt")]:
         if data_file.name != "err_file.dd":
             logger.trace(f"{current_process().name}| Парс файла {data_file.name}")
             try:
                 with open(data_file, encoding="utf-8") as f:  # todo 2/24/2022 12:40 AM taima:
-                    # with open(data_file, mode="rb") as f:  # todo 2/24/2022 12:40 AM taima:
-                    # print(f.readlines())
-                    # print(f)
-                    parce_data(f)
-                    # continue
+                    t = time.monotonic()
+                    for line in f:
+                        parce_count += 1
+                        users_data.append(line)
+                        if len(users_data) >= batch_size:
+                            t2 = time.monotonic() - t
+                            logger.debug(
+                                f"{current_process().name}|{service}|{data_file.name}| Запарсено данных {len(users_data)}. {round(t2, 1)}s")
+                            await parce_data()
+                            users_data = []
+                            t = time.monotonic()
+                    if users_data:
+                        t2 = time.monotonic() - t
+                        logger.debug(
+                            f"{current_process().name}|{service}|{data_file.name}| Парс оставшихся {len(users_data)}. {round(t2, 1)}s")
+                        await parce_data()
+                        users_data = []
+                        t = time.monotonic()
+
+
             except UnicodeDecodeError as e:
                 logger.critical(f"{current_process().name}| {e}| UTF8|{path.name}|{data_file.name}")
-                # continue  # todo 2/24/2022 3:46 PM taima:
                 logger.warning(f"{current_process().name}| Повторный парс файла {path.name}|{data_file.name}")
                 with open(data_file, encoding="cp1251") as f:  # todo 2/24/2022 12:40 AM taima:
-                    # print(f.readlines())
-                    parce_data(f)
-
-    return users_data
+                    t = time.monotonic()
+                    for line in f:
+                        users_data.append(line)
+                        if len(users_data) == batch_size:
+                            t2 = time.monotonic() - t
+                            logger.debug(
+                                f"{current_process().name}|{service}|{data_file.name}| Запарсено данных {len(users_data)}. {t2} s")
+                            await parce_data()
+                            users_data = []
+                            t = time.monotonic()
+                    if users_data:
+                        t2 = time.monotonic() - t
+                        logger.debug(
+                            f"{current_process().name}|{service}|{data_file.name}| Запарсено данных {len(users_data)}. {round(t2, 1)}s")
+                        await parce_data()
+                        users_data = []
+                        t = time.monotonic()
+    return parce_count
 
 
 if __name__ == '__main__':
