@@ -94,11 +94,12 @@ async def parce_datafiles(path: Path, batch_size):
                 batch_size=batch_size,
             )
         except Exception as e:
-            with open("incorrect_data/trash.txt", "a", encoding="utf-8") as f:
+            logger.critical(e)
+            with open("trash.txt", "a", encoding="utf-8") as f:
                 logger.debug("Запись в файл")
                 f.write(f"{path.name}{data_file.name}\n")
                 # f.writelines(map(lambda x: f"{x[0]}:{x[1]}\n", users_data[pre:index]))
-            raise e
+            # raise e
 
     async def parce_data():
         data = list(map(parce_user, users_data))

@@ -115,6 +115,12 @@ async def create_table():
         await HackedUser.all().delete()
     # await Tortoise.generate_schemas()
 
+async def chill():
+    if test:
+        await init_tortoise(host="localhost", password="postgres")
+    else:
+        await init_tortoise(host="95.105.113.65")
+
 
 if __name__ == '__main__':
     # run_async(create_users(test=True))
@@ -123,3 +129,4 @@ if __name__ == '__main__':
     # mp_context =
     run_process_create_users()
     # asyncio.run(create_table())
+    # asyncio.run(chill())
