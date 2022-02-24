@@ -86,7 +86,7 @@ def parce_datafiles(path: Path) -> list[tuple[str, str]]:
         try:
             data = tuple(
                 # map(lambda x: re.findall(r"(.*):(.*)", x.strip())[0] if x.strip() and "0x00" not in x else (
-                map(parce_user, f.readlines()))
+                map(parce_user, f.readlines())) #todo 2/24/2022 2:00 AM taima: filter
             # users_da
             users_data.extend(list(data))
         except Exception as e:
@@ -105,6 +105,7 @@ def parce_datafiles(path: Path) -> list[tuple[str, str]]:
                     # continue
             except UnicodeDecodeError as e:
                 logger.critical(f"{e}| UTF8")
+                continue  #todo 2/24/2022 3:46 PM taima:
                 logger.warning(f"Повторный парс файла {path.name}|{data_file.name}")
                 with open(data_file, encoding="utf-8") as f:  # todo 2/24/2022 12:40 AM taima:
                     # print(f.readlines())
