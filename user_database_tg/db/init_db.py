@@ -15,7 +15,7 @@ from user_database_tg.utils.parsing_data import parce_datafiles
 BASE_DIR = Path(__file__).parent.parent.parent
 
 logger.remove()
-logger.add(sink=sys.stderr, level='TRACE', enqueue=True, diagnose=True, )
+logger.add(sink=sys.stderr, level='DEBUG', enqueue=True, diagnose=True, )
 logger.add(sink=Path(BASE_DIR, "logs/paylog.log"), level='TRACE', enqueue=True, encoding='utf-8', diagnose=True, )
 
 
@@ -124,6 +124,7 @@ async def create_users(path):
 
 @logger.catch
 def run_async_create_users(path):
+    logger.info(f"Запуск процесса {current_process().name}")
     loop = asyncio.new_event_loop()
     loop.run_until_complete(create_users(path))
     # asyncio.run(create_users(path))
@@ -141,12 +142,17 @@ def run_process_create_users():
     logger.info(f"Полученные папки {[d.name for d in data_dirs]}")
     # print(zip(data_dirs, ))
     # print(list(data_dirs))
-
-    # for path in data_dirs:
-    #     Process(target=run_async_create)
-    #
-    with multiprocessing.Pool(processes=3) as pool:
-        results = pool.map(run_async_create_users, data_dirs)
+    prs = []
+    for path in data_dirs:
+        prs.append(Process(target=run_async_create_users, args=(path,)))
+        if len(prs) >= 2:
+            for p in prs:
+                p.start()
+            for p in prs:
+                p.join()
+            prs = []
+    # with multiprocessing.Pool(processes=3) as pool:
+    #     results = pool.map(run_async_create_users, data_dirs)
 
 
 test = False
