@@ -72,7 +72,7 @@ def parce_datafiles_dict(path: str) -> dict[tuple[str, str]]:
         # break
     return users_data
 
-
+@logger.catch
 def parce_datafiles(path: Path) -> list[tuple[str, str]]:
     users_data = []
 
