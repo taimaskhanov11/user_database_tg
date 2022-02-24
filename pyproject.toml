@@ -8,6 +8,9 @@ authors = ["taimaskhanov11 <81189712+taimaskhanov11@users.noreply.github.com>"]
 python = "^3.10"
 loguru = "^0.6.0"
 tortoise-orm = {extras = ["asyncpg"], version = "^0.18.1"}
+aiogram = "^2.19"
+environs = "^9.5.0"
+pyQiwiP2P = "^1.0.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"

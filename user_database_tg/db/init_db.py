@@ -71,7 +71,7 @@ def run_async_create_users(path):
 def run_process_create_users():
     # logger.info(f"{current_process().name}| Всего юзеров {len(await HackedUser.all())}")
     if test:
-        data_dir = Path("../users_datafiles/")
+        data_dir = Path("../temp/users_datafiles/")
     else:
         data_dir = Path("/var/lib/postgresql/TO_IMPORT")
     data_dirs = list(data_dir.iterdir())

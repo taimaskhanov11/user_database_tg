@@ -158,7 +158,7 @@ async def parce_datafiles(path: Path, batch_size):
 
 
 if __name__ == '__main__':
-    users_data = parce_datafiles(Path("../users_datafiles/000webhost.com_(2015.03)"))
+    users_data = parce_datafiles(Path("../temp/users_datafiles/000webhost.com_(2015.03)"))
     pprint(users_data)
     # for data in users_data):
     #     print(data[0], data[1])
