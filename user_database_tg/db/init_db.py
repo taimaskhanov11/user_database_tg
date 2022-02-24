@@ -3,6 +3,7 @@ import multiprocessing
 import sys
 import time
 import unicodedata
+from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 from pprint import pprint
 from multiprocessing import current_process, Process
@@ -142,17 +143,20 @@ def run_process_create_users():
     logger.info(f"Полученные папки {[d.name for d in data_dirs]}")
     # print(zip(data_dirs, ))
     # print(list(data_dirs))
-    prs = []
-    for path in data_dirs:
-        prs.append(Process(target=run_async_create_users, args=(path,)))
-        if len(prs) >= 2:
-            for p in prs:
-                p.start()
-            for p in prs:
-                p.join()
-            prs = []
+    # prs = []
+    # for path in data_dirs:
+    #     prs.append(Process(target=run_async_create_users, args=(path,)))
+    #     if len(prs) >= 2:
+    #         for p in prs:
+    #             p.start()
+    #         for p in prs:
+    #             p.join()
+    #         prs = []
     # with multiprocessing.Pool(processes=3) as pool:
     #     results = pool.map(run_async_create_users, data_dirs)
+    with ProcessPoolExecutor(max_workers=3) as executor:
+        # results = executor.map(run_async_create_users, data_dirs)
+        results = [executor.submit(run_async_create_users, path) for path in data_dirs]
 
 
 test = False
