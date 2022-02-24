@@ -5,7 +5,7 @@ import time
 import unicodedata
 from pathlib import Path
 from pprint import pprint
-from multiprocessing import current_process
+from multiprocessing import current_process, Process
 from loguru import logger
 from tortoise import Tortoise, run_async
 
@@ -142,7 +142,10 @@ def run_process_create_users():
     # print(zip(data_dirs, ))
     # print(list(data_dirs))
 
-    with multiprocessing.Pool() as pool:
+    # for path in data_dirs:
+    #     Process(target=run_async_create)
+    #
+    with multiprocessing.Pool(processes=3) as pool:
         results = pool.map(run_async_create_users, data_dirs)
 
 
@@ -151,8 +154,13 @@ batch_size = 500000
 
 
 async def create_table():
-    await init_tortoise(host="95.105.113.65")
+    if test:
+        await init_tortoise(host="localhost", password="postgres")
+    else:
+        await init_tortoise(host="95.105.113.65")
+
     # await Tortoise.generate_schemas()
+
 
 if __name__ == '__main__':
     # run_async(create_users(test=True))
@@ -160,4 +168,3 @@ if __name__ == '__main__':
     # asyncio.run(create_users())
     # asyncio.run(create_table())
     run_process_create_users()
-
