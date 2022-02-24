@@ -16,7 +16,7 @@ from user_database_tg.utils.parsing_data import parce_datafiles
 BASE_DIR = Path(__file__).parent.parent.parent
 
 logger.remove()
-logger.add(sink=sys.stderr, level='DEBUG', enqueue=True, diagnose=True, )
+logger.add(sink=sys.stderr, level='TRACE', enqueue=True, diagnose=True, )
 logger.add(sink=Path(BASE_DIR, "logs/paylog.log"), level='TRACE', enqueue=True, encoding='utf-8', diagnose=True, )
 
 
@@ -126,13 +126,13 @@ async def create_users(path):
 @logger.catch
 def run_async_create_users(path):
     logger.info(f"Запуск процесса {current_process().name}")
-    loop = asyncio.new_event_loop()
-    loop.run_until_complete(create_users(path))
-    # asyncio.run(create_users(path))
+    # loop = asyncio.new_event_loop()
+    # loop.run_until_complete(create_users(path))
+    asyncio.run(create_users(path))
 
 
 @logger.catch
-def run_process_create_users():
+def run_process_create_users(mp_context):
     # logger.info(f"{current_process().name}| Всего юзеров {len(await HackedUser.all())}")
     if test:
         data_dir = Path("../users_datafiles/")
@@ -155,9 +155,9 @@ def run_process_create_users():
     # with multiprocessing.Pool(processes=3) as pool:
     #     results = pool.map(run_async_create_users, data_dirs)
     with ProcessPoolExecutor(max_workers=3,
-                             mp_context=multiprocessing.get_context('fork') if not test else None) as executor:
-        # results = executor.map(run_async_create_users, data_dirs)
-        results = [executor.submit(run_async_create_users, path) for path in data_dirs]
+                             mp_context=mp_context) as executor:
+        results = executor.map(run_async_create_users, data_dirs)
+        # results = [executor.submit(run_async_create_users, path) for path in data_dirs]
 
 
 test = False
@@ -177,5 +177,6 @@ if __name__ == '__main__':
     # run_async(create_users(test=True))
     # run_async(create_users(test=True))
     # asyncio.run(create_users())
+    mp_context = multiprocessing.get_context('fork') if not test else None
+    run_process_create_users(mp_context=mp_context)
     # asyncio.run(create_table())
-    run_process_create_users()
