@@ -138,26 +138,28 @@ def run_process_create_users(mp_context):
         data_dir = Path("../users_datafiles/")
     else:
         data_dir = Path("/var/lib/postgresql/TO_IMPORT")
-
     data_dirs = list(data_dir.iterdir())
     logger.info(f"Полученные папки {[d.name for d in data_dirs]}")
     # print(zip(data_dirs, ))
     # print(list(data_dirs))
-    # prs = []
-    # for path in data_dirs:
-    #     prs.append(Process(target=run_async_create_users, args=(path,)))
-    #     if len(prs) >= 2:
-    #         for p in prs:
-    #             p.start()
-    #         for p in prs:
-    #             p.join()
-    #         prs = []
+    prs = []
+    for path in data_dirs:
+        prs.append(Process(target=run_async_create_users, args=(path,)))
+        if len(prs) >= 3:
+            for p in prs:
+                p.start()
+            for p in prs:
+                p.join()
+            prs = []
+
+    # mp_context = multiprocessing.get_context('fork') if not test else None
     # with multiprocessing.Pool(processes=3) as pool:
     #     results = pool.map(run_async_create_users, data_dirs)
-    with ProcessPoolExecutor(max_workers=3,
-                             mp_context=mp_context) as executor:
-        results = executor.map(run_async_create_users, data_dirs)
-        # results = [executor.submit(run_async_create_users, path) for path in data_dirs]
+
+    # with ProcessPoolExecutor(max_workers=3,
+    #                          mp_context=mp_context) as executor:
+    #     results = executor.map(run_async_create_users, data_dirs)
+    # results = [executor.submit(run_async_create_users, path) for path in data_dirs]
 
 
 test = False
@@ -169,7 +171,7 @@ async def create_table():
         await init_tortoise(host="localhost", password="postgres")
     else:
         await init_tortoise(host="95.105.113.65")
-
+        await HackedUser.all().delete()
     # await Tortoise.generate_schemas()
 
 
@@ -177,6 +179,6 @@ if __name__ == '__main__':
     # run_async(create_users(test=True))
     # run_async(create_users(test=True))
     # asyncio.run(create_users())
-    mp_context = multiprocessing.get_context('fork') if not test else None
-    run_process_create_users(mp_context=mp_context)
+    # mp_context =
+    run_process_create_users()
     # asyncio.run(create_table())
