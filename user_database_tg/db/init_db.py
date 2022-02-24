@@ -154,7 +154,8 @@ def run_process_create_users():
     #         prs = []
     # with multiprocessing.Pool(processes=3) as pool:
     #     results = pool.map(run_async_create_users, data_dirs)
-    with ProcessPoolExecutor(max_workers=3) as executor:
+    with ProcessPoolExecutor(max_workers=3,
+                             mp_context=multiprocessing.get_context('fork') if not test else None) as executor:
         # results = executor.map(run_async_create_users, data_dirs)
         results = [executor.submit(run_async_create_users, path) for path in data_dirs]
 
