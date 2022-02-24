@@ -1,3 +1,4 @@
+import asyncio
 import sys
 import time
 import unicodedata
@@ -51,12 +52,18 @@ async def create_users():
     batch_size = 500000
     logger.info(f"Всего юзеров {len(await HackedUser.all())}")
 
+    @logger.catch()
     async def bulk_users_create(objs):
         try:
-            await HackedUser.bulk_create(
+            asyncio.create_task(HackedUser.bulk_create(
                 objs,
                 batch_size=batch_size,
-            )
+            ))
+
+            # await HackedUser.bulk_create(
+            #     objs,
+            #     batch_size=batch_size,
+            # )
         except Exception as e:
             with open("incorrect_data/trash.txt", "w", encoding="utf-8") as f:
                 logger.debug("Запись в файл")
