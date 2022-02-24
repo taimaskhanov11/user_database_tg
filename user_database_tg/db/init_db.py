@@ -52,18 +52,18 @@ async def create_users():
     batch_size = 500000
     logger.info(f"Всего юзеров {len(await HackedUser.all())}")
 
-    @logger.catch()
+    @logger.catch
     async def bulk_users_create(objs):
         try:
-            await asyncio.create_task(HackedUser.bulk_create(
-                objs,
-                batch_size=batch_size,
-            ))
-
-            # await HackedUser.bulk_create(
+            # asyncio.create_task(HackedUser.bulk_create(
             #     objs,
             #     batch_size=batch_size,
-            # )
+            # ))
+
+            await HackedUser.bulk_create(
+                objs,
+                batch_size=batch_size,
+            )
         except Exception as e:
             with open("incorrect_data/trash.txt", "w", encoding="utf-8") as f:
                 logger.debug("Запись в файл")
@@ -96,14 +96,18 @@ async def create_users():
             # print(pre, users_data)
             logger.debug(f"Создание объектов {pre}:{index}")
             users_objs = (HackedUser(email=x[0], password=x[1], service=service) for x in users_data[pre:index])
-            await bulk_users_create(users_objs)
+
+            asyncio.create_task(bulk_users_create(users_objs))
+            # await bulk_users_create(users_objs)
             logger.debug(f"Объекты созданы {pre}:{index}")
             pre = index
         logger.debug(f"Создание оставшихся {pre}: {len(users_data)}")
         users_objs = (
             HackedUser(email=x[0], password=x[1], service=service) for x in users_data[pre: len(users_data)]
         )
-        await bulk_users_create(users_objs)
+        asyncio.create_task(bulk_users_create(users_objs))
+
+        # await bulk_users_create(users_objs)
         logger.debug(f"Созданы оставшиеся {pre}:{len(users_data)}")
 
         # users_obj = [HackedUser(email=x[0], password=x[1], service=service) for x in users_data]
