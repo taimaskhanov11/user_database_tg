@@ -99,7 +99,7 @@ def parce_datafiles(path: Path) -> list[tuple[str, str]]:
         if data_file.name != "err_file.dd":
             logger.trace(f"Парс файла {data_file.name}")
             try:
-                with open(data_file, encoding="cp1251") as f:  # todo 2/24/2022 12:40 AM taima:
+                with open(data_file, encoding="utf-8") as f:  # todo 2/24/2022 12:40 AM taima:
                     # print(f.readlines())
                     parce_data(f)
                     # continue
@@ -107,7 +107,7 @@ def parce_datafiles(path: Path) -> list[tuple[str, str]]:
                 logger.critical(f"{e}| UTF8")
                 continue  #todo 2/24/2022 3:46 PM taima:
                 logger.warning(f"Повторный парс файла {path.name}|{data_file.name}")
-                with open(data_file, encoding="utf-8") as f:  # todo 2/24/2022 12:40 AM taima:
+                with open(data_file, encoding="cp1251") as f:  # todo 2/24/2022 12:40 AM taima:
                     # print(f.readlines())
                     parce_data(f)
 
