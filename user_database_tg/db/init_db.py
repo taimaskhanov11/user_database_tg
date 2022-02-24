@@ -55,7 +55,7 @@ async def create_users():
     @logger.catch()
     async def bulk_users_create(objs):
         try:
-            asyncio.create_task(HackedUser.bulk_create(
+            await asyncio.create_task(HackedUser.bulk_create(
                 objs,
                 batch_size=batch_size,
             ))
