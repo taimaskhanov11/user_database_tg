@@ -124,7 +124,9 @@ async def create_users(path):
 
 @logger.catch
 def run_async_create_users(path):
-    asyncio.run(create_users(path))
+    loop = asyncio.new_event_loop()
+    loop.run_until_complete(create_users(path))
+    # asyncio.run(create_users(path))
 
 
 @logger.catch
@@ -147,8 +149,15 @@ def run_process_create_users():
 test = False
 batch_size = 500000
 
+
+async def create_table():
+    await init_tortoise(host="95.105.113.65")
+    # await Tortoise.generate_schemas()
+
 if __name__ == '__main__':
     # run_async(create_users(test=True))
     # run_async(create_users(test=True))
     # asyncio.run(create_users())
+    # asyncio.run(create_table())
     run_process_create_users()
+
