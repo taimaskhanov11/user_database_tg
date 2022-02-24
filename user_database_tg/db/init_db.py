@@ -49,6 +49,7 @@ async def create_users():
     # await init_tortoise(host="localhost", password="postgres")
     await init_tortoise(host="localhost")
     batch_size = 500000
+    logger.info(f"Всего юзеров {len(await HackedUser.all())}")
 
     async def bulk_users_create(objs):
         try:
@@ -65,7 +66,7 @@ async def create_users():
     # for path in Path("../test2/").iterdir():
     # for path in Path("../test_users_datafiles/").iterdir():
     for path in Path("/var/lib/postgresql/TO_IMPORT").iterdir():
-    # for path in Path("../users_datafiles/").iterdir():
+        # for path in Path("../users_datafiles/").iterdir():
         service = path.name
 
         logger.debug(f"Парс {service}...")
