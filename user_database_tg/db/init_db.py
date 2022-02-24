@@ -1,4 +1,6 @@
 import sys
+import time
+import unicodedata
 from pathlib import Path
 from pprint import pprint
 
@@ -46,27 +48,66 @@ async def create_users():
     # await init_tortoise()
     # await init_tortoise(host="localhost", password="postgres")
     await init_tortoise(host="localhost")
+    batch_size = 500000
+
+    async def bulk_users_create(objs):
+        try:
+            await HackedUser.bulk_create(
+                objs,
+                batch_size=batch_size,
+            )
+        except Exception as e:
+            with open("incorrect_data/trash.txt", "w", encoding="utf-8") as f:
+                logger.debug("Запись в файл")
+                f.writelines(map(lambda x: f"{x[0]}:{x[1]}\n", users_data[pre:index]))
+            raise e
+
+    # for path in Path("../test2/").iterdir():
+    # for path in Path("../test_users_datafiles/").iterdir():
     for path in Path("/var/lib/postgresql/TO_IMPORT").iterdir():
-        # for path in Path("../users_datafiles/").iterdir():
+    # for path in Path("../users_datafiles/").iterdir():
         service = path.name
 
         logger.debug(f"Парс {service}...")
+        t = time.monotonic()
         users_data = parce_datafiles(path)
-        logger.debug(f"Запарсено данных {len(users_data)}")
+        t2 = time.monotonic() - t
+        logger.debug(f"Запарсено данных {len(users_data)}. {t2} s")
         # for data in users_data:
         # pprint(users_data)
-        users_obj = [HackedUser(email=x[0], password=x[1], service=service) for x in users_data]
 
+        # for a, b in users_data:
+        #     if a == "almacenestitch@hotmail.com" and b.startswith("ì"):
+        #         print(a, b)
+        #         print(b.replace("\x00", " "))
+        # exit()
+
+        pre = 0
+        for index in range(0, len(users_data), batch_size):
+            # for index in range(0, len(users_data), 10):
+            # print(pre, users_data)
+            logger.debug(f"Создание объектов {pre}:{index}")
+            users_objs = (HackedUser(email=x[0], password=x[1], service=service) for x in users_data[pre:index])
+            await bulk_users_create(users_objs)
+            logger.debug(f"Объекты созданы {pre}:{index}")
+            pre = index
+        logger.debug(f"Создание оставшихся {pre}: {len(users_data)}")
+        users_objs = (
+            HackedUser(email=x[0], password=x[1], service=service) for x in users_data[pre: len(users_data)]
+        )
+        await bulk_users_create(users_objs)
+        logger.debug(f"Созданы оставшиеся {pre}:{len(users_data)}")
+
+        # users_obj = [HackedUser(email=x[0], password=x[1], service=service) for x in users_data]
         # for user in users_obj:
         #     logger.trace(f"{user.email}{user.password}")
         #     await user.save()
-        # HackedUser.save()
 
-        await HackedUser.bulk_create(
-            users_obj,
-            batch_size=100000,
-
-        )
+        # await HackedUser.bulk_create(
+        #     users_obj,
+        #     batch_size=100000,
+        #
+        # )
         logger.info(f"{service}| Все данные сохранены")
 
 
