@@ -84,6 +84,10 @@ async def parce_datafiles(path: Path, batch_size):
 
     def parce_user(data):
         login, password = re.findall(r"(.*):(.*)", data)[0]
+        if login > 254:
+            login = login[:254]
+        if password > 254:
+            password = password[:254]
         return login.replace("\x00", " "), password.replace("\x00", " ")
 
     @logger.catch

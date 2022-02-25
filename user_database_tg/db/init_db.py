@@ -5,7 +5,8 @@ from multiprocessing import current_process, Process
 from pathlib import Path
 
 from loguru import logger
-from tortoise import Tortoise
+from tortoise import Tortoise, BaseDBAsyncClient
+from tortoise.backends.asyncpg import AsyncpgDBClient
 
 from user_database_tg.db.models import HackedUser
 from user_database_tg.utils.parsing_data import parce_datafiles
@@ -115,11 +116,21 @@ async def create_table():
         await HackedUser.all().delete()
     # await Tortoise.generate_schemas()
 
+
 async def chill():
     if test:
         await init_tortoise(host="localhost", password="postgres")
     else:
         await init_tortoise(host="95.105.113.65")
+
+    # print(await HackedUser.filter(email="eldi-roy@rambler.ru"))
+    con:AsyncpgDBClient = Tortoise.get_connection("default")
+    res = await con.execute_script(
+        """select * from HackedUser ou
+where (select count(*) from HackedUser inr
+where inr.email = ou.email) > 1"""
+    )
+    print(res)
 
 
 if __name__ == '__main__':

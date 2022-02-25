@@ -15,7 +15,15 @@ from user_database_tg.app.handlers.common_commands import register_handlers_comm
 
 log.remove()
 log.add(sink=sys.stderr, level='DEBUG', enqueue=True, diagnose=True, )
-log.add(sink=f"../logs/paylog.log", level='TRACE', enqueue=True, encoding='utf-8', diagnose=True, )
+log.add(
+    sink=f"../logs/paylog.log",
+    level='TRACE',
+    enqueue=True,
+    encoding='utf-8',
+    diagnose=True,
+    rotation="10MB",
+    compression="zip",
+)
 
 logging.basicConfig(
     level=logging.DEBUG,
