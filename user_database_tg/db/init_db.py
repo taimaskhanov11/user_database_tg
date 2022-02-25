@@ -111,7 +111,7 @@ def run_process_create_users(processes=3):
     def executor_run():
         with ProcessPoolExecutor(
                 max_workers=3,
-                mp_context=multiprocessing.get_context('spawn')) as executor:
+                mp_context=multiprocessing.get_context('fork')) as executor:
             results = executor.map(run_async_create_users, data_dirs)
 
     # custom_pull_run()
