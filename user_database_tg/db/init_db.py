@@ -15,7 +15,16 @@ BASE_DIR = Path(__file__).parent.parent.parent
 
 logger.remove()
 logger.add(sink=sys.stderr, level='TRACE', enqueue=True, diagnose=True, )
-logger.add(sink=Path(BASE_DIR, "logs/paylog.log"), level='TRACE', enqueue=True, encoding='utf-8', diagnose=True, )
+# logger.add(sink=Path(BASE_DIR, "logs/paylog.log"), level='TRACE', enqueue=True, encoding='utf-8', diagnose=True, )
+logger.add(
+    sink=Path(BASE_DIR, "logs/database.log"),
+    level='TRACE',
+    enqueue=True,
+    encoding='utf-8',
+    diagnose=True,
+    rotation="5MB",
+    # compression="zip",
+)
 
 
 async def init_tortoise(
