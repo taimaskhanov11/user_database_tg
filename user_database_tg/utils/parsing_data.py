@@ -14,7 +14,7 @@ from user_database_tg.db.models import HackedUser
 class DataParser:
     """DataParser"""
 
-    def __init__(self, path: Path, batch_size: int):
+    def __init__(self, path: Path, batch_size: int = 500000):
 
         self.users_data = collections.defaultdict(list)
         self.path = path

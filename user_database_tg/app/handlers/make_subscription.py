@@ -1,39 +1,52 @@
 import random
+import re
 
 from aiogram import Dispatcher, types
-from pyqiwip2p import QiwiP2P
+from loguru import logger
 
 from user_database_tg.app import markups
-from user_database_tg.config.config import QIWI_TOKEN
+from user_database_tg.app.messages.menu import SUBSCRIBE_PRE
+from user_database_tg.app.utils.payment_processes import check_payment
+from user_database_tg.config.config import p2p
+from user_database_tg.db.models import User, Billing
 
-p2p = QiwiP2P(auth_key=QIWI_TOKEN)
 
-
-async def subscribe_day(call: types.CallbackQuery):  # todo 2/25/2022 1:14 AM taima: сделать универсальным
-    comment = f"{call.from_user.id}_{random.randint(1000, 9999)}"
-    bill = p2p.bill(amount=3, lifetime=15, comment=comment)
-    # create bill #todo 2/25/2022 1:10 AM taima:
+@logger.catch
+async def subscribe(call: types.CallbackQuery):  # todo 2/25/2022 1:14 AM taima: сделать универсальным
+    user = await User.get_or_new(call.from_user.id, call.from_user.username)
+    bill = await Billing.get_or_none(user=user)
+    if bill:
+        await call.message.answer(f"Ожидание оплаты предыдущего запроса",
+                                  reply_markup=markups.get_subscribe_menu(wait=True))
+        return
+    duration, day_limit, amount = re.findall(r"_d(.*)_(.*)_(.*)", call.data)[0]
+    days = int(duration) * 30  # todo 2/25/2022 11:49 PM taima:
+    comment = f"{call.from_user.id}_{duration}_{random.randint(1000, 9999)}"
+    logger.info(comment)
+    bill = await p2p.bill(bill_id=random.randint(10000000, 999999999), amount=amount, lifetime=15, comment=comment)
+    logger.critical(bill.bill_id)
+    await Billing.create_receipt(user, bill.bill_id, amount, duration, day_limit)
     await call.message.delete()
     await call.message.answer(
-        "Подписка на день. 3 руб.\n"
-        "После оплаты дождитесь сообщения от бота о поступлении оплаты."
-        "Обычно это занимает до 5 минут.",
+        SUBSCRIBE_PRE.format(days=days, amount=amount),
         reply_markup=markups.get_subscribe(bill.pay_url)
     )
+    await check_payment(bill.bill_id, call.from_user.id)
 
-async def subscribe_month(call: types.CallbackQuery):
-    comment = f"{call.from_user.id}_{random.randint(1000, 9999)}"
-    bill = p2p.bill(amount=30, lifetime=15, comment=comment)
-    # create bill #todo 2/25/2022 1:10 AM taima:
-    await call.message.delete()
-    await call.message.answer(
-        "Подписка на день. 10 руб.\n"
-        "После оплаты дождитесь сообщения от бота о поступлении оплаты."
-        "Обычно это занимает до 5 минут.",
-        reply_markup=markups.get_subscribe(bill.pay_url)
-    )
+
+@logger.catch
+async def reject_payment(call: types.CallbackQuery):
+    user = await User.get_or_new(call.from_user.id, call.from_user.username)
+    bill = await Billing.get(user=user).select_related("subscription")
+    logger.info(bill.bill_id)
+    logger.info(bill)
+    # bill = await Billing.get(user=user).select_related("subscription")
+    print(await p2p.reject(bill.bill_id))
+
+    await call.message.answer(f"Подписка {bill.subscription.title} отменена")
 
 
 def register_handlers_subscriptions(dp: Dispatcher):
-    dp.register_callback_query_handler(subscribe_day, text="subscribe_day")
-    dp.register_callback_query_handler(subscribe_month, text="subscribe_month")
+    dp.register_callback_query_handler(subscribe, text_startswith="subscribe_")
+    dp.register_callback_query_handler(reject_payment, text="reject_payment")
+    # dp.register_callback_query_handler(subscribe_month, text="subscribe_month")

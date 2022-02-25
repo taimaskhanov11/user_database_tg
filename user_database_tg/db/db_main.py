@@ -6,26 +6,15 @@ from concurrent.futures import ProcessPoolExecutor
 from multiprocessing import current_process, Process
 from pathlib import Path
 from queue import Queue
-
 from loguru import logger
 from tortoise import Tortoise
 
+from user_database_tg.config.config import TEST
 from user_database_tg.utils.parsing_data import DataParser
+
 
 BASE_DIR = Path(__file__).parent.parent.parent
 
-logger.remove()
-logger.add(sink=sys.stderr, level='TRACE', enqueue=True, diagnose=True, )
-# logger.add(sink=Path(BASE_DIR, "logs/paylog.log"), level='TRACE', enqueue=True, encoding='utf-8', diagnose=True, )
-logger.add(
-    sink=Path(BASE_DIR, "logs/database.log"),
-    level='TRACE',
-    enqueue=True,
-    encoding='utf-8',
-    diagnose=True,
-    rotation="5MB",
-    # compression="zip",
-)
 
 
 async def init_tortoise(
@@ -35,6 +24,7 @@ async def init_tortoise(
         port=5432,
         db_name="users_database"
 ):
+    logger.debug(f"Инициализация BD {host}")
     await Tortoise.init(  # todo
         # _create_db=True,
         db_url=f'postgres://{username}:{password}@{host}:{port}/{db_name}',
@@ -45,7 +35,7 @@ async def init_tortoise(
 
 @logger.catch
 async def create_users(path):
-    if test:
+    if TEST:
         await init_tortoise(host="localhost", password="postgres")
     else:
         await init_tortoise(host="localhost")
@@ -55,7 +45,7 @@ async def create_users(path):
     logger.debug(f"{current_process()}| Парс {service}...")
     t = time.monotonic()
     errors = ""
-    data_parser = DataParser(path, batch_size)
+    data_parser = DataParser(path)
     try:
         await data_parser.parce_datafiles()
     except Exception as e:
@@ -78,7 +68,7 @@ def run_async_create_users(path):
 @logger.catch
 def run_process_create_users(processes=3):
     # logger.info(f"{current_process().name}| Всего юзеров {len(await HackedUser.all())}")
-    if test:
+    if TEST:
         data_dir = Path("../temp/users_datafiles/")
     else:
         data_dir = Path("/var/lib/postgresql/TO_IMPORT")
@@ -151,9 +141,15 @@ def run_process_create_users(processes=3):
     # pool_run()
     # executor_run()
 
+async def init_db():
+    if TEST:
+        await init_tortoise(host="localhost", password="postgres")
+    else:
+        await init_tortoise(host="95.105.113.65")
+
 
 async def create_table():
-    if test:
+    if TEST:
         await init_tortoise(host="localhost", password="postgres")
     else:
         await init_tortoise(host="95.105.113.65")
@@ -162,30 +158,40 @@ async def create_table():
 
 
 async def chill():
-    if test:
+    if TEST:
         await init_tortoise(host="localhost", password="postgres")
     else:
         await init_tortoise(host="95.105.113.65")
 
-    # print(await HackedUser.filter(service="unknown_site_name").count())
-    # con: AsyncpgDBClient = Tortoise.get_connection("default")
+    for m in models.__all__:
+        h = getattr(models, m)
+        await h.all().count()
 
 
-#     res = await con.execute_script(
-#         """select * from HackedUser ou
-# where (select count(*) from HackedUser inr
-# where inr.email = ou.email) > 1"""
-#     )
-#     print(res)
+async def chill2():
+    await init_tortoise(host="95.105.113.65")
+    for m in models.__all__:
+        h: models.HackedUser = getattr(models, m)
+        print(await h.all())
+        # await h.all().count()
 
-test = False
-batch_size = 500000
 
 if __name__ == '__main__':
-    # run_async(create_users(test=True))
-    # run_async(create_users(test=True))
+    logger.remove()
+    logger.add(sink=sys.stderr, level='TRACE', enqueue=True, diagnose=True, )
+    # logger.add(sink=Path(BASE_DIR, "logs/paylog.log"), level='TRACE', enqueue=True, encoding='utf-8', diagnose=True, )
+    logger.add(
+        sink=Path(BASE_DIR, "logs/database.log"),
+        level='TRACE',
+        enqueue=True,
+        encoding='utf-8',
+        diagnose=True,
+        rotation="5MB",
+        # compression="zip",
+    )
+
     # asyncio.run(create_users())
     # mp_context =
-    # asyncio.run(create_table())
-    run_process_create_users(4)
-    # asyncio.run(chill())
+    asyncio.run(create_table())
+    # run_process_create_users(4)
+    # asyncio.run(chill2())
