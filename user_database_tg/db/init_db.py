@@ -2,6 +2,7 @@ import asyncio
 import multiprocessing
 import sys
 import time
+from concurrent.futures import ProcessPoolExecutor
 from multiprocessing import current_process, Process
 from pathlib import Path
 
@@ -106,11 +107,16 @@ def run_process_create_users(processes=3):
         # mp_context = multiprocessing.get_context('fork') if not test else None
         with multiprocessing.Pool(processes=processes) as pool:
             results = pool.map(run_async_create_users, data_dirs)
-    pool_run()
-        # with ProcessPoolExecutor(max_workers=3,
-        #                          mp_context=mp_context) as executor:
-        #     results = executor.map(run_async_create_users, data_dirs)
-        # results = [executor.submit(run_async_create_users, path) for path in data_dirs]
+
+    def executor_run():
+        with ProcessPoolExecutor(
+                max_workers=3,
+                mp_context=multiprocessing.get_context('spawn')) as executor:
+            results = executor.map(run_async_create_users, data_dirs)
+
+    # custom_pull_run()
+    # pool_run()
+    executor_run()
 
 
 
@@ -140,9 +146,8 @@ async def chill():
 #     )
 #     print(res)
 
-test = True
+test = False
 batch_size = 500000
-
 
 if __name__ == '__main__':
     # run_async(create_users(test=True))
