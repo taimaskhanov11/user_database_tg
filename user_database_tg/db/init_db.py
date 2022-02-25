@@ -147,8 +147,8 @@ def run_process_create_users(processes=3):
             results = executor.map(run_async_create_users, data_dirs)
 
     # custom_pull_run()
-    custom_pull_run2()
-    # pool_run()
+    # custom_pull_run2()
+    pool_run()
     # executor_run()
 
 
