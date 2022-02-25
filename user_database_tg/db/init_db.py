@@ -5,6 +5,7 @@ import time
 from concurrent.futures import ProcessPoolExecutor
 from multiprocessing import current_process, Process
 from pathlib import Path
+from queue import Queue
 
 from loguru import logger
 from tortoise import Tortoise
@@ -59,7 +60,7 @@ async def create_users(path):
         await data_parser.parce_datafiles()
     except Exception as e:
         logger.critical(e)
-        raise e
+        # raise e
         errors += f"{current_process().name}|{service} Ошибка"
     t2 = time.monotonic() - t
     logger.info(
@@ -86,6 +87,7 @@ def run_process_create_users(processes=3):
 
     # print(zip(data_dirs, ))
     # print(list(data_dirs))
+
     def custom_pull_run():
         prs = []
         for path in data_dirs:
@@ -103,22 +105,51 @@ def run_process_create_users(processes=3):
                 p.join()
             prs = []
 
+    def custom_pull_run2():
+        prs = [Process(target=run_async_create_users, args=(path,)) for path in data_dirs]
+        start_prs = []
+        while True:
+            if len(start_prs) >= processes:
+                for start_pr in start_prs:
+                    if not start_pr.is_alive():
+                        logger.warning(f"Завершение старого процесса {start_pr.name}")
+                        start_prs.remove(start_pr)
+                        try:
+                            pr = prs.pop()
+                            logger.success(f"Создание процесса {pr.name}. Оставшиеся {prs}.Запущенные {start_prs}")
+                            pr.start()
+                            start_prs.append(pr)
+                        except IndexError as e:
+                            pass
+            else:
+                if not prs:
+                    logger.critical("Завершение хендлера процессов")
+                    break
+                else:
+                    pr = prs.pop()
+                    logger.success(f"Создание процесса {pr.name}. Оставшиеся {prs}.Запущенные {start_prs}")
+                    pr.start()
+                    start_prs.append(pr)
+            time.sleep(5)
+
     def pool_run():
         # mp_context = multiprocessing.get_context('fork') if not test else None
         with multiprocessing.Pool(processes=processes) as pool:
             # results = pool.map(run_async_create_users, data_dirs)
             pool.map(run_async_create_users, data_dirs)
             pool.join()
+
     def executor_run():
         with ProcessPoolExecutor(
                 max_workers=3,
-                mp_context=multiprocessing.get_context('fork')) as executor:
+                # mp_context=multiprocessing.get_context('fork')
+        ) as executor:
             results = executor.map(run_async_create_users, data_dirs)
 
     # custom_pull_run()
-    pool_run()
+    custom_pull_run2()
+    # pool_run()
     # executor_run()
-
 
 
 async def create_table():
