@@ -106,7 +106,8 @@ def run_process_create_users(processes=3):
     def pool_run():
         # mp_context = multiprocessing.get_context('fork') if not test else None
         with multiprocessing.Pool(processes=processes) as pool:
-            results = pool.map(run_async_create_users, data_dirs)
+            # results = pool.map(run_async_create_users, data_dirs)
+            results = pool.imap(run_async_create_users, data_dirs)
 
     def executor_run():
         with ProcessPoolExecutor(
@@ -115,8 +116,8 @@ def run_process_create_users(processes=3):
             results = executor.map(run_async_create_users, data_dirs)
 
     # custom_pull_run()
-    # pool_run()
-    executor_run()
+    pool_run()
+    # executor_run()
 
 
 
