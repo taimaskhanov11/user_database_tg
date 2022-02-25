@@ -1,15 +1,14 @@
 import asyncio
+import multiprocessing
 import sys
 import time
 from multiprocessing import current_process, Process
 from pathlib import Path
 
 from loguru import logger
-from tortoise import Tortoise, BaseDBAsyncClient
-from tortoise.backends.asyncpg import AsyncpgDBClient
+from tortoise import Tortoise
 
-from user_database_tg.db.models import HackedUser
-from user_database_tg.utils.parsing_data import parce_datafiles
+from user_database_tg.utils.parsing_data import DataParser
 
 BASE_DIR = Path(__file__).parent.parent.parent
 
@@ -42,17 +41,6 @@ async def init_tortoise(
     await Tortoise.generate_schemas()
 
 
-async def create_users_():
-    # await init_tortoise()
-    await init_tortoise(host="localhost", password="postgres")
-    users_data = parce_datafiles("/var/lib/postgresql/TO_IMPORT")
-    for service, data in users_data.items():
-        users_obj = [HackedUser(email=x[0], password=x[1], service=service) for x in data]
-        await HackedUser.bulk_create(
-            users_obj
-        )
-
-
 @logger.catch
 async def create_users(path):
     if test:
@@ -65,14 +53,16 @@ async def create_users(path):
     logger.debug(f"{current_process()}| Парс {service}...")
     t = time.monotonic()
     errors = ""
-    count = 0
+    data_parser = DataParser(path, batch_size)
     try:
-        count = await parce_datafiles(path, batch_size)
+        await data_parser.parce_datafiles()
     except Exception as e:
         logger.critical(e)
+        raise e
         errors += f"{current_process().name}|{service} Ошибка"
     t2 = time.monotonic() - t
-    logger.info(f"{current_process().name}|{service}| Все данные сохранены {t2}s.Всего запарсено {count} {errors}")
+    logger.info(
+        f"{current_process().name}|{service}| Все данные сохранены {t2}s.Всего запарсено {data_parser.all_count} {errors}")
 
 
 @logger.catch
@@ -84,7 +74,7 @@ def run_async_create_users(path):
 
 
 @logger.catch
-def run_process_create_users():
+def run_process_create_users(processes=3):
     # logger.info(f"{current_process().name}| Всего юзеров {len(await HackedUser.all())}")
     if test:
         data_dir = Path("../temp/users_datafiles/")
@@ -92,35 +82,36 @@ def run_process_create_users():
         data_dir = Path("/var/lib/postgresql/TO_IMPORT")
     data_dirs = list(data_dir.iterdir())
     logger.info(f"Полученные папки {[d.name for d in data_dirs]}")
+
     # print(zip(data_dirs, ))
     # print(list(data_dirs))
-    prs = []
-    for path in data_dirs:
-        prs.append(Process(target=run_async_create_users, args=(path,)))
-        if len(prs) >= 3:
+    def custom_pull_run():
+        prs = []
+        for path in data_dirs:
+            prs.append(Process(target=run_async_create_users, args=(path,)))
+            if len(prs) >= processes:
+                for p in prs:
+                    p.start()
+                for p in prs:
+                    p.join()
+                prs = []
+        if prs:
             for p in prs:
                 p.start()
             for p in prs:
                 p.join()
             prs = []
-    if prs:
-        for p in prs:
-            p.start()
-        for p in prs:
-            p.join()
-        prs = []
-    # mp_context = multiprocessing.get_context('fork') if not test else None
-    # with multiprocessing.Pool(processes=3) as pool:
-    #     results = pool.map(run_async_create_users, data_dirs)
 
-    # with ProcessPoolExecutor(max_workers=3,
-    #                          mp_context=mp_context) as executor:
-    #     results = executor.map(run_async_create_users, data_dirs)
-    # results = [executor.submit(run_async_create_users, path) for path in data_dirs]
+    def pool_run():
+        # mp_context = multiprocessing.get_context('fork') if not test else None
+        with multiprocessing.Pool(processes=processes) as pool:
+            results = pool.map(run_async_create_users, data_dirs)
+    pool_run()
+        # with ProcessPoolExecutor(max_workers=3,
+        #                          mp_context=mp_context) as executor:
+        #     results = executor.map(run_async_create_users, data_dirs)
+        # results = [executor.submit(run_async_create_users, path) for path in data_dirs]
 
-
-test = False
-batch_size = 500000
 
 
 async def create_table():
@@ -128,7 +119,7 @@ async def create_table():
         await init_tortoise(host="localhost", password="postgres")
     else:
         await init_tortoise(host="95.105.113.65")
-        await HackedUser.all().delete()
+        # await HackedUser.all().delete()
     await Tortoise.generate_schemas()
 
 
@@ -138,14 +129,19 @@ async def chill():
     else:
         await init_tortoise(host="95.105.113.65")
 
-    # print(await HackedUser.filter(email="eldi-roy@rambler.ru"))
-    con: AsyncpgDBClient = Tortoise.get_connection("default")
-    res = await con.execute_script(
-        """select * from HackedUser ou
-where (select count(*) from HackedUser inr
-where inr.email = ou.email) > 1"""
-    )
-    print(res)
+    # print(await HackedUser.filter(service="unknown_site_name").count())
+    # con: AsyncpgDBClient = Tortoise.get_connection("default")
+
+
+#     res = await con.execute_script(
+#         """select * from HackedUser ou
+# where (select count(*) from HackedUser inr
+# where inr.email = ou.email) > 1"""
+#     )
+#     print(res)
+
+test = True
+batch_size = 500000
 
 
 if __name__ == '__main__':
@@ -153,6 +149,6 @@ if __name__ == '__main__':
     # run_async(create_users(test=True))
     # asyncio.run(create_users())
     # mp_context =
-    run_process_create_users()
-    # asyncio.run(create_table())
+    asyncio.run(create_table())
+    run_process_create_users(4)
     # asyncio.run(chill())
