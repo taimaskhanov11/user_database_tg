@@ -84,9 +84,9 @@ async def parce_datafiles(path: Path, batch_size):
 
     def parce_user(data):
         login, password = re.findall(r"(.*):(.*)", data)[0]
-        if login > 254:
+        if len(login) > 254:
             login = login[:254]
-        if password > 254:
+        if len(password) > 254:
             password = password[:254]
         return login.replace("\x00", " "), password.replace("\x00", " ")
 
@@ -99,7 +99,7 @@ async def parce_datafiles(path: Path, batch_size):
             )
         except Exception as e:
             logger.critical(e)
-            with open("trash.txt", "a", encoding="utf-8") as f:
+            with open("error_files.txt", "a", encoding="utf-8") as f:
                 logger.debug("Запись в файл")
                 f.write(f"{path.name}{data_file.name}\n")
                 # f.writelines(map(lambda x: f"{x[0]}:{x[1]}\n", users_data[pre:index]))

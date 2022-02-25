@@ -55,9 +55,15 @@ async def create_users(path):
 
     logger.debug(f"{current_process()}| Парс {service}...")
     t = time.monotonic()
-    count = await parce_datafiles(path, batch_size)
+    errors = ""
+    count = 0
+    try:
+        count = await parce_datafiles(path, batch_size)
+    except Exception as e:
+        logger.critical(e)
+        errors += f"{current_process().name}|{service} Ошибка"
     t2 = time.monotonic() - t
-    logger.info(f"{current_process().name}|{service}| Все данные сохранены {t2}s.Всего запарсено {count}")
+    logger.info(f"{current_process().name}|{service}| Все данные сохранены {t2}s.Всего запарсено {count} {errors}")
 
 
 @logger.catch
@@ -114,7 +120,7 @@ async def create_table():
     else:
         await init_tortoise(host="95.105.113.65")
         await HackedUser.all().delete()
-    # await Tortoise.generate_schemas()
+    await Tortoise.generate_schemas()
 
 
 async def chill():
@@ -124,7 +130,7 @@ async def chill():
         await init_tortoise(host="95.105.113.65")
 
     # print(await HackedUser.filter(email="eldi-roy@rambler.ru"))
-    con:AsyncpgDBClient = Tortoise.get_connection("default")
+    con: AsyncpgDBClient = Tortoise.get_connection("default")
     res = await con.execute_script(
         """select * from HackedUser ou
 where (select count(*) from HackedUser inr
