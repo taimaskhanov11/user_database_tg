@@ -2,7 +2,7 @@ from aiogram import types
 from aiogram.dispatcher.middlewares import BaseMiddleware
 from loguru import logger
 
-from user_database_tg.db.models import User
+from user_database_tg.db.models import DbUser
 
 
 class FatherMiddleware(BaseMiddleware):
@@ -17,7 +17,7 @@ class FatherMiddleware(BaseMiddleware):
     # 3
     async def on_process_message(self, message: types.Message, data: dict):
         logger.info(f"3.Pre Process Message, {data=}")
-        user = await User.get_or_new(message.from_user.id, message.from_user.username)
+        user = await DbUser.get_or_new(message.from_user.id, message.from_user.username)
         data["user"] = user
         # data["user"] = User.get_or_create(user_id=message.from_user.id, defaults={
         #

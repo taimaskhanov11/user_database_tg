@@ -22,39 +22,49 @@ class Subscription(models.Model):
     day_limit = fields.IntField(default=3, null=True)
 
 
-class User(models.Model):
+class DbUser(models.Model):
     user_id = fields.IntField(index=True)
     username = fields.CharField(max_length=255)
     subscription = fields.OneToOneField("models.Subscription")
+    language = fields.CharField(max_length=20, null=True, default=None)
+    is_search = fields.BooleanField(default=False)
 
     @classmethod
     async def new(cls, message: types.Message):
         pass
 
+    # @classmethod
+    # @logger.catch
+    # async def get_or_new(cls, user_id, username) -> 'User':
+    #     user = await cls.get_or_none(user_id=user_id).select_related("subscription")
+    #     await cls.get_or_create()
+    #     is_created = False
+    #     if not user:
+    #         user = await cls.create(
+    #             user_id=user_id,
+    #             username=username,
+    #             subscription=await Subscription.create(
+    #
+    #             ),
+    #         )
+    #         is_created = True
+    #     if is_created:
+    #         logger.info(f"Создание нового пользователя {user_id} {username}")
+    #     return user
+
     @classmethod
     @logger.catch
-    async def get_or_new(cls, user_id, username) -> 'User':
-        user = await cls.get_or_none(user_id=user_id)
-        is_created = False
-        if not user:
-            user = await cls.create(
-                user_id=user_id,
-                username=username,
-                subscription=await Subscription.create(
-
-                ),
-            )
-            is_created = True
+    async def get_or_new(cls, user_id, username) -> 'DbUser':
+        user, is_created = await cls.get_or_create(
+            user_id=user_id,
+            defaults={
+                "username": username,
+                "subscription": await Subscription.create()
+            }
+        )
         if is_created:
             logger.info(f"Создание нового пользователя {user_id} {username}")
         return user
-        # if not user:
-        #     subscription = Subscription()
-        #     user = User.create(
-        #         user_id=message.from_user.id,
-        #         username=message.from_user.username,
-        #         subscription=subscription
-        #     )
 
 
 class Billing(models.Model):
@@ -101,6 +111,9 @@ def create_alphabet_tables():
 create_alphabet_tables()
 
 __all__ = [
+    "DbUser",
+    "Subscription",
+    "Billing",
     "a_HackedUser",
     "b_HackedUser",
     "c_HackedUser",

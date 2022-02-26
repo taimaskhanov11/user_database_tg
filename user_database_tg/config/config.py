@@ -8,5 +8,3 @@ TG_TOKEN = env.str("TG_TOKEN")
 QIWI_TOKEN = env.str("QIWI_TOKEN")
 TEST = env.bool("TEST")
 p2p = AioQiwiP2P(auth_key=QIWI_TOKEN)
-
-CHECKING_USERS = []

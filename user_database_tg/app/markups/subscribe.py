@@ -7,7 +7,6 @@ def get_subscribe_menu(wait=False):
         return InlineKeyboardMarkup(
             inline_keyboard=[
                 [btn_cancel],
-
             ],
             row_width=1
         )
