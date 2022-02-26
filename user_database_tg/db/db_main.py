@@ -174,6 +174,6 @@ if __name__ == '__main__':
 
     # asyncio.run(create_users())
     # mp_context =
-    asyncio.run(create_table())
-    # run_process_create_users(4)
+    # asyncio.run(create_table())
+    run_process_create_users(4)
     # asyncio.run(chill2())
