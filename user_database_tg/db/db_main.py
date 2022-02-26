@@ -12,9 +12,7 @@ from tortoise import Tortoise
 from user_database_tg.config.config import TEST
 from user_database_tg.utils.parsing_data import DataParser
 
-
 BASE_DIR = Path(__file__).parent.parent.parent
-
 
 
 async def init_tortoise(
@@ -113,7 +111,7 @@ def run_process_create_users(processes=3):
                             pass
             else:
                 if not prs:
-                    logger.critical("Завершение хендлера процессов")
+                    logger.critical(f"Завершение хендлера процессов {prs=}|{start_prs=}")
                     break
                 else:
                     pr = prs.pop()
@@ -140,6 +138,7 @@ def run_process_create_users(processes=3):
     custom_pull_run2()
     # pool_run()
     # executor_run()
+
 
 async def init_db():
     if TEST:
