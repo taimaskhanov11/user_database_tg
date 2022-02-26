@@ -17,8 +17,9 @@ class FatherMiddleware(BaseMiddleware):
     # 3
     async def on_process_message(self, message: types.Message, data: dict):
         logger.info(f"3.Pre Process Message, {data=}")
-        user = await DbUser.get_or_new(message.from_user.id, message.from_user.username)
-        data["user"] = user
+        db_user = await DbUser.get_or_new(message.from_user.id, message.from_user.username)
+        data["db_user"] = db_user
+        logger.info(repr(db_user))
         # data["user"] = User.get_or_create(user_id=message.from_user.id, defaults={
         #
         # })

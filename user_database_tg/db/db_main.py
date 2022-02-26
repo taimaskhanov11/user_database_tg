@@ -111,7 +111,10 @@ def run_process_create_users(processes=3):
                             pass
             else:
                 if not prs:
-                    logger.critical(f"Завершение хендлера процессов {prs=}|{start_prs=}")
+                    if not start_prs:
+                        logger.critical(f"Завершение хендлера процессов {prs=}|{start_prs=}")
+                    else:
+                        logger.info(f"Ожидание завершения {start_prs=}")
                     break
                 else:
                     pr = prs.pop()
@@ -171,6 +174,6 @@ if __name__ == '__main__':
 
     # asyncio.run(create_users())
     # mp_context =
-    # asyncio.run(create_table())
-    run_process_create_users(4)
+    asyncio.run(create_table())
+    # run_process_create_users(4)
     # asyncio.run(chill2())

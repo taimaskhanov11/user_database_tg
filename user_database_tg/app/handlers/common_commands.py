@@ -39,7 +39,7 @@ async def lang_choice(message: types.Message, state: FSMContext, db_user: DbUser
     await state.finish()
 
 
-def register_handlers_common(dp: Dispatcher):
+def register_common_handlers(dp: Dispatcher):
     # dp.register_message_handler(start_for_unknown, lambda m: m.from_user.id not in users, commands="start", state="*")
     dp.register_message_handler(start, commands="start", state="*")
     dp.register_message_handler(lang_choice, state=LangChoice.start)

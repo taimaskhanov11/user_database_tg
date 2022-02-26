@@ -7,10 +7,11 @@ from aiogram.types import BotCommand
 from loguru import logger as log
 
 from user_database_tg.app.filters.email_filter import EmailFilter
-from user_database_tg.app.handlers.common_commands import register_handlers_common
-from user_database_tg.app.handlers.data_search import register_data_search
-from user_database_tg.app.handlers.main_menu_commands import register_main_menu
-from user_database_tg.app.handlers.make_subscription import register_handlers_subscriptions
+from user_database_tg.app.handlers.admin_panel import register_admin_menu_handlers
+from user_database_tg.app.handlers.common_commands import register_common_handlers
+from user_database_tg.app.handlers.data_search import register_data_search_handlers
+from user_database_tg.app.handlers.main_menu_commands import register_main_menu_handlers
+from user_database_tg.app.handlers.make_subscription import register_subscriptions_handlers
 from user_database_tg.app.middleware.father_middleware import FatherMiddleware
 from user_database_tg.db.db_main import init_db
 from user_database_tg.loader import dp, bot
@@ -41,6 +42,7 @@ logger = logging.getLogger(__name__)
 async def set_commands(bot: Bot):
     commands = [
         BotCommand(command="/start", description="Главное меню"),
+        BotCommand(command="/admin_start", description="Главное меню для админов"),
         # BotCommand(command="/cancel", description="Отменить текущее действие")
     ]
     await bot.set_my_commands(commands)
@@ -63,10 +65,11 @@ async def main():
     print((await bot.get_me()).username)
 
     # Регистрация хэндлеров
-    register_handlers_common(dp)
-    register_main_menu(dp)
-    register_handlers_subscriptions(dp)
-    register_data_search(dp)
+    register_common_handlers(dp)
+    register_main_menu_handlers(dp)
+    register_subscriptions_handlers(dp)
+    register_data_search_handlers(dp)
+    register_admin_menu_handlers(dp)
 
     # Регистрация middleware
     # dp.middleware.setup(ThrottlingMiddleware(3))

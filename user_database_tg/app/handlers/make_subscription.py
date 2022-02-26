@@ -44,7 +44,7 @@ async def reject_payment(call: types.CallbackQuery):
     await call.message.answer(f"Оплата на подписку {bill.subscription.title} отменена")
 
 
-def register_handlers_subscriptions(dp: Dispatcher):
+def register_subscriptions_handlers(dp: Dispatcher):
     dp.register_callback_query_handler(subscribe, text_startswith="subscribe_")
     dp.register_callback_query_handler(reject_payment, text="reject_payment")
     # dp.register_callback_query_handler(subscribe_month, text="subscribe_month")

@@ -30,6 +30,6 @@ async def search_data(message: types.Message, db_user: DbUser):
     await db_user.save()
 
 
-def register_data_search(dp: Dispatcher):
+def register_data_search_handlers(dp: Dispatcher):
     # dp.register_message_handler(search_data, lambda m: m.text[0].isalpha() and "@" in m.text)
     dp.register_message_handler(search_data, EmailFilter())

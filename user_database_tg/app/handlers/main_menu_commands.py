@@ -24,7 +24,7 @@ async def support(message: types.Message):
     await message.answer(SUPPORT, reply_markup=markups.menu)
 
 
-def register_main_menu(dp: Dispatcher):
+def register_main_menu_handlers(dp: Dispatcher):
     dp.register_message_handler(profile, text="👤 Профиль")
     dp.register_message_handler(buy, text="🗂 Купить")
     dp.register_message_handler(description, text="👉 Описание")
