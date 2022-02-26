@@ -113,9 +113,10 @@ def run_process_create_users(processes=3):
                 if not prs:
                     if not start_prs:
                         logger.critical(f"Завершение хендлера процессов {prs=}|{start_prs=}")
+                        break
                     else:
                         logger.info(f"Ожидание завершения {start_prs=}")
-                    break
+
                 else:
                     pr = prs.pop()
                     logger.success(f"Создание процесса {pr.name}. Оставшиеся {prs}.Запущенные {start_prs}")
@@ -157,6 +158,7 @@ async def create_table():
         await init_tortoise(host="95.105.113.65")
         # await HackedUser.all().delete()
     await Tortoise.generate_schemas()
+
 
 if __name__ == '__main__':
     logger.remove()
