@@ -5,7 +5,7 @@ from aiogram import Dispatcher, types
 from loguru import logger
 
 from user_database_tg.app import markups
-from user_database_tg.app.messages.menu import SUBSCRIBE_PRE
+from user_database_tg.app.messages.messages import SUBSCRIBE_PRE
 from user_database_tg.app.utils.payment_processes import check_payment
 from user_database_tg.config.config import p2p
 from user_database_tg.db.models import DbUser, Billing

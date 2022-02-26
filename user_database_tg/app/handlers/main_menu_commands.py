@@ -2,7 +2,7 @@ from aiogram import Dispatcher, types
 from loguru import logger
 
 from user_database_tg.app import markups
-from user_database_tg.app.messages.menu import DESCRIPTION, SUPPORT
+from user_database_tg.app.messages.messages import DESCRIPTION, SUPPORT
 
 
 async def profile(message: types.Message):

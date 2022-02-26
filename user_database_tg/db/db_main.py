@@ -6,12 +6,12 @@ import time
 from concurrent.futures import ProcessPoolExecutor
 from multiprocessing import current_process, Process
 from pathlib import Path
-from queue import Queue
+
 from loguru import logger
 from tortoise import Tortoise
 
 from user_database_tg.config.config import TEST
-from user_database_tg.utils.parsing_data import DataParser
+from user_database_tg.db.utils.parsing_data import DataParser
 
 BASE_DIR = Path(__file__).parent.parent.parent
 
@@ -161,7 +161,15 @@ async def create_table():
     await Tortoise.generate_schemas()
 
 
-if __name__ == '__main__':
+def parse_args():
+    parser = argparse.ArgumentParser(description="Parse data in  DB")
+    parser.add_argument("-T", "--is_test", type=bool, default=False, help="Run in test mode", required=False)
+    parser.add_argument("-T", "--is_test", type=bool, default=False, help="Run in test mode", required=False)
+    args = parser.parse_args()
+    print(args)
+
+
+def init_logging():
     logger.remove()
     logger.add(sink=sys.stderr, level='TRACE', enqueue=True, diagnose=True, )
     # logger.add(sink=Path(BASE_DIR, "logs/paylog.log"), level='TRACE', enqueue=True, encoding='utf-8', diagnose=True, )
@@ -174,14 +182,13 @@ if __name__ == '__main__':
         rotation="5MB",
         # compression="zip",
     )
-    # parser = argparse.ArgumentParser(description="Parse data in  DB")
-    # parser.add_argument("-T", "--is_test", type=bool, default=False, help="Run in test mode", required=False)
-    # parser.add_argument("-T", "--is_test", type=bool, default=False, help="Run in test mode", required=False)
-    # args = parser.parse_args()
-    # print(args)
+
+
+if __name__ == '__main__':
+    init_logging()
     run_process_create_users(4)
+    # asyncio.run(create_table())
 
     # asyncio.run(create_users())
     # mp_context =
-    # asyncio.run(create_table())
     # asyncio.run(chill2())

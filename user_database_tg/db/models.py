@@ -13,10 +13,36 @@ class HackedUser():
     service = fields.CharField(max_length=255)
 
 
-class Translation(models.Model):
+class DbMessage(models.Model):  # todo 2/26/2022 4:40 PM taima:
     title = fields.CharField(max_length=255)
-    text = fields.TextField()
+    # text = fields.TextField()
     language = fields.CharField(max_length=20)
+
+    # start
+    start_message = fields.TextField()
+
+    # menu
+    profile = fields.TextField()
+    description = fields.TextField()
+    support = fields.TextField()
+    subscribe = fields.TextField()
+
+    # menu buttons
+    profile_b = fields.CharField(max_length=255)
+    description_b = fields.CharField(max_length=255)
+    support_b = fields.CharField(max_length=255)
+    subscribe_b = fields.CharField(max_length=255)
+
+    # waiting for end search
+    wait_search = fields.TextField()
+    data_not_found = fields.TextField()
+
+    # waiting for pay
+    wait_payment = fields.TextField()
+    go_payment_b = fields.CharField(max_length=255)
+
+    reject_payment = fields.TextField()
+    reject_payment_b = fields.CharField(max_length=255)
 
 
 class Subscription(models.Model):
@@ -33,7 +59,9 @@ class DbUser(models.Model):
     username = fields.CharField(max_length=255)
     subscription = fields.OneToOneField("models.Subscription")
     language = fields.CharField(max_length=20, null=True, default=None)
+
     is_search = fields.BooleanField(default=False)
+    translation = None
 
     @classmethod
     async def new(cls, message: types.Message):
@@ -121,7 +149,7 @@ def create_alphabet_tables():
         globals()[class_name] = new_class
 
 
-create_alphabet_tables()
+# create_alphabet_tables() #todo 2/26/2022 3:58 PM taima:
 
 __all__ = [
     "DbUser",

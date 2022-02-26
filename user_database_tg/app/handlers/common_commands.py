@@ -5,7 +5,7 @@ from aiogram.dispatcher.filters.state import State, StatesGroup
 from loguru import logger
 
 from user_database_tg.app import markups
-from user_database_tg.app.messages.menu import START_MESSAGE
+from user_database_tg.app.messages.messages import START_MESSAGE
 from user_database_tg.db.models import DbUser
 
 

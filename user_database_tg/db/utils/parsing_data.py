@@ -3,12 +3,10 @@ import re
 import time
 from multiprocessing import current_process
 from pathlib import Path
-from pprint import pprint
 
 from loguru import logger
 
 from user_database_tg.db import models
-from user_database_tg.db.models import HackedUser
 
 
 class DataParser:
@@ -59,13 +57,6 @@ class DataParser:
 
             self.users_data = collections.defaultdict(list)
             self.current_count = 0
-
-    async def bulk_users_create(self, sign, data):
-        users_objs = (HackedUser(email=x[0], password=x[1], service=self.service) for x in data)
-        await HackedUser.bulk_create(
-            users_objs,
-            batch_size=self.batch_size,
-        )
 
     async def parce_datafiles(self):
         for data_file in self.path.iterdir():
