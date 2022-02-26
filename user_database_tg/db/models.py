@@ -13,6 +13,12 @@ class HackedUser():
     service = fields.CharField(max_length=255)
 
 
+class Translation(models.Model):
+    title = fields.CharField(max_length=255)
+    text = fields.TextField()
+    language = fields.CharField(max_length=20)
+
+
 class Subscription(models.Model):
     title = fields.CharField(max_length=255, default="Нет подписки")
     is_subscribe = fields.BooleanField(default=False)
