@@ -68,7 +68,7 @@ class DbUser(models.Model):
 
 
 class Billing(models.Model):
-    user = fields.OneToOneField("models.User")
+    user = fields.OneToOneField("models.DbUser")
     # bill_id = fields.BigIntField(index=True)
     bill_id = fields.IntField(index=True)
     amount = fields.IntField()
@@ -106,6 +106,13 @@ def create_alphabet_tables():
         })
         globals()[class_name] = new_class
         # locals()[class_name] = new_class
+    for class_name in (f"dig_file_HackedUser", "sym_file_HackedUser"):
+        new_class = type(class_name, (models.Model,), {
+            "email": fields.CharField(max_length=255, index=True),
+            "password": fields.CharField(max_length=255),
+            "service": fields.CharField(max_length=255),
+        })
+        globals()[class_name] = new_class
 
 
 create_alphabet_tables()
@@ -114,6 +121,8 @@ __all__ = [
     "DbUser",
     "Subscription",
     "Billing",
+    "dig_file_HackedUser",
+    "sym_file_HackedUser",
     "a_HackedUser",
     "b_HackedUser",
     "c_HackedUser",

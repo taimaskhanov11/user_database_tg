@@ -155,26 +155,6 @@ async def create_table():
         # await HackedUser.all().delete()
     await Tortoise.generate_schemas()
 
-
-async def chill():
-    if TEST:
-        await init_tortoise(host="localhost", password="postgres")
-    else:
-        await init_tortoise(host="95.105.113.65")
-
-    for m in models.__all__:
-        h = getattr(models, m)
-        await h.all().count()
-
-
-async def chill2():
-    await init_tortoise(host="95.105.113.65")
-    for m in models.__all__:
-        h: models.HackedUser = getattr(models, m)
-        print(await h.all())
-        # await h.all().count()
-
-
 if __name__ == '__main__':
     logger.remove()
     logger.add(sink=sys.stderr, level='TRACE', enqueue=True, diagnose=True, )
