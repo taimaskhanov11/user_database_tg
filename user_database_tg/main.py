@@ -5,7 +5,6 @@ import sys
 from aiogram import Bot
 from aiogram.types import BotCommand
 from loguru import logger as log
-
 from user_database_tg.app.filters.email_filter import EmailFilter
 from user_database_tg.app.handlers.admin_panel import register_admin_menu_handlers
 from user_database_tg.app.handlers.common_commands import register_common_handlers
@@ -94,7 +93,6 @@ async def main():
     # await dp.skip_updates()  # пропуск накопившихся апдейтов (необязательно)
     await dp.skip_updates()
     await dp.start_polling()
-
 
 if __name__ == '__main__':
     asyncio.run(main())

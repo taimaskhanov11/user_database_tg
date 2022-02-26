@@ -1,3 +1,4 @@
+import argparse
 import asyncio
 import multiprocessing
 import sys
@@ -173,9 +174,14 @@ if __name__ == '__main__':
         rotation="5MB",
         # compression="zip",
     )
+    # parser = argparse.ArgumentParser(description="Parse data in  DB")
+    # parser.add_argument("-T", "--is_test", type=bool, default=False, help="Run in test mode", required=False)
+    # parser.add_argument("-T", "--is_test", type=bool, default=False, help="Run in test mode", required=False)
+    # args = parser.parse_args()
+    # print(args)
+    run_process_create_users(4)
 
     # asyncio.run(create_users())
     # mp_context =
     # asyncio.run(create_table())
-    run_process_create_users(4)
     # asyncio.run(chill2())
