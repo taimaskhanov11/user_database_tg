@@ -149,7 +149,7 @@ def create_alphabet_tables():
         globals()[class_name] = new_class
 
 
-# create_alphabet_tables() #todo 2/26/2022 3:58 PM taima:
+create_alphabet_tables() #todo 2/26/2022 3:58 PM taima:
 
 __all__ = [
     "DbUser",
