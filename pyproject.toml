@@ -5,14 +5,14 @@ description = ""
 authors = ["taimaskhanov11 <81189712+taimaskhanov11@users.noreply.github.com>"]
 
 [tool.poetry.dependencies]
-python = ">=3.10,<3.11"
+python = "^3.10"
 loguru = "^0.6.0"
 tortoise-orm = {extras = ["asyncpg"], version = "^0.18.1"}
 aiogram = "^2.19"
 pyQiwiP2P = "^1.0.1"
-service = "^0.6.0"
 httpx = "^0.22.0"
 python-dotenv = "^0.19.2"
+environs = "^9.5.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
