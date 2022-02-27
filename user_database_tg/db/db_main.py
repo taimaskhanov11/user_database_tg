@@ -10,6 +10,8 @@ from pathlib import Path
 from loguru import logger
 from tortoise import Tortoise
 
+from user_database_tg.db import models
+
 from user_database_tg.config.config import TEST
 from user_database_tg.db.utils.parsing_data import DataParser
 
@@ -116,6 +118,11 @@ def run_process_create_users(processes=3):
                         logger.critical(f"Завершение хендлера процессов {prs=}|{start_prs=}")
                         break
                     else:
+                        for start_pr in start_prs:
+                            if not start_pr.is_alive():
+                                logger.warning(f"Завершение старого процесса {start_pr.name}")
+                                start_prs.remove(start_pr)
+
                         logger.info(f"Ожидание завершения {start_prs=}")
 
                 else:
@@ -184,6 +191,12 @@ def init_logging():
     )
 
 
+async def dell_all():
+    await init_db()
+    for h in models.__all__:
+        await getattr(models, h).all().delete()
+
+
 if __name__ == '__main__':
     init_logging()
     run_process_create_users(4)
@@ -191,4 +204,4 @@ if __name__ == '__main__':
 
     # asyncio.run(create_users())
     # mp_context =
-    # asyncio.run(chill2())
+    # asyncio.run(dell_all())
