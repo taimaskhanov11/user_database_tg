@@ -59,7 +59,7 @@ class Subscription(models.Model):
 class DbUser(models.Model):
     user_id = fields.IntField(index=True)
     username = fields.CharField(max_length=255)
-    subscription = fields.OneToOneField("models.Subscription", related_name="db_user")
+    subscription = fields.OneToOneField("models.Subscription")
     language = fields.CharField(max_length=20, null=True, default=None)
 
     is_search = fields.BooleanField(default=False)
@@ -76,10 +76,14 @@ class DbUser(models.Model):
         user = await cls.get_or_none(user_id=user_id).select_related("subscription")
         is_created = False
         if not user:
+            # duration = datetime.now(TZ)
+            # duration = datetime.now(TZ) + timedelta(days=2)
             user = await cls.create(
                 user_id=user_id,
                 username=username,
-                subscription=await Subscription.create(),
+                subscription=await Subscription.create(
+                    # duration=duration
+                ),
             )
             is_created = True
         if is_created:
@@ -102,29 +106,29 @@ class DbUser(models.Model):
 
 
 class Billing(models.Model):
-    user = fields.OneToOneField("models.DbUser")
+    db_user = fields.OneToOneField("models.DbUser", )
     # bill_id = fields.BigIntField(index=True)
     bill_id = fields.IntField(index=True)
     amount = fields.IntField()
-    subscription = fields.OneToOneField("models.Subscription", related_name="bill")
+    subscription = fields.OneToOneField("models.Subscription")
 
     @classmethod
-    async def create_bill(cls, user, bill_id, amount, duration, day_limit):
+    async def create_bill(cls, db_user, bill_id, amount, duration, daily_limit):
         # перевод месяца в дни
         days = int(duration) * 30
 
-        if day_limit == "n":
-            day_limit = None
+        if daily_limit == "n":
+            daily_limit = None
         subscription = await Subscription.create(
-            title=f"{duration} мес({day_limit or 'Безлимит'} в сутки) {amount}р",
+            title=f"{duration} мес({daily_limit or 'Безлимит'} в сутки) {amount} rub",
             is_subscribe=True,
             is_paid=False,
             duration=datetime.now(TZ) + timedelta(days),
-            day_limit=day_limit,
-            remaining_daily_limit=day_limit
+            daily_limit=daily_limit,
+            remaining_daily_limit=daily_limit
         )
         await cls.create(
-            user=user,
+            db_user=db_user,
             bill_id=bill_id,
             amount=amount,
             subscription=subscription

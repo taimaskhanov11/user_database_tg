@@ -9,7 +9,8 @@ class EmailFilter(BoundFilter):
     async def check(self, message: types.Message):
         # data = ctx_data.get()
         # logger.info(f"4.Filter, {data=}")
-        if message.text[0].isalpha() and '@' in message.text:
+        # if message.text[0].isalpha() and '@' in message.text:
+        if '@' in message.text:
             return True
         return False
         # return {"from_filter": "Данные из фильтра"}
