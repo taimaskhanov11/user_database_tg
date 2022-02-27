@@ -51,10 +51,8 @@ async def init_translations():
     logger.debug("Перевод Инициализирован")
 
 
-translations: [str, Translation] = {
+translations: [str, Translation] = {}
 
-}
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     asyncio.run(init_translations())
     print(translations)

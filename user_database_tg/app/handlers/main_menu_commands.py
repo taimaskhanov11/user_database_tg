@@ -9,29 +9,39 @@ from user_database_tg.config.config import TZ
 from user_database_tg.db.models import DbUser
 
 
-async def profile(message: types.Message, db_user: DbUser, translation: Translation):  # todo 2/25/2022 12:34 AM taima:
+async def profile(
+    message: types.Message, db_user: DbUser, translation: Translation
+):  # todo 2/25/2022 12:34 AM taima:
     await message.answer(
         translation.profile.format(
             user_id=db_user.user_id,
             username=db_user.username,
             remaining_daily_limit=db_user.subscription.remaining_daily_limit,
             sub=db_user.subscription.title,
-            duration=db_user.subscription.duration - datetime.datetime.now(TZ) if db_user.subscription.is_subscribe else 0
+            duration=db_user.subscription.duration - datetime.datetime.now(TZ)
+            if db_user.subscription.is_subscribe
+            else 0,
         )
     )
 
 
 @logger.catch
 async def buy(message: types.Message, translation: Translation):
-    await message.answer(translation.subscribe, reply_markup=markups.get_subscribe_menu(translation))
+    await message.answer(
+        translation.subscribe, reply_markup=markups.get_subscribe_menu(translation)
+    )
 
 
 async def description(message: types.Message, translation: Translation):
-    await message.answer(translation.description, reply_markup=markups.get_menu(translation))
+    await message.answer(
+        translation.description, reply_markup=markups.get_menu(translation)
+    )
 
 
 async def support(message: types.Message, translation: Translation):
-    await message.answer(translation.support, reply_markup=markups.get_menu(translation))
+    await message.answer(
+        translation.support, reply_markup=markups.get_menu(translation)
+    )
 
 
 def register_main_menu_handlers(dp: Dispatcher):

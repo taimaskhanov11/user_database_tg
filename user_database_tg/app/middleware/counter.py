@@ -1,4 +1,4 @@
-from typing import Callable, Dict, Any, Awaitable
+from typing import Any, Awaitable, Callable, Dict
 
 from aiogram.dispatcher.middlewares import BaseMiddleware
 from aiogram.types import Message
@@ -11,13 +11,12 @@ class CounterMiddleware(BaseMiddleware):
         self.counter = 0
 
     async def __call__(
-            self,
-            handler: Callable[[Message, dict[str, Any]], Awaitable[Any]],
-            event: Message,
-            data: Dict[str, Any]
+        self,
+        handler: Callable[[Message, dict[str, Any]], Awaitable[Any]],
+        event: Message,
+        data: Dict[str, Any],
     ) -> Any:
         self.counter += 1
-        data['counter'] = self.counter
+        data["counter"] = self.counter
         logger.info(data)
         return await handler(event, data)
-

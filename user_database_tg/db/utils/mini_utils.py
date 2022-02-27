@@ -9,6 +9,6 @@ def open_big_file(path, encoding="utf-8"):
             print(f.readline())
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     pass
     # find_email("aahaantourandtravels01@gmail.com:Yog@1987")

@@ -23,11 +23,12 @@ class FatherMiddleware(BaseMiddleware):
     #     logger.info(f"3.Pre Process Message, {data=}")
     #     data["on_pre_process_message"] = "on_pre_process_message"
 
-
     # 3
     async def on_process_message(self, message: types.Message, data: dict):
         # logger.info(f"3.Process Message, {data=}")
-        db_user = await DbUser.get_or_new(message.from_user.id, message.from_user.username)
+        db_user = await DbUser.get_or_new(
+            message.from_user.id, message.from_user.username
+        )
         data["db_user"] = db_user
         data["translation"] = translations.get(db_user.language)
         logger.info(f"{db_user.username}[{db_user.user_id}]")

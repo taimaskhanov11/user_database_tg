@@ -4,32 +4,31 @@ import multiprocessing
 import sys
 import time
 from concurrent.futures import ProcessPoolExecutor
-from multiprocessing import current_process, Process
+from multiprocessing import Process, current_process
 from pathlib import Path
 
 from loguru import logger
 from tortoise import Tortoise
 
-from user_database_tg.db import models
-
 from user_database_tg.config.config import TEST
+from user_database_tg.db import models
 from user_database_tg.db.utils.parsing_data import DataParser
 
 BASE_DIR = Path(__file__).parent.parent.parent
 
 
 async def init_tortoise(
-        username="postgres",
-        password="XJjKaDgB2n",
-        host="95.105.113.65",
-        port=5432,
-        db_name="users_database"
+    username="postgres",
+    password="XJjKaDgB2n",
+    host="95.105.113.65",
+    port=5432,
+    db_name="users_database",
 ):
     logger.debug(f"Инициализация BD {host}")
     await Tortoise.init(  # todo
         # _create_db=True,
-        db_url=f'postgres://{username}:{password}@{host}:{port}/{db_name}',
-        modules={'models': ['user_database_tg.db.models']}
+        db_url=f"postgres://{username}:{password}@{host}:{port}/{db_name}",
+        modules={"models": ["user_database_tg.db.models"]},
     )
     await Tortoise.generate_schemas()
 
@@ -55,7 +54,8 @@ async def create_users(path):
         errors += f"{current_process().name}|{service} Ошибка"
     t2 = time.monotonic() - t
     logger.info(
-        f"{current_process().name}|{service}| Все данные сохранены {t2}s.Всего запарсено {data_parser.all_count} {errors}")
+        f"{current_process().name}|{service}| Все данные сохранены {t2}s.Всего запарсено {data_parser.all_count} {errors}"
+    )
 
 
 @logger.catch
@@ -97,7 +97,9 @@ def run_process_create_users(processes=3):
             prs = []
 
     def custom_pull_run2():
-        prs = [Process(target=run_async_create_users, args=(path,)) for path in data_dirs]
+        prs = [
+            Process(target=run_async_create_users, args=(path,)) for path in data_dirs
+        ]
         start_prs = []
         while True:
             if len(start_prs) >= processes:
@@ -107,7 +109,9 @@ def run_process_create_users(processes=3):
                         start_prs.remove(start_pr)
                         try:
                             pr = prs.pop()
-                            logger.success(f"Создание процесса {pr.name}. Оставшиеся {prs}.Запущенные {start_prs}")
+                            logger.success(
+                                f"Создание процесса {pr.name}. Оставшиеся {prs}.Запущенные {start_prs}"
+                            )
                             pr.start()
                             start_prs.append(pr)
                         except IndexError as e:
@@ -115,19 +119,25 @@ def run_process_create_users(processes=3):
             else:
                 if not prs:
                     if not start_prs:
-                        logger.critical(f"Завершение хендлера процессов {prs=}|{start_prs=}")
+                        logger.critical(
+                            f"Завершение хендлера процессов {prs=}|{start_prs=}"
+                        )
                         break
                     else:
                         for start_pr in start_prs:
                             if not start_pr.is_alive():
-                                logger.warning(f"Завершение старого процесса {start_pr.name}")
+                                logger.warning(
+                                    f"Завершение старого процесса {start_pr.name}"
+                                )
                                 start_prs.remove(start_pr)
 
                         logger.info(f"Ожидание завершения {start_prs=}")
 
                 else:
                     pr = prs.pop()
-                    logger.success(f"Создание процесса {pr.name}. Оставшиеся {prs}.Запущенные {start_prs}")
+                    logger.success(
+                        f"Создание процесса {pr.name}. Оставшиеся {prs}.Запущенные {start_prs}"
+                    )
                     pr.start()
                     start_prs.append(pr)
             time.sleep(5)
@@ -141,8 +151,8 @@ def run_process_create_users(processes=3):
 
     def executor_run():
         with ProcessPoolExecutor(
-                max_workers=3,
-                # mp_context=multiprocessing.get_context('fork')
+            max_workers=3,
+            # mp_context=multiprocessing.get_context('fork')
         ) as executor:
             results = executor.map(run_async_create_users, data_dirs)
 
@@ -171,21 +181,40 @@ async def create_table():
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Parse data in  DB")
-    parser.add_argument("-T", "--is_test", type=bool, default=False, help="Run in test mode", required=False)
-    parser.add_argument("-T", "--is_test", type=bool, default=False, help="Run in test mode", required=False)
+    parser.add_argument(
+        "-T",
+        "--is_test",
+        type=bool,
+        default=False,
+        help="Run in test mode",
+        required=False,
+    )
+    parser.add_argument(
+        "-T",
+        "--is_test",
+        type=bool,
+        default=False,
+        help="Run in test mode",
+        required=False,
+    )
     args = parser.parse_args()
     print(args)
 
 
 def init_logging():
     logger.remove()
-    logger.add(sink=sys.stderr, level='TRACE', enqueue=True, diagnose=True, )
+    logger.add(
+        sink=sys.stderr,
+        level="TRACE",
+        enqueue=True,
+        diagnose=True,
+    )
     # logger.add(sink=Path(BASE_DIR, "logs/paylog.log"), level='TRACE', enqueue=True, encoding='utf-8', diagnose=True, )
     logger.add(
         sink=Path(BASE_DIR, "logs/database.log"),
-        level='TRACE',
+        level="TRACE",
         enqueue=True,
-        encoding='utf-8',
+        encoding="utf-8",
         diagnose=True,
         rotation="5MB",
         # compression="zip",
@@ -198,7 +227,7 @@ async def dell_all():
         await getattr(models, h).all().delete()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     init_logging()
     # run_process_create_users(4)
     asyncio.run(create_table())

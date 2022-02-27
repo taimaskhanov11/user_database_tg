@@ -7,7 +7,7 @@ from tortoise import fields, models
 from user_database_tg.config.config import TZ
 
 
-class HackedUser():
+class HackedUser:
     email = fields.CharField(max_length=255, index=True)
     password = fields.CharField(max_length=255)
     service = fields.CharField(max_length=255)
@@ -72,7 +72,7 @@ class DbUser(models.Model):
 
     @classmethod
     @logger.catch
-    async def get_or_new(cls, user_id, username) -> 'DbUser':
+    async def get_or_new(cls, user_id, username) -> "DbUser":
         user = await cls.get_or_none(user_id=user_id).select_related("subscription")
         is_created = False
         if not user:
@@ -106,7 +106,9 @@ class DbUser(models.Model):
 
 
 class Billing(models.Model):
-    db_user = fields.OneToOneField("models.DbUser", )
+    db_user = fields.OneToOneField(
+        "models.DbUser",
+    )
     # bill_id = fields.BigIntField(index=True)
     bill_id = fields.IntField(index=True)
     amount = fields.IntField()
@@ -125,32 +127,37 @@ class Billing(models.Model):
             is_paid=False,
             duration=datetime.now(TZ) + timedelta(days),
             daily_limit=daily_limit,
-            remaining_daily_limit=daily_limit
+            remaining_daily_limit=daily_limit,
         )
         await cls.create(
-            db_user=db_user,
-            bill_id=bill_id,
-            amount=amount,
-            subscription=subscription
+            db_user=db_user, bill_id=bill_id, amount=amount, subscription=subscription
         )
 
 
 def create_alphabet_tables():
-    for sign in list('abcdefghijklmnopqrstuvwxyz'):
+    for sign in list("abcdefghijklmnopqrstuvwxyz"):
         class_name = f"{sign}_HackedUser"
-        new_class = type(class_name, (models.Model,), {
-            "email": fields.CharField(max_length=255, index=True),
-            "password": fields.CharField(max_length=255),
-            "service": fields.CharField(max_length=255),
-        })
+        new_class = type(
+            class_name,
+            (models.Model,),
+            {
+                "email": fields.CharField(max_length=255, index=True),
+                "password": fields.CharField(max_length=255),
+                "service": fields.CharField(max_length=255),
+            },
+        )
         globals()[class_name] = new_class
         # locals()[class_name] = new_class
     for class_name in (f"dig_file_HackedUser", "sym_file_HackedUser"):
-        new_class = type(class_name, (models.Model,), {
-            "email": fields.CharField(max_length=255, index=True),
-            "password": fields.CharField(max_length=255),
-            "service": fields.CharField(max_length=255),
-        })
+        new_class = type(
+            class_name,
+            (models.Model,),
+            {
+                "email": fields.CharField(max_length=255, index=True),
+                "password": fields.CharField(max_length=255),
+                "service": fields.CharField(max_length=255),
+            },
+        )
         globals()[class_name] = new_class
 
 

@@ -5,25 +5,35 @@ import sys
 from aiogram import Bot
 from aiogram.types import BotCommand
 from loguru import logger as log
+
 from user_database_tg.app.filters.email_filter import EmailFilter
-from user_database_tg.app.handlers.admin_panel import register_admin_menu_handlers
-from user_database_tg.app.handlers.common_commands import register_common_handlers
-from user_database_tg.app.handlers.data_search import register_data_search_handlers
-from user_database_tg.app.handlers.main_menu_commands import register_main_menu_handlers
-from user_database_tg.app.handlers.make_subscription import register_subscriptions_handlers
+from user_database_tg.app.handlers import (
+    register_admin_menu_handlers,
+    register_common_handlers,
+    register_data_search_handlers,
+    register_main_menu_handlers,
+    register_subscriptions_handlers,
+)
 from user_database_tg.app.middleware.father_middleware import FatherMiddleware
 from user_database_tg.app.translation.message_data import init_translations
-from user_database_tg.app.utils.subcribe_processes import updating_the_daily_requests_limit
+from user_database_tg.app.utils.subcribe_processes import (
+    updating_the_daily_requests_limit,
+)
 from user_database_tg.db.db_main import init_db
-from user_database_tg.loader import dp, bot
+from user_database_tg.loader import bot, dp
 
 log.remove()
-log.add(sink=sys.stderr, level='TRACE', enqueue=True, diagnose=True, )
+log.add(
+    sink=sys.stderr,
+    level="TRACE",
+    enqueue=True,
+    diagnose=True,
+)
 log.add(
     sink=f"../logs/main.log",
-    level='TRACE',
+    level="TRACE",
     enqueue=True,
-    encoding='utf-8',
+    encoding="utf-8",
     diagnose=True,
     rotation="5MB",
     compression="zip",
@@ -35,7 +45,7 @@ logging.basicConfig(
     handlers=[
         logging.StreamHandler(),
         logging.FileHandler(filename="../logs/aiolog.log", encoding="utf-8"),
-    ]
+    ],
 )
 logger = logging.getLogger(__name__)
 
@@ -103,5 +113,5 @@ async def main():
     await dp.start_polling()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     asyncio.run(main())

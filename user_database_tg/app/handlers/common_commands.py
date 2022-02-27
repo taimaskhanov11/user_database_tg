@@ -1,4 +1,4 @@
-from aiogram import types, Dispatcher
+from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Text
 from aiogram.dispatcher.filters.state import State, StatesGroup
@@ -14,29 +14,44 @@ class LangChoice(StatesGroup):
 
 
 @logger.catch
-async def start(message: types.Message, state: FSMContext, db_user: DbUser, translation: Translation):
+async def start(
+    message: types.Message, state: FSMContext, db_user: DbUser, translation: Translation
+):
     await state.finish()
     if not db_user.language:
-        await message.answer("Выберите предпочитаемый язык\nChoose your preferred language",
-                             reply_markup=markups.lang_choice)
+        await message.answer(
+            "Выберите предпочитаемый язык\nChoose your preferred language",
+            reply_markup=markups.lang_choice,
+        )
         await LangChoice.first()
         return
-    await message.answer(translation.start_message, reply_markup=markups.get_menu(translation))
+    await message.answer(
+        translation.start_message, reply_markup=markups.get_menu(translation)
+    )
 
 
-async def lang_choice(message: types.Message, state: FSMContext, db_user: DbUser):  # todo 2/24/2022 11:41 PM taima:
+async def lang_choice(
+    message: types.Message, state: FSMContext, db_user: DbUser
+):  # todo 2/24/2022 11:41 PM taima:
     if message.text.startswith("🇷🇺"):
         db_user.language = "russian"
         translation = translations[db_user.language]
-        await message.answer("Язык интерфейса выбран 🇷🇺 ✅", reply_markup=markups.get_menu(translation))
+        await message.answer(
+            "Язык интерфейса выбран 🇷🇺 ✅", reply_markup=markups.get_menu(translation)
+        )
 
     elif message.text.startswith("🇬🇧"):
         db_user.language = "english"
         translation = translations[db_user.language]
-        await message.answer("The interface language is selected 🇬🇧 ✅", reply_markup=markups.get_menu(translation))
+        await message.answer(
+            "The interface language is selected 🇬🇧 ✅",
+            reply_markup=markups.get_menu(translation),
+        )
     else:
-        await message.answer("Нажмите на соответствующую кнопку\nClick on the corresponding button",
-                             reply_markup=markups.lang_choice)
+        await message.answer(
+            "Нажмите на соответствующую кнопку\nClick on the corresponding button",
+            reply_markup=markups.lang_choice,
+        )
         return
 
     await db_user.save()
