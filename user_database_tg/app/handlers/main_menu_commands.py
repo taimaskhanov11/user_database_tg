@@ -2,30 +2,28 @@ from aiogram import Dispatcher, types
 from loguru import logger
 
 from user_database_tg.app import markups
+from user_database_tg.app.translation.message_data import Translation
 
 
-
-async def profile(message: types.Message):
-    await message.answer(f"🔑 ID: {message.from_user.id}\n"
-                         f"👤 Логин: {message.from_user.username}\n"
-                         f"🕜 Всего запросов до 00ч. 00мин. МСК: 10.")  # todo 2/25/2022 12:34 AM taima:
+async def profile(message: types.Message, translation: Translation):
+    await message.answer(translation.profile)  # todo 2/25/2022 12:34 AM taima:
 
 
 @logger.catch
-async def buy(message: types.Message):
-    await message.answer("Выберите подписку", reply_markup=markups.get_subscribe_menu())
+async def buy(message: types.Message, translation: Translation):
+    await message.answer(translation.subscribe, reply_markup=markups.get_subscribe_menu(translation))
 
 
-async def description(message: types.Message):
-    await message.answer(DESCRIPTION, reply_markup=markups.menu)
+async def description(message: types.Message, translation: Translation):
+    await message.answer(translation.description, reply_markup=markups.get_menu(translation))
 
 
-async def support(message: types.Message):
-    await message.answer(SUPPORT, reply_markup=markups.menu)
+async def support(message: types.Message, translation: Translation):
+    await message.answer(translation.support, reply_markup=markups.get_menu(translation))
 
 
 def register_main_menu_handlers(dp: Dispatcher):
-    dp.register_message_handler(profile, text="👤 Профиль")
-    dp.register_message_handler(buy, text="🗂 Купить")
-    dp.register_message_handler(description, text="👉 Описание")
-    dp.register_message_handler(support, text="🙋‍♂️ Поддержка")
+    dp.register_message_handler(profile, text_startswith="👤")
+    dp.register_message_handler(buy, text_startswith="💰")
+    dp.register_message_handler(description, text_startswith="❗")
+    dp.register_message_handler(support, text_startswith="🙋‍♂")

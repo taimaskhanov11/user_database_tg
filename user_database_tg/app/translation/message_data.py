@@ -1,5 +1,7 @@
 import asyncio
+from pprint import pprint
 
+from loguru import logger
 from pydantic import BaseModel
 
 from user_database_tg.db.db_main import init_db
@@ -7,6 +9,8 @@ from user_database_tg.db.models import DbMessage
 
 
 class Translation(BaseModel):
+    db_message: DbMessage
+
     # start
     start_message: str
 
@@ -27,20 +31,30 @@ class Translation(BaseModel):
     data_not_found: str
 
     # waiting for pay
+    create_payment: str
     wait_payment: str
     go_payment_b: str
 
     reject_payment: str
     reject_payment_b: str
 
+    class Config:
+        arbitrary_types_allowed = True
+
 
 async def init_translations():
-    for trans_data in await DbMessage.all():
-        translation = Translation(**dict(trans_data))
-        translations[trans_data.language] = translation
+    # await init_db()
+    for db_message in await DbMessage.all():
+        logger.trace(repr(dict(db_message)))
+        translation = Translation(**dict(db_message), db_message=db_message)
+        translations[db_message.language] = translation
+    logger.debug("Перевод Инициализирован")
+
 
 translations: [str, Translation] = {
+
 }
 
 if __name__ == '__main__':
     asyncio.run(init_translations())
+    print(translations)

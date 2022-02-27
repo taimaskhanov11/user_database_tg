@@ -13,6 +13,7 @@ from user_database_tg.app.handlers.main_menu_commands import register_main_menu_
 from user_database_tg.app.handlers.make_subscription import register_subscriptions_handlers
 from user_database_tg.app.middleware.father_middleware import FatherMiddleware
 from user_database_tg.app.translation.message_data import init_translations
+from user_database_tg.app.utils.subcribe_processes import updating_the_daily_requests_limit
 from user_database_tg.db.db_main import init_db
 from user_database_tg.loader import dp, bot
 
@@ -29,9 +30,10 @@ log.add(
 )
 
 logging.basicConfig(
+    encoding="utf-8",
     level=logging.DEBUG,
     handlers=[
-        # logging.StreamHandler(),
+        logging.StreamHandler(),
         logging.FileHandler(filename="../logs/aiolog.log", encoding="utf-8"),
     ]
 )
@@ -88,15 +90,18 @@ async def main():
 
     # Инициализация базы данных
     await init_db()
-    log.debug("База данных инициализирована")
 
     # Инициализация переводов
     await init_translations()
+
+    # Запуск задачи ежедневного обновления запросов и проверки подписки
+    asyncio.create_task(updating_the_daily_requests_limit())
 
     # Запуск поллинга
     # await dp.skip_updates()  # пропуск накопившихся апдейтов (необязательно)
     await dp.skip_updates()
     await dp.start_polling()
+
 
 if __name__ == '__main__':
     asyncio.run(main())

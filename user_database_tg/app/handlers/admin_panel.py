@@ -3,8 +3,15 @@ from aiogram import types, Dispatcher
 from user_database_tg.db.models import DbUser
 
 
-async def admin_start(message: types.Message, db_user: DbUser):
+async def admin_start(message: types.Message, db_user: DbUser): #todo 2/27/2022 12:39 PM taima:
     await message.answer("Меню админа")
+
+
+
+
+
+
+
 
 
 def register_admin_menu_handlers(dp: Dispatcher):
@@ -14,4 +21,5 @@ def register_admin_menu_handlers(dp: Dispatcher):
         # is_chat_admin=[1985947355, 2014301618]
         user_id=[1985947355, 2014301618]
     )
+
 

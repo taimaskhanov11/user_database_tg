@@ -157,6 +157,7 @@ async def init_db():
         await init_tortoise(host="localhost", password="postgres")
     else:
         await init_tortoise(host="95.105.113.65")
+    logger.debug(f"База данных инициализирована")
 
 
 async def create_table():
@@ -199,8 +200,8 @@ async def dell_all():
 
 if __name__ == '__main__':
     init_logging()
-    run_process_create_users(4)
-    # asyncio.run(create_table())
+    # run_process_create_users(4)
+    asyncio.run(create_table())
 
     # asyncio.run(create_users())
     # mp_context =

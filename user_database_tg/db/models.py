@@ -4,7 +4,7 @@ from aiogram import types
 from loguru import logger
 from tortoise import fields, models
 
-from user_database_tg.app.markups import subscribe
+from user_database_tg.config.config import TZ
 
 
 class HackedUser():
@@ -38,6 +38,7 @@ class DbMessage(models.Model):  # todo 2/26/2022 4:40 PM taima:
     data_not_found = fields.TextField()
 
     # waiting for pay
+    create_payment = fields.TextField()
     wait_payment = fields.TextField()
     go_payment_b = fields.CharField(max_length=255)
 
@@ -51,54 +52,53 @@ class Subscription(models.Model):
     is_paid = fields.BooleanField(default=True)
     # duration = fields.IntField(default=0)
     duration = fields.DatetimeField(auto_now_add=True)
-    day_limit = fields.IntField(default=3, null=True)
+    daily_limit = fields.IntField(default=3, null=True)
+    remaining_daily_limit = fields.IntField(default=3, null=True)
 
 
 class DbUser(models.Model):
     user_id = fields.IntField(index=True)
     username = fields.CharField(max_length=255)
-    subscription = fields.OneToOneField("models.Subscription")
+    subscription = fields.OneToOneField("models.Subscription", related_name="db_user")
     language = fields.CharField(max_length=20, null=True, default=None)
 
     is_search = fields.BooleanField(default=False)
-    translation = None
+
+    # translation = None
 
     @classmethod
     async def new(cls, message: types.Message):
         pass
 
-    # @classmethod
-    # @logger.catch
-    # async def get_or_new(cls, user_id, username) -> 'User':
-    #     user = await cls.get_or_none(user_id=user_id).select_related("subscription")
-    #     await cls.get_or_create()
-    #     is_created = False
-    #     if not user:
-    #         user = await cls.create(
-    #             user_id=user_id,
-    #             username=username,
-    #             subscription=await Subscription.create(
-    #
-    #             ),
-    #         )
-    #         is_created = True
-    #     if is_created:
-    #         logger.info(f"Создание нового пользователя {user_id} {username}")
-    #     return user
-
     @classmethod
     @logger.catch
     async def get_or_new(cls, user_id, username) -> 'DbUser':
-        user, is_created = await cls.get_or_create(
-            user_id=user_id,
-            defaults={
-                "username": username,
-                "subscription": await Subscription.create()
-            }
-        )
+        user = await cls.get_or_none(user_id=user_id).select_related("subscription")
+        is_created = False
+        if not user:
+            user = await cls.create(
+                user_id=user_id,
+                username=username,
+                subscription=await Subscription.create(),
+            )
+            is_created = True
         if is_created:
             logger.info(f"Создание нового пользователя {user_id} {username}")
         return user
+
+    # @classmethod
+    # @logger.catch
+    # async def get_or_new(cls, user_id, username) -> 'DbUser':
+    #     user, is_created = await cls.get_or_create(
+    #         user_id=user_id,
+    #         defaults={
+    #             "username": username,
+    #             "subscription": await Subscription.create()
+    #         }
+    #     )
+    #     if is_created:
+    #         logger.info(f"Создание нового пользователя {user_id} {username}")
+    #     return user
 
 
 class Billing(models.Model):
@@ -106,10 +106,10 @@ class Billing(models.Model):
     # bill_id = fields.BigIntField(index=True)
     bill_id = fields.IntField(index=True)
     amount = fields.IntField()
-    subscription = fields.OneToOneField("models.Subscription")
+    subscription = fields.OneToOneField("models.Subscription", related_name="bill")
 
     @classmethod
-    async def create_receipt(cls, user, bill_id, amount, duration, day_limit):
+    async def create_bill(cls, user, bill_id, amount, duration, day_limit):
         # перевод месяца в дни
         days = int(duration) * 30
 
@@ -119,8 +119,9 @@ class Billing(models.Model):
             title=f"{duration} мес({day_limit or 'Безлимит'} в сутки) {amount}р",
             is_subscribe=True,
             is_paid=False,
-            duration=datetime.today() + timedelta(days),
+            duration=datetime.now(TZ) + timedelta(days),
             day_limit=day_limit,
+            remaining_daily_limit=day_limit
         )
         await cls.create(
             user=user,
@@ -149,12 +150,13 @@ def create_alphabet_tables():
         globals()[class_name] = new_class
 
 
-create_alphabet_tables() #todo 2/26/2022 3:58 PM taima:
+create_alphabet_tables()  # todo 2/26/2022 3:58 PM taima:
 
 __all__ = [
     "DbUser",
     "Subscription",
     "Billing",
+    "DbMessage",
     "dig_file_HackedUser",
     "sym_file_HackedUser",
     "a_HackedUser",
