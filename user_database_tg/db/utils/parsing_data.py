@@ -61,7 +61,7 @@ class DataParser:
     async def parce_datafiles(self):
         for data_file in self.path.iterdir():
             if data_file.name != "err_file.dd":
-                sign = data_file.stem if data_file.stem in ["dig_file", "sym_file.dd"] else data_file.name[0]
+                sign = data_file.stem if data_file.stem in ["dig_file", "sym_file"] else data_file.name[0]
                 logger.trace(f"{current_process().name}| Парс файла {data_file.name}")
                 for encode in ("utf-8", "cp1251"):
                     try:

@@ -12,6 +12,7 @@ from user_database_tg.app.handlers.data_search import register_data_search_handl
 from user_database_tg.app.handlers.main_menu_commands import register_main_menu_handlers
 from user_database_tg.app.handlers.make_subscription import register_subscriptions_handlers
 from user_database_tg.app.middleware.father_middleware import FatherMiddleware
+from user_database_tg.app.translation.message_data import init_translations
 from user_database_tg.db.db_main import init_db
 from user_database_tg.loader import dp, bot
 
@@ -88,6 +89,9 @@ async def main():
     # Инициализация базы данных
     await init_db()
     log.debug("База данных инициализирована")
+
+    # Инициализация переводов
+    await init_translations()
 
     # Запуск поллинга
     # await dp.skip_updates()  # пропуск накопившихся апдейтов (необязательно)

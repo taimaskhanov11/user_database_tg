@@ -4,7 +4,6 @@ from user_database_tg.db.models import DbUser
 
 
 async def admin_start(message: types.Message, db_user: DbUser):
-
     await message.answer("Меню админа")
 
 

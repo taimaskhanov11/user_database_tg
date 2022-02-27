@@ -5,7 +5,6 @@ from aiogram.dispatcher.filters.state import State, StatesGroup
 from loguru import logger
 
 from user_database_tg.app import markups
-from user_database_tg.app.messages.messages import START_MESSAGE
 from user_database_tg.db.models import DbUser
 
 
@@ -20,7 +19,7 @@ async def start(message: types.Message, state: FSMContext, db_user: DbUser):
         await message.answer("Выберите предпочитаемый язык\nChoose your preferred language",
                              reply_markup=markups.lang_choice)
         await LangChoice.first()
-    await message.answer(START_MESSAGE, reply_markup=markups.menu)
+    await message.answer("Ку", reply_markup=markups.menu)
 
 
 async def lang_choice(message: types.Message, state: FSMContext, db_user: DbUser):  # todo 2/24/2022 11:41 PM taima:

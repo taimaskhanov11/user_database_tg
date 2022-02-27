@@ -1,11 +1,12 @@
 import asyncio
-from typing import NamedTuple
+
+from pydantic import BaseModel
 
 from user_database_tg.db.db_main import init_db
 from user_database_tg.db.models import DbMessage
 
 
-class Translation(NamedTuple, ):
+class Translation(BaseModel):
     # start
     start_message: str
 
@@ -27,19 +28,16 @@ class Translation(NamedTuple, ):
 
     # waiting for pay
     wait_payment: str
-    go_payment: str
+    go_payment_b: str
 
     reject_payment: str
     reject_payment_b: str
 
 
 async def init_translations():
-    await init_db()
     for trans_data in await DbMessage.all():
-        trans = Translation(**dict(trans_data))
-        print(trans)
-        # print(dict(trans_data))
-
+        translation = Translation(**dict(trans_data))
+        translations[trans_data.language] = translation
 
 translations: [str, Translation] = {
 }
