@@ -5,7 +5,7 @@ from aiogram.dispatcher.filters.state import State, StatesGroup
 from loguru import logger
 
 from user_database_tg.app import markups
-from user_database_tg.app.translation.message_data import Translation, translations
+from user_database_tg.app.translation.message_translation import Translation, TRANSLATIONS
 from user_database_tg.db.models import DbUser
 
 
@@ -35,14 +35,14 @@ async def lang_choice(
 ):  # todo 2/24/2022 11:41 PM taima:
     if message.text.startswith("🇷🇺"):
         db_user.language = "russian"
-        translation = translations[db_user.language]
+        translation = TRANSLATIONS[db_user.language]
         await message.answer(
             "Язык интерфейса выбран 🇷🇺 ✅", reply_markup=markups.get_menu(translation)
         )
 
     elif message.text.startswith("🇬🇧"):
         db_user.language = "english"
-        translation = translations[db_user.language]
+        translation = TRANSLATIONS[db_user.language]
         await message.answer(
             "The interface language is selected 🇬🇧 ✅",
             reply_markup=markups.get_menu(translation),

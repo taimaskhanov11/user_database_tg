@@ -2,12 +2,12 @@ from aiogram import Dispatcher, types
 from loguru import logger
 
 from user_database_tg.app.filters.email_filter import EmailFilter
-from user_database_tg.app.translation.message_data import Translation
+from user_database_tg.app.translation.message_translation import Translation
 from user_database_tg.db.models import *
 
 
 async def search_data(
-    message: types.Message, db_user: DbUser, translation: Translation
+        message: types.Message, db_user: DbUser, translation: Translation
 ):
     # logger.critical(db_user)
     # logger.info("6.Handler")
@@ -19,12 +19,25 @@ async def search_data(
         return
 
     if (
-        db_user.subscription.remaining_daily_limit == 0
+            db_user.subscription.remaining_daily_limit == 0
     ):  # todo 2/27/2022 5:39 PM taima: Вынести в бд
         await message.answer(
             f"Закончился дневной лимит. Осталось запросов {db_user.subscription.remaining_daily_limit}.\n"
             f"Купите подписку или ожидайте пополнения запросов в 00:00"
         )
+        return
+
+    try:
+        # Проверка буквы запроса для поиска в определенной таблице
+        sign = message.text[0]
+        if sign.isalpha():
+            hack_model = globals()[f"{sign}_HackedUser"]
+        elif sign.isdigit():
+            hack_model = globals()[f"dig_file_HackedUser"]
+        else:
+            hack_model = globals()[f"sym_file_HackedUser"]
+    except Exception as e:
+        logger.critical(e)
         return
 
     # Уменьшение дневного запроса на 1 при каждом запросе
@@ -35,15 +48,6 @@ async def search_data(
     # Включение режима блокировки пока запрос не завершиться
     db_user.is_search = True
     await db_user.save()
-
-    # Проверка буквы запроса для поиска в определенной таблице
-    sign = message.text[0]
-    if sign.isalpha():
-        hack_model = globals()[f"{sign}_HackedUser"]
-    elif sign.isdigit():
-        hack_model = globals()[f"dig_file_HackedUser"]
-    else:
-        hack_model = globals()[f"sym_file_HackedUser"]
 
     # Поиск запроса в таблице
     logger.debug(f"Поиск {message.text} в таблице {hack_model.__name__}")

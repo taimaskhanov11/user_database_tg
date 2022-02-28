@@ -4,7 +4,7 @@ from aiogram import Dispatcher, types
 from loguru import logger
 
 from user_database_tg.app import markups
-from user_database_tg.app.translation.message_data import Translation
+from user_database_tg.app.translation.message_translation import Translation
 from user_database_tg.config.config import TZ
 from user_database_tg.db.models import DbUser
 
@@ -46,6 +46,6 @@ async def support(message: types.Message, translation: Translation):
 
 def register_main_menu_handlers(dp: Dispatcher):
     dp.register_message_handler(profile, text_startswith="👤")
-    dp.register_message_handler(buy, text_startswith="💰")
-    dp.register_message_handler(description, text_startswith="❗")
+    dp.register_message_handler(buy, text_startswith="💳")
+    dp.register_message_handler(description, text_startswith="🗒")
     dp.register_message_handler(support, text_startswith="🙋‍♂")

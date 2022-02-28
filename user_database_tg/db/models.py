@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 
 from aiogram import types
 from loguru import logger
+from playhouse.sqlite_udf import duration
 from tortoise import fields, models
 
 from user_database_tg.config.config import TZ
@@ -13,7 +14,7 @@ class HackedUser:
     service = fields.CharField(max_length=255)
 
 
-class DbMessage(models.Model):  # todo 2/26/2022 4:40 PM taima:
+class DbTranslation(models.Model):  # todo 2/26/2022 4:40 PM taima:
     title = fields.CharField(max_length=255)
     # text = fields.TextField()
     language = fields.CharField(max_length=20)
@@ -46,12 +47,20 @@ class DbMessage(models.Model):  # todo 2/26/2022 4:40 PM taima:
     reject_payment_b = fields.CharField(max_length=255)
 
 
+class SubscriptionInfo(models.Model):
+    title = fields.CharField(max_length=255)
+    price = fields.IntField()
+    days = fields.IntField()
+    daily_limit = fields.IntField(null=True)
+
+
 class Subscription(models.Model):
     title = fields.CharField(max_length=255, default="Нет подписки")
     is_subscribe = fields.BooleanField(default=False)
     is_paid = fields.BooleanField(default=True)
     # duration = fields.IntField(default=0)
     duration = fields.DatetimeField(auto_now_add=True)
+    days_duration = fields.IntField(default=0)
     daily_limit = fields.IntField(default=3, null=True)
     remaining_daily_limit = fields.IntField(default=3, null=True)
 
@@ -61,7 +70,6 @@ class DbUser(models.Model):
     username = fields.CharField(max_length=255)
     subscription = fields.OneToOneField("models.Subscription")
     language = fields.CharField(max_length=20, null=True, default=None)
-
     is_search = fields.BooleanField(default=False)
 
     # translation = None
@@ -115,22 +123,18 @@ class Billing(models.Model):
     subscription = fields.OneToOneField("models.Subscription")
 
     @classmethod
-    async def create_bill(cls, db_user, bill_id, amount, duration, daily_limit):
-        # перевод месяца в дни
-        days = int(duration) * 30
-
-        if daily_limit == "n":
-            daily_limit = None
+    async def create_bill(cls, db_user, bill_id, sub_info: SubscriptionInfo):
         subscription = await Subscription.create(
-            title=f"{duration} мес({daily_limit or 'Безлимит'} в сутки) {amount} rub",
+            title=sub_info.title,
             is_subscribe=True,
             is_paid=False,
-            duration=datetime.now(TZ) + timedelta(days),
-            daily_limit=daily_limit,
-            remaining_daily_limit=daily_limit,
+            duration=datetime.now(TZ) + timedelta(int(sub_info.days)),
+            days_duration=sub_info.days,
+            daily_limit=sub_info.daily_limit,
+            remaining_daily_limit=sub_info.daily_limit,
         )
-        await cls.create(
-            db_user=db_user, bill_id=bill_id, amount=amount, subscription=subscription
+        return await cls.create(
+            db_user=db_user, bill_id=bill_id, amount=sub_info.price, subscription=subscription
         )
 
 
@@ -167,7 +171,7 @@ __all__ = [
     "DbUser",
     "Subscription",
     "Billing",
-    "DbMessage",
+    "DbTranslation",
     "dig_file_HackedUser",
     "sym_file_HackedUser",
     "a_HackedUser",

@@ -2,7 +2,7 @@ from aiogram import types
 from aiogram.dispatcher.middlewares import BaseMiddleware
 from loguru import logger
 
-from user_database_tg.app.translation.message_data import translations
+from user_database_tg.app.translation.message_translation import TRANSLATIONS
 from user_database_tg.db.models import DbUser
 
 
@@ -30,7 +30,7 @@ class FatherMiddleware(BaseMiddleware):
             message.from_user.id, message.from_user.username
         )
         data["db_user"] = db_user
-        data["translation"] = translations.get(db_user.language)
+        data["translation"] = TRANSLATIONS.get(db_user.language)
         logger.info(f"{db_user.username}[{db_user.user_id}]")
         # data["user"] = User.get_or_create(user_id=message.from_user.id, defaults={
         #

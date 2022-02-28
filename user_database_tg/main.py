@@ -15,7 +15,8 @@ from user_database_tg.app.handlers import (
     register_subscriptions_handlers,
 )
 from user_database_tg.app.middleware.father_middleware import FatherMiddleware
-from user_database_tg.app.translation.message_data import init_translations
+from user_database_tg.app.subscription.subscription_info import init_subscriptions_info
+from user_database_tg.app.translation.message_translation import init_translations
 from user_database_tg.app.utils.subcribe_processes import (
     updating_the_daily_requests_limit,
 )
@@ -103,6 +104,9 @@ async def main():
 
     # Инициализация переводов
     await init_translations()
+
+    # Инициализация информации подписок
+    await init_subscriptions_info()
 
     # Запуск задачи ежедневного обновления запросов и проверки подписки
     asyncio.create_task(updating_the_daily_requests_limit())

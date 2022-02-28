@@ -7,9 +7,10 @@ from loguru import logger
 from user_database_tg.app import markups
 from user_database_tg.app.filters.payment_filters import (
     RejectPaymentFilter,
-    SubscribeFilter,
+    SubscribeFilter, AcceptPaymentFilter,
 )
-from user_database_tg.app.translation.message_data import Translation
+from user_database_tg.app.subscription.subscription_info import SUBSCRIPTIONS_INFO
+from user_database_tg.app.translation.message_translation import Translation
 from user_database_tg.app.utils.payment_processes import check_payment
 from user_database_tg.config.config import p2p
 from user_database_tg.db.models import Billing, DbUser
@@ -17,44 +18,46 @@ from user_database_tg.db.models import Billing, DbUser
 
 @logger.catch
 async def subscribe(
-    call: types.CallbackQuery, db_user: DbUser, translation: Translation
+        call: types.CallbackQuery, db_user: DbUser, translation: Translation
 ):
     logger.critical(db_user)
-    bill = await Billing.get_or_none(db_user=db_user)
-    if bill:
+    bill_db = await Billing.get_or_none(db_user=db_user).select_related("subscription")
+    if bill_db:
+        bill = await p2p.check(bill_db.bill_id)
         await call.message.delete()
         await call.message.answer(
-            translation.wait_payment,
-            reply_markup=markups.get_subscribe_menu(translation, wait=True),
+            f"{translation.wait_payment}\n{bill_db.subscription.title}",
+            # reply_markup=markups.get_subscribe_menu(translation, wait=True),
+            reply_markup=markups.get_subscribe_payment(bill.pay_url, translation),
         )
     else:
-        duration, day_limit, amount = re.findall(r"_d(.*)_(.*)_(.*)", call.data)[0]
-        days = int(duration) * 30
-        comment = f"{call.from_user.id}_{duration}_{random.randint(1000, 9999)}"
+        sub_info = SUBSCRIPTIONS_INFO.get(int(re.findall(r"_(\d*)", call.data)[0]))
+
+        comment = f"{call.from_user.id}_{sub_info.days}_{random.randint(1000, 9999)}"
         bill_id = f"{str(call.from_user.id)[-6:-1]}{random.randint(1, 9999)}"
         bill = await p2p.bill(
-            bill_id=int(bill_id), amount=amount, lifetime=15, comment=comment
+            bill_id=int(bill_id), amount=sub_info.price, lifetime=15, comment=comment
         )
-        await Billing.create_bill(
-            db_user, bill.bill_id, amount, duration, day_limit
+        db_bill = await Billing.create_bill(
+            db_user, bill.bill_id, sub_info
         )  # todo 2/26/2022 7:07 PM taima:
+
         await call.message.delete()
-        call = await call.message.answer(
-            translation.create_payment.format(days=days, amount=amount),
-            reply_markup=markups.get_subscribe(bill.pay_url, translation),
+        await call.message.answer(
+            db_bill.subscription.title,
+            reply_markup=markups.get_subscribe_payment(bill.pay_url, translation),
         )
-        await check_payment(bill.bill_id, db_user.user_id, call)
+        # await check_payment(bill.bill_id, db_user.user_id)
 
 
 @logger.catch
 async def reject_payment(
-    call: types.CallbackQuery, db_user: DbUser, translation: Translation
+        call: types.CallbackQuery, db_user: DbUser, translation: Translation
 ):
     bill_obj = await Billing.get(db_user=db_user).select_related("subscription")
     bill = await p2p.reject(bill_obj.bill_id)
     await bill_obj.delete()
-    # await bill_obj.subscription.delete()
-
+    await bill_obj.subscription.delete()
     await call.message.delete()
     logger.info(
         f"{call.from_user.id}|Оплата {bill_obj.bill_id}|{bill.status} отменена "
@@ -64,9 +67,26 @@ async def reject_payment(
     )
 
 
+async def accept_payment(
+        call: types.CallbackQuery, db_user: DbUser, translation: Translation
+):
+    db_bill = await Billing.get(db_user=db_user).select_related("subscription")
+    is_paid = await check_payment(db_bill.bill_id, db_user)
+
+    if is_paid:
+        await call.message.delete()
+        await call.message.answer(
+            f"Подписка {db_bill.subscription.title} успешно оплачена!"
+        )
+    else:
+        await call.answer("❗️ Платеж не найден")
+
+
 def register_subscriptions_handlers(dp: Dispatcher):
     # dp.register_callback_query_handler(subscribe, text_startswith="subscribe_")
     # dp.register_callback_query_handler(reject_payment, text="reject_payment")
     dp.register_callback_query_handler(subscribe, SubscribeFilter())
     dp.register_callback_query_handler(reject_payment, RejectPaymentFilter())
+    dp.register_callback_query_handler(accept_payment, AcceptPaymentFilter())
+
     # dp.register_callback_query_handler(subscribe_month, text="subscribe_month")
