@@ -34,15 +34,20 @@ class DbTranslation(models.Model):  # todo 2/26/2022 4:40 PM taima:
     support_b = fields.CharField(max_length=255)
     subscribe_b = fields.CharField(max_length=255)
 
-    # waiting for end search
+    # search
     wait_search = fields.TextField()
     data_not_found = fields.TextField()
+    daily_limit_ended = fields.TextField()
+    left_attempts = fields.TextField()
 
-    # waiting for pay
+    # pay
     create_payment = fields.TextField()
     wait_payment = fields.TextField()
     go_payment_b = fields.CharField(max_length=255)
+    payment_not_found = fields.TextField()
 
+    accept_payment = fields.TextField()
+    accept_payment_b = fields.CharField(max_length=255)
     reject_payment = fields.TextField()
     reject_payment_b = fields.CharField(max_length=255)
 
@@ -52,6 +57,15 @@ class SubscriptionInfo(models.Model):
     price = fields.IntField()
     days = fields.IntField()
     daily_limit = fields.IntField(null=True)
+
+    def __str__(self):
+        return (
+            f"ID: {self.pk}\n"
+            f"Название : {self.title}\n"
+            f"Цена: {self.price}\n"
+            f"Количество дней: {self.days}\n"
+            f"Дневной лимит запросов: {self.daily_limit}"
+        )
 
 
 class Subscription(models.Model):
@@ -134,7 +148,10 @@ class Billing(models.Model):
             remaining_daily_limit=sub_info.daily_limit,
         )
         return await cls.create(
-            db_user=db_user, bill_id=bill_id, amount=sub_info.price, subscription=subscription
+            db_user=db_user,
+            bill_id=bill_id,
+            amount=sub_info.price,
+            subscription=subscription,
         )
 
 

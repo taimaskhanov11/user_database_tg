@@ -5,8 +5,11 @@ from aiogram.dispatcher.filters.state import State, StatesGroup
 from loguru import logger
 
 from user_database_tg.app import markups
-from user_database_tg.app.translation.message_translation import Translation, TRANSLATIONS
-from user_database_tg.db.models import DbUser
+from user_database_tg.app.translation.message_translation import (
+    Translation,
+    TRANSLATIONS,
+)
+from user_database_tg.db.models import DbUser, DbTranslation
 
 
 class LangChoice(StatesGroup):
@@ -15,7 +18,10 @@ class LangChoice(StatesGroup):
 
 @logger.catch
 async def start(
-    message: types.Message, state: FSMContext, db_user: DbUser, translation: Translation
+    message: types.Message,
+    state: FSMContext,
+    db_user: DbUser,
+    translation: DbTranslation,
 ):
     await state.finish()
     if not db_user.language:

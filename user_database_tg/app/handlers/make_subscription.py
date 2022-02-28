@@ -7,18 +7,19 @@ from loguru import logger
 from user_database_tg.app import markups
 from user_database_tg.app.filters.payment_filters import (
     RejectPaymentFilter,
-    SubscribeFilter, AcceptPaymentFilter,
+    SubscribeFilter,
+    AcceptPaymentFilter,
 )
 from user_database_tg.app.subscription.subscription_info import SUBSCRIPTIONS_INFO
 from user_database_tg.app.translation.message_translation import Translation
 from user_database_tg.app.utils.payment_processes import check_payment
 from user_database_tg.config.config import p2p
-from user_database_tg.db.models import Billing, DbUser
+from user_database_tg.db.models import Billing, DbUser, DbTranslation
 
 
 @logger.catch
 async def subscribe(
-        call: types.CallbackQuery, db_user: DbUser, translation: Translation
+    call: types.CallbackQuery, db_user: DbUser, translation: DbTranslation
 ):
     logger.critical(db_user)
     bill_db = await Billing.get_or_none(db_user=db_user).select_related("subscription")
@@ -44,7 +45,7 @@ async def subscribe(
 
         await call.message.delete()
         await call.message.answer(
-            db_bill.subscription.title,
+            translation.create_payment.format(title=db_bill.subscription.title),
             reply_markup=markups.get_subscribe_payment(bill.pay_url, translation),
         )
         # await check_payment(bill.bill_id, db_user.user_id)
@@ -52,7 +53,7 @@ async def subscribe(
 
 @logger.catch
 async def reject_payment(
-        call: types.CallbackQuery, db_user: DbUser, translation: Translation
+    call: types.CallbackQuery, db_user: DbUser, translation: DbTranslation
 ):
     bill_obj = await Billing.get(db_user=db_user).select_related("subscription")
     bill = await p2p.reject(bill_obj.bill_id)
@@ -68,7 +69,7 @@ async def reject_payment(
 
 
 async def accept_payment(
-        call: types.CallbackQuery, db_user: DbUser, translation: Translation
+    call: types.CallbackQuery, db_user: DbUser, translation: DbTranslation
 ):
     db_bill = await Billing.get(db_user=db_user).select_related("subscription")
     is_paid = await check_payment(db_bill.bill_id, db_user)
@@ -76,10 +77,12 @@ async def accept_payment(
     if is_paid:
         await call.message.delete()
         await call.message.answer(
-            f"Подписка {db_bill.subscription.title} успешно оплачена!"
+            # f"Подписка {db_bill.subscription.title} успешно оплачена!"
+            translation.accept_payment.format(title=db_bill.subscription.title)
         )
     else:
-        await call.answer("❗️ Платеж не найден")
+        # await call.answer("❗️ Платеж не найден")
+        await call.answer(translation.payment_not_found)
 
 
 def register_subscriptions_handlers(dp: Dispatcher):

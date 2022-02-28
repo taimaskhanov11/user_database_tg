@@ -7,16 +7,18 @@ from aiogram.types import (
     ReplyKeyboardMarkup,
 )
 
-btn_current_menu = InlineKeyboardButton(
-    text="Посмотреть текущий перевод меню", callback_data="watch_translate"
-)
-btn_change_menu = InlineKeyboardButton(
-    text="Изменить меню", callback_data="change_translate"
-)
+admin_menu_data = [
+    ("Посмотреть подписки", "view_subscription"),
+    ("Создать новую подписку", "create_subscription"),
+]
+kbr_admin_menu = [
+    [
+        InlineKeyboardButton(
+            text=text,
+            callback_data=data,
+        )
+    ]
+    for text, data in admin_menu_data
+]
 
-btn_change_price = InlineKeyboardButton(
-    text="Изменить цены", callback_data="change_prices"
-)
-
-
-admin_menu = InlineKeyboardMarkup(inline_keyboard=[[]])
+menu = InlineKeyboardMarkup(inline_keyboard=kbr_admin_menu)

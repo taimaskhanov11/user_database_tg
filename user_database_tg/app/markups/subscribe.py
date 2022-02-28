@@ -2,9 +2,10 @@ from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
 from user_database_tg.app.subscription.subscription_info import SUBSCRIPTIONS_INFO
 from user_database_tg.app.translation.message_translation import Translation
+from user_database_tg.db.models import DbTranslation
 
 
-def get_subscribe_menu(translation: Translation):
+def get_subscribe_menu(translation: DbTranslation):
     btns_subscribe = [
         [InlineKeyboardButton(text=sub.title, callback_data=f"subscribe_{pk}")]
         for pk, sub in SUBSCRIPTIONS_INFO.items()
@@ -62,11 +63,13 @@ def get_subscribe_menu(translation: Translation):
     return subscribe_menu
 
 
-def get_subscribe_payment(url, translation: Translation):
+def get_subscribe_payment(url, translation: DbTranslation):
     qiwi_menu = InlineKeyboardMarkup()
     btn_url = InlineKeyboardButton(text=translation.go_payment_b, url=url)
     btn_accept = InlineKeyboardButton(
-        text="⌛️Я ОПЛАТИЛ", callback_data="accept_payment"  # todo 2/28/2022 6:15 PM taima:
+        # text="⌛️Я ОПЛАТИЛ", callback_data="accept_payment"  # todo 2/28/2022 6:15 PM taima:
+        text=translation.accept_payment_b,
+        callback_data="accept_payment",  # todo 2/28/2022 6:15 PM taima:
     )
     btn_reject = InlineKeyboardButton(
         text=translation.reject_payment_b, callback_data="reject_payment"

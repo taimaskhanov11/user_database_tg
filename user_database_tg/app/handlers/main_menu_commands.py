@@ -6,11 +6,11 @@ from loguru import logger
 from user_database_tg.app import markups
 from user_database_tg.app.translation.message_translation import Translation
 from user_database_tg.config.config import TZ
-from user_database_tg.db.models import DbUser
+from user_database_tg.db.models import DbUser, DbTranslation
 
 
 async def profile(
-    message: types.Message, db_user: DbUser, translation: Translation
+    message: types.Message, db_user: DbUser, translation: DbTranslation
 ):  # todo 2/25/2022 12:34 AM taima:
     await message.answer(
         translation.profile.format(
@@ -26,19 +26,19 @@ async def profile(
 
 
 @logger.catch
-async def buy(message: types.Message, translation: Translation):
+async def buy(message: types.Message, translation: DbTranslation):
     await message.answer(
         translation.subscribe, reply_markup=markups.get_subscribe_menu(translation)
     )
 
 
-async def description(message: types.Message, translation: Translation):
+async def description(message: types.Message, translation: DbTranslation):
     await message.answer(
         translation.description, reply_markup=markups.get_menu(translation)
     )
 
 
-async def support(message: types.Message, translation: Translation):
+async def support(message: types.Message, translation: DbTranslation):
     await message.answer(
         translation.support, reply_markup=markups.get_menu(translation)
     )

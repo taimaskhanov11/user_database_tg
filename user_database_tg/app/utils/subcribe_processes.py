@@ -48,10 +48,13 @@ async def updating_the_daily_requests_limit(start=True):
 
         sub.remaining_daily_limit = sub.daily_limit
         await sub.save()
-        await bot.send_message(sub.db_user.user_id, f"Дневной лимит запросов обновлен.\n"
-                                                    f"У вас сейчас {sub.daily_limit}")
+        await bot.send_message(
+            sub.db_user.user_id,
+            f"Дневной лимит запросов обновлен.\n" f"У вас сейчас {sub.daily_limit}",
+        )
     logger.info(
-        f"Ежедневный лимит запросов обновлен |{start=}|{update_date}|{total_seconds}s. Следующая проверка через 24 часа")
+        f"Ежедневный лимит запросов обновлен |{start=}|{update_date}|{total_seconds}s. Следующая проверка через 24 часа"
+    )
     asyncio.create_task(updating_the_daily_requests_limit(start=False))
 
 

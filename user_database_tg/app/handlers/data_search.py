@@ -7,7 +7,7 @@ from user_database_tg.db.models import *
 
 
 async def search_data(
-        message: types.Message, db_user: DbUser, translation: Translation
+    message: types.Message, db_user: DbUser, translation: DbTranslation
 ):
     # logger.critical(db_user)
     # logger.info("6.Handler")
@@ -19,11 +19,14 @@ async def search_data(
         return
 
     if (
-            db_user.subscription.remaining_daily_limit == 0
+        db_user.subscription.remaining_daily_limit == 0
     ):  # todo 2/27/2022 5:39 PM taima: Вынести в бд
         await message.answer(
-            f"Закончился дневной лимит. Осталось запросов {db_user.subscription.remaining_daily_limit}.\n"
-            f"Купите подписку или ожидайте пополнения запросов в 00:00"
+            # f"Закончился дневной лимит. Осталось запросов {db_user.subscription.remaining_daily_limit}.\n"
+            # f"Купите подписку или ожидайте пополнения запросов в 00:00"
+            translation.daily_limit_ended.format(
+                limit=db_user.subscription.remaining_daily_limit
+            )
         )
         return
 
@@ -55,8 +58,11 @@ async def search_data(
     if not res:
         answer = translation.data_not_found.format(email=message.text)
     else:
-        answer = "".join([f"{h.email}|{h.password}|{h.service}\n" for h in res])
-    answer += f"\nОсталось попыток {db_user.subscription.remaining_daily_limit}"
+        answer = "\n".join([f"{h.email}|{h.password}|{h.service}" for h in res])
+    # answer += f"\nОсталось попыток {db_user.subscription.remaining_daily_limit}"
+    answer += translation.left_attempts.format(
+        limit=db_user.subscription.remaining_daily_limit
+    )
 
     # Ответ и отключение режима поиска
     await message.answer(answer)

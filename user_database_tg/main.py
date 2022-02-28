@@ -14,6 +14,7 @@ from user_database_tg.app.handlers import (
     register_main_menu_handlers,
     register_subscriptions_handlers,
 )
+from user_database_tg.app.handlers.admin_handlers import register_admin_handlers
 from user_database_tg.app.middleware.father_middleware import FatherMiddleware
 from user_database_tg.app.subscription.subscription_info import init_subscriptions_info
 from user_database_tg.app.translation.message_translation import init_translations
@@ -83,6 +84,9 @@ async def main():
     register_subscriptions_handlers(dp)
     register_data_search_handlers(dp)
     register_admin_menu_handlers(dp)
+
+    # Меню админа
+    register_admin_handlers(dp)
 
     # Регистрация middleware
     # dp.middleware.setup(ThrottlingMiddleware(3))

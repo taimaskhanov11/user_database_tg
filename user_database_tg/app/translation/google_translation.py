@@ -1,6 +1,7 @@
 import asyncio
 import html
 import re
+
 # import urllib
 
 import aiohttp.helpers
@@ -8,8 +9,8 @@ import aiohttp.helpers
 # from mtranslate import translate
 from loguru import logger
 
-agent = {'User-Agent':
-             "Mozilla/4.0 (\
+agent = {
+    "User-Agent": "Mozilla/4.0 (\
     compatible;\
     MSIE 6.0;\
     Windows NT 5.1;\
@@ -17,7 +18,8 @@ agent = {'User-Agent':
     .NET CLR 1.1.4322;\
     .NET CLR 2.0.50727;\
     .NET CLR 3.0.04506.30\
-    )"}
+    )"
+}
 
 
 async def translate(field, to_translate, to_language="auto", from_language="auto"):
@@ -33,5 +35,5 @@ async def translate(field, to_translate, to_language="auto", from_language="auto
             return {field: result}
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     asyncio.run(translate("Hi as >< 🙋‍ П ", "ru"))
