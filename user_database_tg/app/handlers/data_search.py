@@ -39,9 +39,7 @@ async def search_data(
         await message.answer(translation.wait_search)
         return
 
-    if (
-            db_user.subscription.remaining_daily_limit == 0
-    ):  # todo 2/27/2022 5:39 PM taima: Вынести в бд
+    if db_user.subscription.remaining_daily_limit == 0:  # todo 2/27/2022 5:39 PM taima: Вынести в бд
         await message.answer(
             # f"Закончился дневной лимит. Осталось запросов {db_user.subscription.remaining_daily_limit}.\n"
             # f"Купите подписку или ожидайте пополнения запросов в 00:00"
@@ -90,7 +88,6 @@ async def search_data(
             answer = translation.data_not_found.format(email=message.text)
         else:
             answer = "______________________________"
-
             find_dict = collections.defaultdict(list)
             for h in res:
                 find_dict[h.service].append(f"{h.email}: {h.password}")

@@ -120,7 +120,7 @@ async def main():
     asyncio.create_task(updating_the_daily_requests_limit())
 
     # Создание резервного копирования
-    asyncio.create_task(making_backup(10))
+    asyncio.create_task(making_backup(3600))
 
     # Запуск поллинга
     # await dp.skip_updates()  # пропуск накопившихся апдейтов (необязательно)

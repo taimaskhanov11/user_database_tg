@@ -13,6 +13,7 @@ class EmailFilter(BoundFilter):
         # if message.text[0].isalpha() and '@' in message.text:
         match = re.match('^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,4})$', message.text)
         # if "@" in message.text:
+        logger.trace(match)
         if match:
             return True
         return False
