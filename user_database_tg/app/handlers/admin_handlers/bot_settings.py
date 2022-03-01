@@ -28,11 +28,10 @@ class EditChannelStates(StatesGroup):
 async def get_bot_info(call: types.CallbackQuery):
     users_count = await DbUser.all().count()
     last_reg_users = "\n".join([f"@{us.username}" for us in Limit.new_users_in_last_day_obj])
-    last_reg_users = ""
 
     for i in range(10):
         try:
-            last_reg_users += f"@{Limit.new_users_in_last_day_obj.pop().username}\n"
+            last_reg_users += f"{Limit.new_users_in_last_day_obj.pop()}\n"
         except Exception as e:
             logger.trace(e)
             break
