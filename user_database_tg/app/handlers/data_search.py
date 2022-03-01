@@ -67,7 +67,7 @@ async def search_data(
             NO_FIND_EMAIL.append(message.text)
             answer = translation.data_not_found.format(email=message.text)
         else:
-            answer = "\n\n".join([f"{h.service}\n{h.email}: {h.password}|" for h in res])
+            answer = "\n\n".join([f"{h.service}\n{h.email}: {h.password}" for h in res])
         # answer += f"\nОсталось попыток {db_user.subscription.remaining_daily_limit}"
         # if db_user.subscription.remaining_daily_limit is not None:
         #     answer += "\n" + translation.left_attempts.format(limit=db_user.subscription.remaining_daily_limit)
