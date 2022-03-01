@@ -8,10 +8,30 @@ from aiogram.types import (
 from user_database_tg.app import subscription
 from user_database_tg.app.subscription.subscription_info import SUBSCRIPTIONS_INFO
 
+admin_menu_main_data = [
+    ("Общая информация о боте", "bot_info"),
+    ("Информация о конкретном пользователе", "user_info"),
+    ("Настройка работы бота", "bot_settings"),
+]
+
+admin_menu_main = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text=text,
+                    callback_data=data,
+                )
+            ]
+            for text, data in admin_menu_main_data
+        ]
+    )
+
 admin_menu_data = [
     ("Посмотреть подписки", "view_all_subscriptions"),
     ("Создать новую подписку", "create_subscription"),
     ("Посмотреть меню", "view_menu"),
+    ("Настроить подписку на канал/группу", "sub_channel_status"),
+    # todo 3/1/2022 10:26 PM taima:
 ]
 btn_admin_menu = [
     [

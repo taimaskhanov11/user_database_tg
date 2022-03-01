@@ -5,7 +5,7 @@ from loguru import logger
 
 from user_database_tg.config.config import TZ
 from user_database_tg.db.db_main import init_db
-from user_database_tg.db.models import Subscription
+from user_database_tg.db.models import Subscription, Limit
 from user_database_tg.loader import bot
 
 
@@ -52,6 +52,10 @@ async def updating_the_daily_requests_limit(start=True):
             sub.db_user.user_id,
             f"Дневной лимит запросов обновлен.\n" f"У вас сейчас {sub.daily_limit}",
         )
+    Limit.number_day_requests = 0
+    Limit.new_users_in_last_day = 0
+    Limit.lats_day_amount_payments = 0
+
     logger.info(
         f"Ежедневный лимит запросов обновлен |{start=}|{update_date}|{total_seconds}s. Следующая проверка через 24 часа"
     )

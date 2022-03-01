@@ -1,10 +1,11 @@
 import asyncio
+from datetime import datetime
 
 from aiogram import types
 from loguru import logger
 
-from user_database_tg.config.config import p2p
-from user_database_tg.db.models import Billing, DbUser
+from user_database_tg.config.config import p2p, TZ
+from user_database_tg.db.models import Billing, DbUser, Limit, Payment
 from user_database_tg.loader import bot
 
 
@@ -19,6 +20,11 @@ async def check_payment(bill_id, db_user):  # todo 2/28/2022 8:53 PM taima: по
     if bill.status == "PAID":
         logger.info(f"{db_user.user_id}|{bill.bill_id} успешно оплачен")
         db_bill = await Billing.get(bill_id=bill_id).prefetch_related("subscription")
+
+        Limit.last_pay_users.append(f"@{db_user.username}|{datetime.now().replace(microsecond=0)}|{db_bill.amount}р\n")
+        Limit.lats_day_amount_payments += db_bill.amount
+        await Payment.create(db_user=db_user, date=datetime.now(TZ), amount=db_bill.amount)
+
         db_bill.subscription.is_paid = True  ##todo 2/28/2022 9:20 PM taima: Добавить оставшиеся дни в новую подписку
         old_sub = db_user.subscription
         db_user.subscription = db_bill.subscription
@@ -33,7 +39,7 @@ async def check_payment(bill_id, db_user):  # todo 2/28/2022 8:53 PM taima: по
 
 @logger.catch
 async def check_payment2(
-    bill_id, user_id, message: types.Message
+        bill_id, user_id, message: types.Message
 ):  # todo 2/27/2022 3:08 PM taima:  translation
     for _ in range(30):
         bill = await p2p.check(bill_id=bill_id)

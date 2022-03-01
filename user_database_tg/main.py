@@ -19,10 +19,12 @@ from user_database_tg.app.handlers.admin_handlers import register_admin_handlers
 from user_database_tg.app.middleware.father_middleware import FatherMiddleware
 from user_database_tg.app.subscription.subscription_info import init_subscriptions_info
 from user_database_tg.app.translation.message_translation import init_translations
+from user_database_tg.app.utils.backup import making_backup
 from user_database_tg.app.utils.subcribe_processes import (
     updating_the_daily_requests_limit,
 )
 from user_database_tg.db.db_main import init_db
+from user_database_tg.db.models import SubscriptionChannel
 from user_database_tg.loader import bot, dp
 
 log.remove()
@@ -70,7 +72,6 @@ async def main():
     #     format="%(asctime)s - %(levelname)s - %(name)s - %(message)s",
     # )
     log.info("Starting bot")
-
     # Парсинг файла конфигурации
     # config = load_config("config/bot.ini")
 
@@ -113,9 +114,11 @@ async def main():
     # Инициализация информации подписок
     await init_subscriptions_info()
 
-
     # Запуск задачи ежедневного обновления запросов и проверки подписки
     asyncio.create_task(updating_the_daily_requests_limit())
+
+    # Создание резервного копирования
+    asyncio.create_task(making_backup(10))
 
     # Запуск поллинга
     # await dp.skip_updates()  # пропуск накопившихся апдейтов (необязательно)

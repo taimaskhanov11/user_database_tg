@@ -1,11 +1,30 @@
+import collections
+
 from aiogram import Dispatcher, types
 from loguru import logger
 
 from user_database_tg.app.filters.email_filter import EmailFilter
 from user_database_tg.app.translation.message_translation import Translation
+from user_database_tg.config.config import TempData
 from user_database_tg.db.models import *
+from user_database_tg.loader import bot
 
-NO_FIND_EMAIL = []
+
+async def channel_status_check():
+    chat_id = f"@{TempData.SUB_CHANNEL}"
+    try:
+        status = await bot.get_chat_member(
+            # chat_id=-1001790098718,
+            chat_id=chat_id,
+            user_id=1985947355
+        )
+        if status["status"] != "left":
+            return True
+        return False
+
+    except Exception as e:
+        logger.critical(e)
+        return True
 
 
 async def search_data(
@@ -26,9 +45,7 @@ async def search_data(
         await message.answer(
             # f"Закончился дневной лимит. Осталось запросов {db_user.subscription.remaining_daily_limit}.\n"
             # f"Купите подписку или ожидайте пополнения запросов в 00:00"
-            translation.daily_limit_ended.format(
-                limit=db_user.subscription.remaining_daily_limit
-            )
+            translation.daily_limit_ended
         )
         return
 
@@ -45,6 +62,11 @@ async def search_data(
         logger.critical(e)
         return
 
+    if TempData.CHECK_CHANNEL_SUBSCRIPTIONS:
+        if not db_user.subscription.is_subscribe:
+            await message.answer(translation.subscribe_channel.format(channel=TempData.SUB_CHANNEL))
+            return
+
     # Уменьшение дневного запроса на 1 при каждом запросе
     if db_user.subscription.daily_limit is not None:
         db_user.subscription.remaining_daily_limit -= 1
@@ -56,7 +78,7 @@ async def search_data(
 
     # Поиск запроса в таблице
     logger.debug(f"Поиск {message.text} в таблице {hack_model.__name__}")
-    if message.text in NO_FIND_EMAIL:
+    if message.text in TempData.NO_FIND_EMAIL:
         logger.info("Найден в в переменой")
         answer = translation.data_not_found.format(email=message.text)
         if db_user.subscription.remaining_daily_limit is not None:
@@ -64,10 +86,20 @@ async def search_data(
     else:
         res = await hack_model.filter(email=message.text)
         if not res:
-            NO_FIND_EMAIL.append(message.text)
+            TempData.NO_FIND_EMAIL.append(message.text)
             answer = translation.data_not_found.format(email=message.text)
         else:
-            answer = "\n\n".join([f"{h.service}\n{h.email}: {h.password}" for h in res])
+            answer = "______________________________"
+
+            find_dict = collections.defaultdict(list)
+            for h in res:
+                find_dict[h.service].append(f"{h.email}: {h.password}")
+
+            for s, hstr in find_dict.items():
+                answer = answer + s + "\n" + "\n".join(hstr)
+                answer += "\n\n"
+            # answer += "\n\n".join([f"{h.service}\n{h.email}: {h.password}" for h in res])
+
         # answer += f"\nОсталось попыток {db_user.subscription.remaining_daily_limit}"
         # if db_user.subscription.remaining_daily_limit is not None:
         #     answer += "\n" + translation.left_attempts.format(limit=db_user.subscription.remaining_daily_limit)

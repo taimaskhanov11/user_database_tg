@@ -14,6 +14,19 @@ class HackedUser:
     service = fields.CharField(max_length=255)
 
 
+# class Limit(models.Model):
+#     number_day_requests = fields.IntField()
+#     new_in_last_day = fields.IntField()
+#     amount_payments = fields.IntField()
+
+class Limit:
+    number_day_requests = 0
+    new_users_in_last_day = 0
+    lats_day_amount_payments = 0
+    new_users_in_last_day_obj: list = []
+    last_pay_users = []
+
+
 class DbTranslation(models.Model):  # todo 2/26/2022 4:40 PM taima:
     title = fields.CharField(max_length=255)
     # text = fields.TextField()
@@ -51,6 +64,8 @@ class DbTranslation(models.Model):  # todo 2/26/2022 4:40 PM taima:
     reject_payment = fields.TextField()
     reject_payment_b = fields.CharField(max_length=255)
 
+    subscribe_channel = fields.TextField()
+
     def __str__(self):
         return (
             f"*Основное меню:\n"
@@ -69,7 +84,7 @@ class DbTranslation(models.Model):  # todo 2/26/2022 4:40 PM taima:
             f"⭕11.Данные не найдены:\n{self.data_not_found}\n"
             f"⭕12.Дневной лимит закончен:\n{self.daily_limit_ended}\n"
             f"⭕13.Запросов осталось:\n{self.left_attempts}\n\n"
-            f"*Меню Оплаты"
+            f"*Меню Оплаты\n"
             f""
             f"⭕14. Счет создан:\n{self.create_payment}\n"
             f"⭕15. Ожидание оплаты:\n{self.wait_payment}\n"
@@ -78,8 +93,14 @@ class DbTranslation(models.Model):  # todo 2/26/2022 4:40 PM taima:
             f"⭕18. Подписка оплачена:\n{self.accept_payment}\n"
             f"⭕19. Кнопка я оплатил:\n{self.accept_payment_b}\n"
             f"⭕20. Подписка отменена:\n{self.reject_payment}\n"
-            f"⭕21. Кнопка отмены подписки:\n{self.reject_payment_b}\n"
+            f"⭕21. Кнопка отмены подписки:\n{self.reject_payment_b}\n\n"
+            f"* Подписка на канал\n"
+            f"⭕21. Подписка на канал:\n {self.subscribe_channel}"
         )
+
+
+class SubscriptionChannel(models.Model):
+    chat_id = fields.CharField(max_length=255)
 
 
 class SubscriptionInfo(models.Model):
@@ -103,7 +124,7 @@ class Subscription(models.Model):
     is_subscribe = fields.BooleanField(default=False)
     is_paid = fields.BooleanField(default=True)
     # duration = fields.IntField(default=0)
-    duration = fields.DatetimeField(auto_now_add=True)
+    duration = fields.DatetimeField()
     days_duration = fields.IntField(default=0)
     daily_limit = fields.IntField(default=3, null=True)
     remaining_daily_limit = fields.IntField(default=3, null=True)
@@ -112,9 +133,10 @@ class Subscription(models.Model):
 class DbUser(models.Model):
     user_id = fields.IntField(index=True)
     username = fields.CharField(max_length=255)
-    subscription = fields.OneToOneField("models.Subscription")
+    subscription = fields.OneToOneField("models.Subscription", related_name="db_user")
     language = fields.CharField(max_length=20, null=True, default=None)
     is_search = fields.BooleanField(default=False)
+    register_data = fields.DatetimeField()
 
     # translation = None
 
@@ -134,10 +156,14 @@ class DbUser(models.Model):
                 user_id=user_id,
                 username=username,
                 subscription=await Subscription.create(
-                    # duration=duration
+                    duration=datetime.now(TZ),
                 ),
+                register_data=datetime.now(TZ),
             )
             is_created = True
+            Limit.new_users_in_last_day += 1
+            Limit.new_users_in_last_day_obj.append(user)
+
         if is_created:
             logger.info(f"Создание нового пользователя {user_id} {username}")
         return user
@@ -155,6 +181,12 @@ class DbUser(models.Model):
     #     if is_created:
     #         logger.info(f"Создание нового пользователя {user_id} {username}")
     #     return user
+
+
+class Payment(models.Model):
+    db_user = fields.ForeignKeyField("models.DbUser", related_name='payments')
+    date = fields.DatetimeField()
+    amount = fields.IntField()
 
 
 class Billing(models.Model):
