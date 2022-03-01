@@ -8,7 +8,7 @@ from loguru import logger
 from user_database_tg.app.filters.bot_settings import EditUserFilter
 from user_database_tg.app.markups import bot_settings_markup, admin_menu
 from user_database_tg.config.config import TempData
-from user_database_tg.db.models import DbUser, Limit, Payment, SubscriptionChannel
+from user_database_tg.db.models import DbUser, Limit, Payment, SubscriptionChannel, Subscription
 from user_database_tg.loader import bot
 
 
@@ -101,12 +101,14 @@ async def get_user_info_end(message: types.Message, state: FSMContext):
 
 async def edit_user_sub(call: types.CallbackQuery, state: FSMContext):
     user_id = int(re.findall(r"edit_user_(\d*)", call.data)[0])
-    await state.user(user_id=user_id)
+    await state.update_data(user_id=user_id)
     db_user = await DbUser.get(user_id=user_id).select_related("subscription")
+    # subscription = await Subscription.get(db_user=db_user)
     await call.message.answer(
         f"🔑 ID: {db_user.user_id}\n"
         f"👤 Логин: @{db_user.username}\n"
-        f"{db_user.subscription}", reply_markup=admin_menu.change_field
+        f"Подписка:\n{db_user.subscription}", reply_markup=admin_menu.change_user_sub_field
+        # f"{subscription}", reply_markup=admin_menu.change_field
     )
     await state.update_data(db_user=db_user)
     await EditUserSubStates.first()
@@ -116,7 +118,7 @@ async def edit_user_sub_start(call: types.CallbackQuery, state: FSMContext):
     field = call.data
     await state.update_data(field=field)
     await call.message.answer(f"Введите новое значения для поля {field}")
-    await EditUserSubStates.first()
+    await EditUserSubStates.next()
 
 
 async def edit_user_sub_end(message: types.Message, state: FSMContext):
@@ -136,7 +138,7 @@ async def edit_user_sub_end(message: types.Message, state: FSMContext):
         await message.answer(
             f"🔑 ID: {db_user.user_id}\n"
             f"👤 Логин: @{db_user.username}\n"
-            f"{db_user.subscription}"
+            f"Подписка:\n{db_user.subscription}"
         )
         await state.finish()
 
@@ -147,7 +149,7 @@ async def edit_user_sub_end(message: types.Message, state: FSMContext):
 
 async def sub_channel_status(call: types.CallbackQuery):
     await call.message.delete()
-    channel = f"Канал для подписки {TempData.SUB_CHANNEL}" if TempData.SUB_CHANNEL else "Нет группы для подписки"
+    channel = f"Канал для подписки @{TempData.SUB_CHANNEL.chat_id}" if TempData.SUB_CHANNEL else "Нет группы для подписки"
     channel_check = f"Проверка подписки отключена" if TempData.CHECK_CHANNEL_SUBSCRIPTIONS else "Проверка подписки включена"
     await call.message.answer(f"{channel}\n{channel_check}", reply_markup=bot_settings_markup.channel_status)
 
@@ -158,7 +160,7 @@ async def edit_sub_channel_status(call: types.CallbackQuery):
     else:
         TempData.CHECK_CHANNEL_SUBSCRIPTIONS = False
 
-    channel = f"Канал для подписки {TempData.SUB_CHANNEL}" if TempData.SUB_CHANNEL else "Нет группы для подписки"
+    channel = f"Канал для подписки @{TempData.SUB_CHANNEL.chat_id}" if TempData.SUB_CHANNEL else "Нет группы для подписки"
     channel_check = f"Проверка подписки отключена" if TempData.CHECK_CHANNEL_SUBSCRIPTIONS else "Проверка подписки включена"
 
     await call.message.answer("Статус подписки изменен\n"
@@ -172,7 +174,7 @@ async def change_sub_channel_start(call: types.CallbackQuery):
     )
     await EditChannelStates.start.set()
 
-
+@logger.catch
 async def change_sub_channel_end(message: types.Message, state: FSMContext):
     try:
         chat_id = message.text
@@ -181,17 +183,21 @@ async def change_sub_channel_end(message: types.Message, state: FSMContext):
         elif chat_id[0] == "@":
             pass
         else:
-            chat_id = re.findall(r"https://t.me/(.*)", chat_id)[0]
+            re_chat_id = re.findall(r"https://t.me/(.*)", chat_id)
+            if re_chat_id:
+                chat_id = re_chat_id[0]
             chat_id = f"@{chat_id}"
+
         chat_info = await bot.get_chat(
             chat_id=chat_id,
         )
 
         if TempData.SUB_CHANNEL is not None:
             await TempData.SUB_CHANNEL.delete()
-        TempData.SUB_CHANNEL = SubscriptionChannel.create(
+        TempData.SUB_CHANNEL = await SubscriptionChannel.create(
             chat_id=chat_info["username"],
         )
+        await message.answer("Данные обновлены")
         await state.finish()
     except Exception as e:
         logger.critical(e)

@@ -129,6 +129,14 @@ class Subscription(models.Model):
     daily_limit = fields.IntField(default=3, null=True)
     remaining_daily_limit = fields.IntField(default=3, null=True)
 
+    def __str__(self):
+        return (
+            # f"ID: {self.pk}\n"
+            f"Название : {self.title}\n"
+            f"Количество дней: {self.days_duration}\n"
+            f"Дневной лимит запросов: {self.daily_limit}\n"
+        )
+
 
 class DbUser(models.Model):
     user_id = fields.IntField(index=True)

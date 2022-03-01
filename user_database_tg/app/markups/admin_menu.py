@@ -98,6 +98,23 @@ change_field = InlineKeyboardMarkup(
     ]
 )
 
+change_user_sub_field = InlineKeyboardMarkup(
+    inline_keyboard=[
+        [
+            InlineKeyboardButton(
+                text=title,
+                callback_data=field,
+            )
+        ]
+        for title, field in (
+            ("Изменить название", "title"),
+            ("Изменить длительность подписки", "days_duration"),
+            ("Изменить дневной лимит", "daily_limit"),
+        )
+    ]
+)
+
+
 MENU_FIELDS = {
     1: "start_message",
     2: "profile",
