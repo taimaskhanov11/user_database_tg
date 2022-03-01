@@ -34,7 +34,7 @@ async def search_data(
     # logger.info("6.Handler")
     # logger.debug(middleware_data)
     # logger.debug(from_filter)
-
+    message.text  = message.text.lower()
     if db_user.is_search:
         await message.answer(translation.wait_search)
         return
