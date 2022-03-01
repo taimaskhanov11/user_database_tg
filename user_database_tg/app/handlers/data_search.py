@@ -69,8 +69,8 @@ async def search_data(
         else:
             answer = "\n\n".join([f"{h.service}\n{h.email}|password: {h.password}|" for h in res])
         # answer += f"\nОсталось попыток {db_user.subscription.remaining_daily_limit}"
-        if db_user.subscription.remaining_daily_limit is not None:
-            answer += "\n" + translation.left_attempts.format(limit=db_user.subscription.remaining_daily_limit)
+        # if db_user.subscription.remaining_daily_limit is not None:
+        #     answer += "\n" + translation.left_attempts.format(limit=db_user.subscription.remaining_daily_limit)
     # Ответ и отключение режима поиска
 
     if len(answer) > 4096:
@@ -78,7 +78,8 @@ async def search_data(
             await message.answer(answer[x:x + 4096])
     else:
         await message.answer(answer)
-
+    if db_user.subscription.remaining_daily_limit is not None:
+        await message.answer(translation.left_attempts.format(limit=db_user.subscription.remaining_daily_limit))
     # await message.answer(answer)
     db_user.is_search = False
     await db_user.save()
