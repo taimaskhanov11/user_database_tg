@@ -32,7 +32,7 @@ async def get_bot_info(call: types.CallbackQuery):
 
     for i in range(10):
         try:
-            last_reg_users += f"{Limit.new_users_in_last_day_obj.pop()}\n"
+            last_reg_users += f"@{Limit.new_users_in_last_day_obj.pop().username}\n"
         except Exception as e:
             logger.trace(e)
             break
