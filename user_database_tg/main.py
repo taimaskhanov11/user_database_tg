@@ -113,6 +113,7 @@ async def main():
     # Инициализация информации подписок
     await init_subscriptions_info()
 
+
     # Запуск задачи ежедневного обновления запросов и проверки подписки
     asyncio.create_task(updating_the_daily_requests_limit())
 
