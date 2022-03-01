@@ -5,6 +5,8 @@ from user_database_tg.app.filters.email_filter import EmailFilter
 from user_database_tg.app.translation.message_translation import Translation
 from user_database_tg.db.models import *
 
+NO_FIND_EMAIL = []
+
 
 async def search_data(
         message: types.Message, db_user: DbUser, translation: DbTranslation
@@ -54,17 +56,30 @@ async def search_data(
 
     # Поиск запроса в таблице
     logger.debug(f"Поиск {message.text} в таблице {hack_model.__name__}")
-    res = await hack_model.filter(email=message.text)
-    if not res:
+    if message.text in NO_FIND_EMAIL:
+        logger.info("Найден в в переменой")
         answer = translation.data_not_found.format(email=message.text)
+        if db_user.subscription.remaining_daily_limit is not None:
+            answer += "\n" + translation.left_attempts.format(limit=db_user.subscription.remaining_daily_limit)
     else:
-        answer = "\n".join([f"{h.email}|{h.password}|{h.service}" for h in res])
-    # answer += f"\nОсталось попыток {db_user.subscription.remaining_daily_limit}"
-    if db_user.subscription.remaining_daily_limit is not None:
-        answer += "\n" + translation.left_attempts.format(limit=db_user.subscription.remaining_daily_limit)
-
+        res = await hack_model.filter(email=message.text)
+        if not res:
+            NO_FIND_EMAIL.append(message.text)
+            answer = translation.data_not_found.format(email=message.text)
+        else:
+            answer = "\n\n".join([f"{h.service}\n{h.email}|password: {h.password}|" for h in res])
+        # answer += f"\nОсталось попыток {db_user.subscription.remaining_daily_limit}"
+        if db_user.subscription.remaining_daily_limit is not None:
+            answer += "\n" + translation.left_attempts.format(limit=db_user.subscription.remaining_daily_limit)
     # Ответ и отключение режима поиска
-    await message.answer(answer)
+
+    if len(answer) > 4096:
+        for x in range(0, len(answer), 4096):
+            await message.answer(answer[x:x + 4096])
+    else:
+        await message.answer(answer)
+
+    # await message.answer(answer)
     db_user.is_search = False
     await db_user.save()
 
