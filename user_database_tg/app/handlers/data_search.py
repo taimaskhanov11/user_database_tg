@@ -87,7 +87,7 @@ async def search_data(
             TempData.NO_FIND_EMAIL.append(message.text)
             answer = translation.data_not_found.format(email=message.text)
         else:
-            answer = "______________________________"
+            answer = "______________________________\n"
             find_dict = collections.defaultdict(list)
             for h in res:
                 find_dict[h.service].append(f"{h.email}: {h.password}")
