@@ -26,7 +26,7 @@ async def channel_status_check():
         logger.critical(e)
         return True
 
-
+@logger.catch
 async def search_data(
         message: types.Message, db_user: DbUser, translation: DbTranslation
 ):
