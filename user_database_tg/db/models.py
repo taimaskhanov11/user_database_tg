@@ -51,6 +51,36 @@ class DbTranslation(models.Model):  # todo 2/26/2022 4:40 PM taima:
     reject_payment = fields.TextField()
     reject_payment_b = fields.CharField(max_length=255)
 
+    def __str__(self):
+        return (
+            f"*Основное меню:\n"
+            f"⭕1. Стартовое сообщение:\n{self.start_message}\n"
+            f"⭕2. Профиль:\n{self.profile}\n"
+            f"⭕3. Описание:\n{self.description}\n"
+            f"⭕4. Поддержка:\n{self.support}\n"
+            f"⭕5. Купить:\n{self.subscribe}\n"
+            f"⭕6. Кнопка Профиль:\n{self.profile_b}\n"
+            f"⭕7. Кнопка Описание:\n{self.description_b}\n"
+            f"⭕8. Кнопка Поддержка:\n{self.support_b}\n"
+            f"⭕9. Кнопка Купить:\n{self.subscribe_b}\n\n"
+            f""
+            f"*Меню поиска: \n"
+            f"⭕10.Ожидание поиска:\n{self.wait_search}\n"
+            f"⭕11.Данные не найдены:\n{self.data_not_found}\n"
+            f"⭕12.Дневной лимит закончен:\n{self.daily_limit_ended}\n"
+            f"⭕13.Запросов осталось:\n{self.left_attempts}\n\n"
+            f"*Меню Оплаты"
+            f""
+            f"⭕14. Счет создан:\n{self.create_payment}\n"
+            f"⭕15. Ожидание оплаты:\n{self.wait_payment}\n"
+            f"⭕16. Кнопка оплатить:\n{self.go_payment_b}\n"
+            f"⭕17. Платеж не найден:\n{self.payment_not_found}\n"
+            f"⭕18. Подписка оплачена:\n{self.accept_payment}\n"
+            f"⭕19. Кнопка я оплатил:\n{self.accept_payment_b}\n"
+            f"⭕20. Подписка отменена:\n{self.reject_payment}\n"
+            f"⭕21. Кнопка отмены подписки:\n{self.reject_payment_b}\n"
+        )
+
 
 class SubscriptionInfo(models.Model):
     title = fields.CharField(max_length=255)
@@ -60,7 +90,7 @@ class SubscriptionInfo(models.Model):
 
     def __str__(self):
         return (
-            f"ID: {self.pk}\n"
+            # f"ID: {self.pk}\n"
             f"Название : {self.title}\n"
             f"Цена: {self.price}\n"
             f"Количество дней: {self.days}\n"
@@ -189,6 +219,7 @@ __all__ = [
     "Subscription",
     "Billing",
     "DbTranslation",
+    "SubscriptionInfo",
     "dig_file_HackedUser",
     "sym_file_HackedUser",
     "a_HackedUser",

@@ -9,7 +9,7 @@ async def admin_start(
     message: types.Message, db_user: DbUser, state: FSMContext
 ):  # todo 2/27/2022 12:39 PM taima:
     await state.finish()
-    await message.answer("Меню админа", reply_markup=admin_menu.menu)
+    await message.answer("Admin menu", reply_markup=admin_menu.menu)
     # сохранить последние изменения
 
 

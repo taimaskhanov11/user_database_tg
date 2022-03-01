@@ -10,13 +10,13 @@ from user_database_tg.db.models import DbUser, DbTranslation
 
 
 async def profile(
-    message: types.Message, db_user: DbUser, translation: DbTranslation
+        message: types.Message, db_user: DbUser, translation: DbTranslation
 ):  # todo 2/25/2022 12:34 AM taima:
     await message.answer(
         translation.profile.format(
             user_id=db_user.user_id,
             username=db_user.username,
-            remaining_daily_limit=db_user.subscription.remaining_daily_limit,
+            remaining_daily_limit=db_user.subscription.remaining_daily_limit if db_user.subscription.remaining_daily_limit else "Unlimited",
             sub=db_user.subscription.title,
             duration=db_user.subscription.duration - datetime.datetime.now(TZ)
             if db_user.subscription.is_subscribe
@@ -28,7 +28,7 @@ async def profile(
 @logger.catch
 async def buy(message: types.Message, translation: DbTranslation):
     await message.answer(
-        translation.subscribe, reply_markup=markups.get_subscribe_menu(translation)
+        translation.subscribe, reply_markup=markups.get_subscribe_menu_view()
     )
 
 

@@ -65,31 +65,34 @@ async def init_translations2():
     logger.debug("Перевод Инициализирован")
 
 
+async def init_english():
+    logger.debug("Перевод на английский вариант")
+    rus: DbTranslation = TRANSLATIONS["russian"]
+    tasks = []
+    # pprint(dict(rus))
+    for key, value in dict(rus).items():
+        # logger.critical(f"{key}{value}")
+        if key == "id":
+            continue
+        tasks.append(asyncio.create_task(translate(key, value)))
+    res = await asyncio.gather(*tasks)
+    en_fields_data = {}
+    for d in res:
+        en_fields_data.update(d)
+
+    en_fields_data["language"] = "english"
+    en_fields_data["title"] = "English language"
+    en_translation = await DbTranslation.create(**dict(en_fields_data))
+    TRANSLATIONS["english"] = en_translation
+    logger.debug("Английский переведен из загружен")
+
+
 async def init_translations():
     for trans in await DbTranslation.all():
         TRANSLATIONS[trans.language] = trans
 
     if "english" not in TRANSLATIONS:
-        logger.debug("Перевод на английский вариант")
-        rus: DbTranslation = TRANSLATIONS["russian"]
-        tasks = []
-        # pprint(dict(rus))
-        for key, value in dict(rus).items():
-            # logger.critical(f"{key}{value}")
-            if key == "id":
-                continue
-            tasks.append(asyncio.create_task(translate(key, value)))
-        res = await asyncio.gather(*tasks)
-        en_fields_data = {}
-        for d in res:
-            en_fields_data.update(d)
-
-        en_fields_data["language"] = "english"
-        en_fields_data["title"] = "English language"
-        en_translation = await DbTranslation.create(**dict(en_fields_data))
-        TRANSLATIONS["english"] = en_translation
-        logger.debug("Английский переведен из загружен")
-
+        await init_english()
     logger.debug("Переводы Инициализированы")
 
 

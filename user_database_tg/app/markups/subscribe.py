@@ -1,60 +1,27 @@
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
 from user_database_tg.app.subscription.subscription_info import SUBSCRIPTIONS_INFO
-from user_database_tg.app.translation.message_translation import Translation
 from user_database_tg.db.models import DbTranslation
 
 
-def get_subscribe_menu(translation: DbTranslation):
+def get_subscribe_menu_pay(pk: int, translation: DbTranslation):
+    btn_pay = [
+        InlineKeyboardButton(text=translation.go_payment_b, callback_data=f"subscribe_{pk}")
+    ]
+
+    subscribe_menu = InlineKeyboardMarkup(
+        inline_keyboard=[btn_pay],
+        # row_width=3
+    )
+    return subscribe_menu
+
+
+def get_subscribe_menu_view():
     btns_subscribe = [
-        [InlineKeyboardButton(text=sub.title, callback_data=f"subscribe_{pk}")]
+        [InlineKeyboardButton(text=sub.title, callback_data=f"view_buy_{pk}")]
         for pk, sub in SUBSCRIPTIONS_INFO.items()
     ]
 
-    # bnt_1_25 = InlineKeyboardButton(
-    #     text="1 месяц [25 в сутки] - 35р", callback_data="subscribe_d1_25_1"
-    # )  # todo 2/27/2022 12:19 PM taima:
-    # bnt_1_100 = InlineKeyboardButton(
-    #     text="1 месяц [100 запросов в сутки] - 100р", callback_data="subscribe_d1_100_1"
-    # )
-    # bnt_1_n = InlineKeyboardButton(
-    #     text="1 месяц [Безлимит] - 500р", callback_data="subscribe_d1_n_1"
-    # )
-    #
-    # bnt_6_25 = InlineKeyboardButton(
-    #     text="6 месяц [25 в сутки] - 200р", callback_data="subscribe_d6_25_1"
-    # )
-    # bnt_6_100 = InlineKeyboardButton(
-    #     text="6 месяц [100 в сутки] - 550р", callback_data="subscribe_d6_100_1"
-    # )
-    # bnt_6_n = InlineKeyboardButton(
-    #     text="6 месяц [Безлимит] - 2700р", callback_data="subscribe_d6_n_1"
-    # )
-    #
-    # bnt_12_25 = InlineKeyboardButton(
-    #     text="12 месяц [25 в сутки] 350р", callback_data="subscribe_d12_25_1"
-    # )
-    # bnt_12_100 = InlineKeyboardButton(
-    #     text="12 месяц(100 в сутки) 1000р", callback_data="subscribe_d12_100_1"
-    # )
-    # bnt_12_n = InlineKeyboardButton(
-    #     text="12 месяц(Безлимит) 5000р", callback_data="subscribe_d12_n_1"
-    # )
-
-    # subscribe_menu = InlineKeyboardMarkup(
-    #     inline_keyboard=[
-    #         [bnt_1_25],
-    #         [bnt_1_100],
-    #         [bnt_1_n],
-    #         [bnt_6_25],
-    #         [bnt_6_100],
-    #         [bnt_6_n],
-    #         [bnt_12_25],
-    #         [bnt_12_100],
-    #         [bnt_12_n],
-    #     ],
-    #     # row_width=3
-    # )
     subscribe_menu = InlineKeyboardMarkup(
         inline_keyboard=btns_subscribe,
         # row_width=3

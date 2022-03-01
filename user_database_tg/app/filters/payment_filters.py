@@ -13,6 +13,12 @@ class MainPaymentFilter(BoundFilter):
         return {"db_user": db_user, "translation": translation}
 
 
+class ViewSubscriptionFilter(MainPaymentFilter):
+    async def check(self, call: types.CallbackQuery):
+        if call.data.startswith("view_buy_"):
+            return await super().check(call)
+
+
 class SubscribeFilter(MainPaymentFilter):
     async def check(self, call: types.CallbackQuery):
         if call.data.startswith("subscribe_"):
