@@ -90,15 +90,15 @@ async def get_user_info_end(message: types.Message, state: FSMContext):
         # user: DbUser = await DbUser.get(**search_field).select_related("subscription")
         # payments: list[Payment] = await DbUser.payments.all()
         logger.info(user.payments)
-        payments: list[Payment] = user.payments
-        payments_str = ""
-        for pay in payments:
-            payments_str += f"{pay.date.replace(microsecond=0)} | {pay.amount}р\n"
+        # payments: list[Payment] = user.payments
+        payments_str = "username         date      amount"
+        for pay in user.payments:
+            payments_str += f"✓{pay.date.replace(microsecond=0)} | {pay.amount}р\n"
         user_data = (
             f"🔑 ID: {user.user_id}\n"
             f"👤 Логин: @{user.username}\n"
             f"Подписка: {user.subscription.title}\n"
-            f"Совершенные платежи: {payments_str or 'Пусто'}\n"
+            f"Совершенные платежи:\n {payments_str or 'Пусто'}\n"
             f""
         )
         await message.answer(user_data, reply_markup=bot_settings_markup.get_edit_user(user.user_id))
