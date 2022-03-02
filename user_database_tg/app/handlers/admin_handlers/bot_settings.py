@@ -52,7 +52,7 @@ async def get_bot_info(call: types.CallbackQuery):
         f"___________________\n"
         f"Сумма поступивших платежей за последние сутки:\n{Limit.lats_day_amount_payments}\n"
         f"___________________\n"
-        f"Последние 10 пользователей проводивших оплату:\n{last_pay_users}\n"
+        f"Платежи за последние сутки:\n{last_pay_users}\n"
     )
     await call.message.answer(answer)
 
