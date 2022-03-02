@@ -11,7 +11,7 @@ from loguru import logger
 
 from user_database_tg.config.config import TEST
 from user_database_tg.db import models
-from user_database_tg.db.db_main import init_tortoise
+from user_database_tg.db.db_main import init_tortoise, init_logging
 
 
 class DataParser:
@@ -150,13 +150,18 @@ def run_process_create_users(main_path, processes=3):
     # logger.info(f"{current_process().name}| Всего юзеров {len(await HackedUser.all())}")
     # data_dir = Path("/var/lib/postgresql/TO_IMPORT")
     # data_dirs = list(data_dir.iterdir())
+    if not main_path:
+        logger.critical("Пустой путь")
+        return
     data_dir = Path(main_path)
     if not data_dir.exists():
         logger.critical("Папка не найдена")
         return
+
     data_dirs = list(data_dir.iterdir())
     logger.info(f"Полученные папки {[d.name for d in data_dirs]}")
-
+    logger.info("Запуск процессов...")
+    time.sleep(10)
     prs = [
         Process(target=run_async_create_users, args=(path,)) for path in data_dirs
     ]
@@ -208,9 +213,11 @@ def args_parce():
 
 
 if __name__ == "__main__":
+    init_logging()
     parser = argparse.ArgumentParser(description='Upload data in db')
     parser.add_argument('--path', type=str)
     args = parser.parse_args()
+    print(args.path)
     run_process_create_users(args.path)
     pass
     # for data in users_data):

@@ -103,7 +103,7 @@ async def main():
 if __name__ == "__main__":
     init_logging()
     asyncio.run(main())
-    run_process_create_users(4)
+    # run_process_create_users(4)
     # asyncio.run(create_table())
 
     # asyncio.run(create_users())
