@@ -10,7 +10,7 @@ from user_database_tg.loader import bot
 
 
 @logger.catch
-async def updating_the_daily_requests_limit(start=True):
+async def everyday_processes(start=True):
     update_date = datetime.timedelta(hours=24, minutes=0, seconds=0)
     if start:
         dt = datetime.datetime.now(TZ)
@@ -21,6 +21,7 @@ async def updating_the_daily_requests_limit(start=True):
         f"Ожидание ежедневного лимита запросов  |{start=}|{update_date}|{total_seconds}s"
     )
     await asyncio.sleep(total_seconds)  # todo 2/27/2022 2:06 PM taima:
+
     logger.debug(
         f"Обновление ежедневного лимита запросов  |{start=}|{update_date}|{total_seconds}s"
     )
@@ -60,12 +61,12 @@ async def updating_the_daily_requests_limit(start=True):
     logger.info(
         f"Ежедневный лимит запросов обновлен |{start=}|{update_date}|{total_seconds}s. Следующая проверка через 24 часа"
     )
-    asyncio.create_task(updating_the_daily_requests_limit(start=False))
+    asyncio.create_task(everyday_processes(start=False))
 
 
 async def main():
     await init_db()
-    await updating_the_daily_requests_limit()
+    await everyday_processes()
 
 
 if __name__ == "__main__":

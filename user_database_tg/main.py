@@ -22,7 +22,7 @@ from user_database_tg.app.translation.message_translation import init_translatio
 from user_database_tg.app.utils.backup import making_backup
 from user_database_tg.app.utils.sub_channel import init_sub_channel
 from user_database_tg.app.utils.daily_processes import (
-    updating_the_daily_requests_limit,
+    everyday_processes,
 )
 from user_database_tg.db.db_main import init_db
 from user_database_tg.db.models import SubscriptionChannel
@@ -116,10 +116,11 @@ async def main():
     await init_subscriptions_info()
 
     await init_sub_channel()
-    # Запуск задачи ежедневного обновления запросов и проверки подписки
-    asyncio.create_task(updating_the_daily_requests_limit())
 
-    # Создание резервного копирования
+    # Запуск задачи ежедневного обновления запросов и проверки подписки
+    asyncio.create_task(everyday_processes())
+
+    # Создание ежедневного резервного копирования
     asyncio.create_task(making_backup(3600))
 
     # Запуск поллинга

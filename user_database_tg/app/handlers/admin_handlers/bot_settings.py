@@ -155,7 +155,6 @@ async def edit_user_sub_end(message: types.Message, state: FSMContext):
         # await state.finish()
         await EditUserSubStates.first()
 
-
     except Exception as e:
         logger.critical(e)
         await message.answer("Ошибка! Неправильный ввод")

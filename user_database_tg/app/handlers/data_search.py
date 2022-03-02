@@ -78,6 +78,8 @@ async def search_data(
 
     # Поиск запроса в таблице
     logger.debug(f"Поиск {message.text} в таблице {hack_model.__name__}")
+    find_count = 0
+
     if message.text in TempData.NO_FIND_EMAIL:
         logger.info("Найден в в переменой")
         answer = translation.data_not_found.format(email=message.text)
@@ -96,6 +98,7 @@ async def search_data(
                 find_dict[h.service].append(f"{h.email}: {h.password}")
 
             for s, hstr in find_dict.items():
+                find_count += 1
                 answer = answer + s + "\n" + "\n".join(hstr)
                 answer += "\n\n"
             # answer += "\n\n".join([f"{h.service}\n{h.email}: {h.password}" for h in res])
@@ -104,6 +107,8 @@ async def search_data(
         # if db_user.subscription.remaining_daily_limit is not None:
         #     answer += "\n" + translation.left_attempts.format(limit=db_user.subscription.remaining_daily_limit)
     # Ответ и отключение режима поиска
+    if find_count:
+        answer += f"\nНайдено всего {find_count}"
 
     if len(answer) > 4096:
         for x in range(0, len(answer), 4096):

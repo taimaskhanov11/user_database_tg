@@ -24,6 +24,7 @@ async def making_backup(interval):
             data["payments"].append(dict(p))
         for u in await DbUser.all():
             data["users"].append(dict(u))
+
         data["datetime"] = datetime.now(TZ)
         with open(Path(BASE_DIR, "backup", f"{now_time}.json"), "w", encoding="utf-8") as f:
             json.dump(data, f, sort_keys=True, default=str)
