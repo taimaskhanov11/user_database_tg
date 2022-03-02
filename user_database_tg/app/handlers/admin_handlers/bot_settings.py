@@ -100,8 +100,7 @@ async def get_user_info_end(message: types.Message, state: FSMContext):
             f"🔑 ID: {user.user_id}\n"
             f"👤 Логин: @{user.username}\n"
             f"Подписка: {user.subscription.title}\n"
-            f"Совершенные платежи:\n {payments_str or 'Пусто'}\n"
-            f""
+            f"Совершенные платежи:\n{payments_str or 'Пусто'}\n"
         )
         await message.answer(user_data, reply_markup=bot_settings_markup.get_edit_user(user.user_id))
         await state.finish()
