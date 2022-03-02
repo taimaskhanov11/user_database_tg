@@ -10,6 +10,7 @@ from user_database_tg.app.subscription.subscription_info import SUBSCRIPTIONS_IN
 
 admin_menu_main_data = [
     ("Общая информация о боте", "bot_info"),
+    ("Вывести список всех пользователей", "all_users"),
     ("Информация о конкретном пользователе", "user_info"),
     ("Настройка работы бота", "bot_settings"),
 ]

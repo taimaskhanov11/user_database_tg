@@ -57,6 +57,20 @@ async def get_bot_info(call: types.CallbackQuery):
     await call.message.answer(answer)
 
 
+async def get_all_users(call: types.CallbackQuery):
+    db_users = await DbUser.all()
+
+    users = ""
+    for user in db_users:
+        users += f"@{user.username}\n"
+
+    if len(users) > 4096:
+        for x in range(0, len(users), 4096):
+            await call.message.answer(users[x:x + 4096])
+    else:
+        await call.message.answer(users)
+
+
 async def get_user_info_start(call: types.CallbackQuery):
     await call.message.answer("Ведите имя пользователя или id")
     await GetUserInfoStates.start.set()
@@ -201,6 +215,7 @@ async def change_sub_channel_end(message: types.Message, state: FSMContext):
 
 def register_bot_info_handler(dp: Dispatcher):
     dp.register_callback_query_handler(get_bot_info, text="bot_info")
+    dp.register_callback_query_handler(get_all_users, text="all_users")
     dp.register_callback_query_handler(get_user_info_start, text="user_info")
     dp.register_message_handler(get_user_info_end, state=GetUserInfoStates.start)
 
