@@ -30,7 +30,8 @@ async def view_all_subscriptions(call: types.CallbackQuery):
     for pk, sub_info in SUBSCRIPTIONS_INFO.items():
         subscription_info += f"{sub_info}\n"
     await call.message.delete()
-    await call.message.answer(f"Текущие подписки {len(SUBSCRIPTIONS_INFO)}:\n",
+    await call.message.answer(f"Текущие подписки {len(SUBSCRIPTIONS_INFO)}."
+                              f" Для изменения нажмите на соответствующую подписку\n",
                               reply_markup=admin_menu.get_current_sub_info())
     # await call.message.edit_text(f"Текущие подписки {len(SUBSCRIPTIONS_INFO)}:\n")
     # await call.message.edit_reply_markup(admin_menu.get_current_sub_info())
@@ -84,6 +85,7 @@ async def create_subscription_title(message: types.Message, state: FSMContext):
     await state.update_data(title=message.text)
     await message.answer("Укажите длительность подписки в днях", reply_markup=KBRSubscriptionField.days)
     await CreateSubscriptionState.next()
+
 
 @logger.catch
 async def create_subscription_duration(message: types.Message, state: FSMContext):

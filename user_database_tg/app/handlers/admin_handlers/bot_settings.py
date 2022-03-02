@@ -72,6 +72,7 @@ async def get_all_users(call: types.CallbackQuery):
 
 
 async def get_user_info_start(call: types.CallbackQuery):
+    await call.message.delete()
     await call.message.answer("Ведите имя пользователя или id")
     await GetUserInfoStates.start.set()
 
@@ -93,7 +94,7 @@ async def get_user_info_end(message: types.Message, state: FSMContext):
         # payments: list[Payment] = user.payments
         # payments_str = "DATETIME                   AMOUNT\n"
         payments_str = ""
-                       # "✓2022-03-01 22:39:00+00:00 "
+        # "✓2022-03-01 22:39:00+00:00 "
         for pay in user.payments:
             payments_str += f"{pay.date.replace(microsecond=0)} - {pay.amount}р\n"
         user_data = (
