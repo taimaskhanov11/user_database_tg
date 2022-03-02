@@ -37,18 +37,14 @@ async def get_bot_info(call: types.CallbackQuery):
             break
     # last_pay_users = "\n".join(Limit.last_pay_users)
 
+    payments = await Payment.all().order_by("-date").limit(10).select_related("db_user")
     last_pay_users = ""
-    for i in range(10):
-        try:
-            last_pay_users += Limit.last_pay_users.pop()
-        except Exception as e:
-            logger.trace(e)
-            break
-
+    for p in payments:
+        last_pay_users += f"@{p.db_user.username}|{p.date.replace(microsecond=0)}|{p.amount}р\n"
     answer = (
-        f"Количество запросов к бд \n{Limit.number_day_requests}\n"
+        f"Количество запросов к бд за последние сутки:\n{Limit.number_day_requests}\n"
         f"___________________\n"
-        f"Всего пользователей: \n{users_count}\n"
+        f"Всего пользователей:\n{users_count}\n"
         f"___________________\n"
         f"Новых пользователей за последние сутки:\n{Limit.new_users_in_last_day}\n"
         f"___________________\n"
@@ -56,7 +52,6 @@ async def get_bot_info(call: types.CallbackQuery):
         f"___________________\n"
         f"Сумма поступивших платежей за последние сутки:\n{Limit.lats_day_amount_payments}\n"
         f"___________________\n"
-
         f"Последние 10 пользователей проводивших оплату:\n{last_pay_users}\n"
     )
     await call.message.answer(answer)
@@ -172,6 +167,7 @@ async def change_sub_channel_start(call: types.CallbackQuery):
         "https://t.me/try_bot_mind или @try_bot_mind или id"
     )
     await EditChannelStates.start.set()
+
 
 @logger.catch
 async def change_sub_channel_end(message: types.Message, state: FSMContext):

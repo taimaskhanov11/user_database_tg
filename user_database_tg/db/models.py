@@ -19,13 +19,6 @@ class HackedUser:
 #     new_in_last_day = fields.IntField()
 #     amount_payments = fields.IntField()
 
-class Limit:
-    number_day_requests = 0
-    new_users_in_last_day = 0
-    lats_day_amount_payments = 0
-    new_users_in_last_day_obj: list = []
-    last_pay_users = []
-
 
 class DbTranslation(models.Model):  # todo 2/26/2022 4:40 PM taima:
     title = fields.CharField(max_length=255)
@@ -197,6 +190,21 @@ class Payment(models.Model):
     amount = fields.IntField()
 
 
+class Limit:
+    number_day_requests = 0
+    new_users_in_last_day = 0
+    lats_day_amount_payments = 0
+    new_users_in_last_day_obj: list = []
+    last_pay_users = []
+
+    @classmethod
+    def daily_process(cls):
+        Limit.number_day_requests = 0
+        Limit.new_users_in_last_day = 0
+        Limit.new_users_in_last_day_obj = []
+        Limit.lats_day_amount_payments = 0
+
+
 class Billing(models.Model):
     db_user = fields.OneToOneField(
         "models.DbUser",
@@ -278,6 +286,7 @@ __all__ = [
     "n_HackedUser",
     "o_HackedUser",
     "p_HackedUser",
+    "q_HackedUser",
     "r_HackedUser",
     "s_HackedUser",
     "t_HackedUser",

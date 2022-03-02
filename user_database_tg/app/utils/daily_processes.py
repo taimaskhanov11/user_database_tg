@@ -27,6 +27,7 @@ async def updating_the_daily_requests_limit(start=True):
     # await asyncio.sleep(10)
     now_dt = datetime.datetime.now(TZ)
     for sub in await Subscription.all().select_related("db_user"):
+
         diff = sub.duration - now_dt
         logger.debug(
             f"Проверка подписки|\n{sub.db_user.username}|{sub.db_user.user_id}"
@@ -34,16 +35,17 @@ async def updating_the_daily_requests_limit(start=True):
             f"{diff}| разница время подписки минус  сегодня\n"
             f"{diff.total_seconds()} - сек"
         )
+        sub.days_duration -= 1
 
         # Проверка подписки
-        if sub.is_subscribe and now_dt > sub.duration:
+        if sub.is_subscribe and (now_dt > sub.duration or sub.duration <= 0):
             logger.debug(f"Подписка закончилась {repr(sub.db_user)} ")
             await bot.send_message(
                 sub.db_user.user_id, f"Подписка {sub.title} закончилась"
             )
             sub.db_user.subscription = await Subscription.create()
             await sub.db_user.save()
-            # await sub.delete()
+            await sub.delete()
             continue
 
         sub.remaining_daily_limit = sub.daily_limit
@@ -52,10 +54,9 @@ async def updating_the_daily_requests_limit(start=True):
             sub.db_user.user_id,
             f"Дневной лимит запросов обновлен.\n" f"У вас сейчас {sub.daily_limit}",
         )
-    Limit.number_day_requests = 0
-    Limit.new_users_in_last_day = 0
-    Limit.lats_day_amount_payments = 0
 
+    Limit.daily_process()
+    logger.debug("Дневные процессы обновлены")
     logger.info(
         f"Ежедневный лимит запросов обновлен |{start=}|{update_date}|{total_seconds}s. Следующая проверка через 24 часа"
     )

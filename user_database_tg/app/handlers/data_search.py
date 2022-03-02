@@ -7,6 +7,7 @@ from user_database_tg.app.filters.email_filter import EmailFilter
 from user_database_tg.app.translation.message_translation import Translation
 from user_database_tg.config.config import TempData
 from user_database_tg.db.models import *
+from user_database_tg.db.models import Limit
 from user_database_tg.loader import bot
 
 
@@ -26,6 +27,7 @@ async def channel_status_check():
         logger.critical(e)
         return True
 
+
 @logger.catch
 async def search_data(
         message: types.Message, db_user: DbUser, translation: DbTranslation
@@ -34,7 +36,7 @@ async def search_data(
     # logger.info("6.Handler")
     # logger.debug(middleware_data)
     # logger.debug(from_filter)
-    message.text  = message.text.lower()
+    message.text = message.text.lower()
     if db_user.is_search:
         await message.answer(translation.wait_search)
         return
@@ -83,6 +85,7 @@ async def search_data(
             answer += "\n" + translation.left_attempts.format(limit=db_user.subscription.remaining_daily_limit)
     else:
         res = await hack_model.filter(email=message.text)
+        Limit.number_day_requests += 1
         if not res:
             TempData.NO_FIND_EMAIL.append(message.text)
             answer = translation.data_not_found.format(email=message.text)

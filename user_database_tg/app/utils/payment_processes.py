@@ -21,7 +21,6 @@ async def check_payment(bill_id, db_user):  # todo 2/28/2022 8:53 PM taima: по
         logger.info(f"{db_user.user_id}|{bill.bill_id} успешно оплачен")
         db_bill = await Billing.get(bill_id=bill_id).prefetch_related("subscription")
 
-        Limit.last_pay_users.append(f"@{db_user.username}|{datetime.now().replace(microsecond=0)}|{db_bill.amount}р\n")
         Limit.lats_day_amount_payments += db_bill.amount
         await Payment.create(db_user=db_user, date=datetime.now(TZ), amount=db_bill.amount)
 

@@ -21,7 +21,7 @@ from user_database_tg.app.subscription.subscription_info import init_subscriptio
 from user_database_tg.app.translation.message_translation import init_translations
 from user_database_tg.app.utils.backup import making_backup
 from user_database_tg.app.utils.sub_channel import init_sub_channel
-from user_database_tg.app.utils.subcribe_processes import (
+from user_database_tg.app.utils.daily_processes import (
     updating_the_daily_requests_limit,
 )
 from user_database_tg.db.db_main import init_db

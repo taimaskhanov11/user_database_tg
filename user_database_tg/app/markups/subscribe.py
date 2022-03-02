@@ -45,3 +45,21 @@ def get_subscribe_payment(url, translation: DbTranslation):
     qiwi_menu.add(btn_accept)
     qiwi_menu.add(btn_reject)
     return qiwi_menu
+
+
+def renew_subscription(title):  # todo 3/2/2022 3:21 PM taima:
+
+    for pk, item in SUBSCRIPTIONS_INFO.items():
+        if item.title == title:
+            break
+    else:
+        return
+    btn_renew = [
+        [InlineKeyboardButton(text="Продлить подписку", callback_data=f"view_buy_{pk}")]
+    ]
+
+    renew = InlineKeyboardMarkup(
+        inline_keyboard=btn_renew
+        # row_width=3
+    )
+    return renew

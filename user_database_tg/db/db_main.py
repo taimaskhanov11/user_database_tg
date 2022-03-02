@@ -12,6 +12,7 @@ from tortoise import Tortoise
 
 from user_database_tg.config.config import TEST
 from user_database_tg.db import models
+from user_database_tg.db.models import Payment
 from user_database_tg.db.utils.parsing_data import DataParser
 
 BASE_DIR = Path(__file__).parent.parent.parent
@@ -226,9 +227,13 @@ async def dell_all():
     for h in models.__all__:
         await getattr(models, h).all().delete()
 
-
+async def main():
+    await init_db()
+    ps  = await Payment.all().order_by("-date").limit(10)
+    print(ps)
 if __name__ == "__main__":
     init_logging()
+    asyncio.run(main())
     # run_process_create_users(4)
     # asyncio.run(create_table())
 

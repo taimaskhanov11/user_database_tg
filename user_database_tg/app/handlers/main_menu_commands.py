@@ -21,7 +21,9 @@ async def profile(
             duration=db_user.subscription.duration - datetime.datetime.now(TZ)
             if db_user.subscription.is_subscribe
             else 0,
-        )
+        ),
+        reply_markup=markups.renew_subscription(
+            db_user.subscription.title) if db_user.subscription.daily_limit else markups.get_subscribe_menu_view()
     )
 
 
