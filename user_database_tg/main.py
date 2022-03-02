@@ -1,6 +1,7 @@
 import asyncio
 import logging
 import sys
+from pathlib import Path
 
 from aiogram import Bot
 from aiogram.types import BotCommand
@@ -24,6 +25,7 @@ from user_database_tg.app.utils.sub_channel import init_sub_channel
 from user_database_tg.app.utils.daily_processes import (
     everyday_processes,
 )
+from user_database_tg.config.config import BASE_DIR
 from user_database_tg.db.db_main import init_db
 from user_database_tg.db.models import SubscriptionChannel
 from user_database_tg.loader import bot, dp
@@ -36,7 +38,7 @@ log.add(
     diagnose=True,
 )
 log.add(
-    sink=f"../logs/main.log",
+    sink=Path(BASE_DIR, "logs/main.log"),
     level="TRACE",
     enqueue=True,
     encoding="utf-8",

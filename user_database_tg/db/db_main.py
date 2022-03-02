@@ -6,11 +6,9 @@ from pathlib import Path
 from loguru import logger
 from tortoise import Tortoise
 
-from user_database_tg.config.config import TEST, DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT, DB_DB_NAME
+from user_database_tg.config.config import TEST, DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT, DB_DB_NAME, BASE_DIR
 from user_database_tg.db import models
 from user_database_tg.db.models import Payment
-
-BASE_DIR = Path(__file__).parent.parent.parent
 
 
 async def init_tortoise(
