@@ -145,12 +145,12 @@ async def edit_user_sub_end(message: types.Message, state: FSMContext):
         setattr(db_user.subscription, field, new_value)
         await db_user.subscription.save()
         await message.answer(f"Данные подписки изменены")
+
         await message.answer(
             f"🔑 ID: {db_user.user_id}\n"
             f"👤 Логин: @{db_user.username}\n"
             f"Подписка:\n{db_user.subscription}",
-            reply_markup=bot_settings_markup.get_edit_user(db_user.user_id)
-
+            reply_markup=admin_menu.change_user_sub_field
         )
         # await state.finish()
         await EditUserSubStates.first()
