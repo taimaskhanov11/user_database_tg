@@ -150,7 +150,7 @@ async def edit_user_sub_end(message: types.Message, state: FSMContext):
             f"👤 Логин: @{db_user.username}\n"
             f"Подписка:\n{db_user.subscription}"
         )
-        await state.finish()
+        # await state.finish()
         await EditUserSubStates.first()
 
 
