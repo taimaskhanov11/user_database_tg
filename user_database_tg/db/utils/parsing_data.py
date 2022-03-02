@@ -161,7 +161,7 @@ def run_process_create_users(main_path, processes=3):
     data_dirs = list(data_dir.iterdir())
     logger.info(f"Полученные папки {[d.name for d in data_dirs]}")
     logger.info("Запуск процессов...")
-    time.sleep(10)
+    time.sleep(5)
     prs = [
         Process(target=run_async_create_users, args=(path,)) for path in data_dirs
     ]
