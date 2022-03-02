@@ -1,12 +1,17 @@
+import argparse
+import asyncio
 import collections
+import multiprocessing
 import re
 import time
-from multiprocessing import current_process
+from multiprocessing import current_process, Process
 from pathlib import Path
 
 from loguru import logger
 
+from user_database_tg.config.config import TEST
 from user_database_tg.db import models
+from user_database_tg.db.db_main import init_tortoise
 
 
 class DataParser:
@@ -81,7 +86,7 @@ class DataParser:
                                 f"{current_process().name}| Повторный парс файла c {encode} {self.service}|{data_file.name}"
                             )
                         with open(
-                            data_file, encoding=encode
+                                data_file, encoding=encode
                         ) as f:  # todo 2/24/2022 12:40 AM taima:
                             t = time.monotonic()
                             for line in f:
@@ -110,26 +115,103 @@ class DataParser:
                         continue
 
 
-def parce_datafile_alphabet(path: str) -> dict[str, tuple[str, str]]:
-    """Парсинг данных пользователя и файлов по алфавиту"""
+@logger.catch
+async def create_users(path):
+    if TEST:
+        await init_tortoise(host="localhost", password="postgres")
+    else:
+        await init_tortoise(host="localhost")
 
-    users_data = {}
-    for data_dir in Path(path).iterdir():
-        for data_file in data_dir.iterdir():
-            with open(data_file, encoding="utf-8") as f:
-                # print(f.readlines())
-                data = tuple(
-                    map(lambda x: re.findall(r"(.*):(.*)", x.strip())[0], f.readlines())
+    service = path.name
+    logger.debug(f"{current_process()}| Парс {service}...")
+    t = time.monotonic()
+    errors = ""
+    data_parser = DataParser(path)
+    try:
+        await data_parser.parce_datafiles()
+    except Exception as e:
+        logger.critical(e)
+        # raise e
+        errors += f"{current_process().name}|{service} Ошибка"
+    t2 = time.monotonic() - t
+    logger.info(
+        f"{current_process().name}|{service}| Все данные сохранены {t2}s.Всего запарсено {data_parser.all_count} {errors}"
+    )
+
+
+@logger.catch
+def run_async_create_users(path):
+    logger.info(f"Запуск процесса {current_process().name}")
+    asyncio.run(create_users(path))
+
+
+@logger.catch
+def run_process_create_users(main_path, processes=3):
+    # logger.info(f"{current_process().name}| Всего юзеров {len(await HackedUser.all())}")
+    # data_dir = Path("/var/lib/postgresql/TO_IMPORT")
+    # data_dirs = list(data_dir.iterdir())
+    data_dir = Path(main_path)
+    if not data_dir.exists():
+        logger.critical("Папка не найдена")
+        return
+    data_dirs = list(data_dir.iterdir())
+    logger.info(f"Полученные папки {[d.name for d in data_dirs]}")
+
+    prs = [
+        Process(target=run_async_create_users, args=(path,)) for path in data_dirs
+    ]
+    start_prs = []
+    while True:
+        if len(start_prs) >= processes:
+            for start_pr in start_prs:
+                if not start_pr.is_alive():
+                    logger.warning(f"Завершение старого процесса {start_pr.name}")
+                    start_prs.remove(start_pr)
+                    try:
+                        pr = prs.pop()
+                        logger.success(
+                            f"Создание процесса {pr.name}. Оставшиеся {prs}.Запущенные {start_prs}"
+                        )
+                        pr.start()
+                        start_prs.append(pr)
+                    except IndexError as e:
+                        pass
+        else:
+            if not prs:
+                if not start_prs:
+                    logger.critical(
+                        f"Завершение хендлера процессов {prs=}|{start_prs=}"
+                    )
+                    break
+                else:
+                    for start_pr in start_prs:
+                        if not start_pr.is_alive():
+                            logger.warning(
+                                f"Завершение старого процесса {start_pr.name}"
+                            )
+                            start_prs.remove(start_pr)
+
+                    logger.info(f"Ожидание завершения {start_prs=}")
+
+            else:
+                pr = prs.pop()
+                logger.success(
+                    f"Создание процесса {pr.name}. Оставшиеся {prs}.Запущенные {start_prs}"
                 )
-                users_data[data_file.name[0]] = tuple(data)
-                # users_data.extend(list(data))
-                # print(users_data)
-            # break
-        # break
-    return users_data
+                pr.start()
+                start_prs.append(pr)
+        time.sleep(5)
+
+
+def args_parce():
+    pass
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Upload data in db')
+    parser.add_argument('--path', type=str)
+    args = parser.parse_args()
+    run_process_create_users(args.path)
     pass
     # for data in users_data):
     #     print(data[0], data[1])
