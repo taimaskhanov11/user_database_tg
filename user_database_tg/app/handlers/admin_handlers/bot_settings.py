@@ -91,9 +91,11 @@ async def get_user_info_end(message: types.Message, state: FSMContext):
         # payments: list[Payment] = await DbUser.payments.all()
         logger.info(user.payments)
         # payments: list[Payment] = user.payments
-        payments_str = "username         date      amount"
+        # payments_str = "DATETIME                   AMOUNT\n"
+        payments_str = ""
+                       # "✓2022-03-01 22:39:00+00:00 "
         for pay in user.payments:
-            payments_str += f"✓{pay.date.replace(microsecond=0)} | {pay.amount}р\n"
+            payments_str += f"{pay.date.replace(microsecond=0)} - {pay.amount}р\n"
         user_data = (
             f"🔑 ID: {user.user_id}\n"
             f"👤 Логин: @{user.username}\n"
