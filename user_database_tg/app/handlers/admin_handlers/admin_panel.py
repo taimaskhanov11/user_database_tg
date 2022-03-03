@@ -9,19 +9,18 @@ async def admin_start(
         message: types.Message, db_user: DbUser, state: FSMContext
 ):  # todo 2/27/2022 12:39 PM taima:
     await state.finish()
-    await message.answer("Admin menu", reply_markup=admin_menu.admin_menu_main)
+    await message.answer("Admin menu", reply_markup=admin_menu.admin_start)
+    await message.answer("Выберите опцию", reply_markup=admin_menu.admin_menu_main)
     # сохранить последние изменения
 
 
 async def bot_settings(call: types.CallbackQuery, state: FSMContext):
-
     await state.finish()
     await call.message.delete()
     await call.message.answer("Admin menu", reply_markup=admin_menu.menu)
 
 
 def register_admin_menu_handlers(dp: Dispatcher):
-
     dp.register_message_handler(
         admin_start,
         commands="admin_start",

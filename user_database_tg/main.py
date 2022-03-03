@@ -83,15 +83,15 @@ async def main():
     # dp = Dispatcher(bot, storage=MemoryStorage())
     print((await bot.get_me()).username)
 
+    # Меню админа
+    register_admin_handlers(dp)
+
     # Регистрация хэндлеров
     register_common_handlers(dp)
     register_main_menu_handlers(dp)
     register_subscriptions_handlers(dp)
-    register_data_search_handlers(dp)
     register_admin_menu_handlers(dp)
-
-    # Меню админа
-    register_admin_handlers(dp)
+    register_data_search_handlers(dp)
 
     # Регистрация middleware
     # dp.middleware.setup(ThrottlingMiddleware(3))

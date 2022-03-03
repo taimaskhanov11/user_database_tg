@@ -131,17 +131,20 @@ async def edit_user_sub_start(call: types.CallbackQuery, state: FSMContext):
     await EditUserSubStates.next()
 
 
+@logger.catch
 async def edit_user_sub_end(message: types.Message, state: FSMContext):
     try:
         data = await state.get_data()
-        db_user = data["db_user"]
+        db_user: DbUser = data["db_user"]
         field = data["field"]
-
+        await db_user.subscription.refresh_from_db()
         new_value = message.text
         if message.text == "Unlimited":
             new_value = None
-        elif field in ("days", "daily_limit"):
-            new_value = int(new_value)
+        # elif field == "daily_limit":
+        #     new_value = int(new_value)
+        #     setattr(db_user.subscription, "remaining_daily_limit", new_value)
+
         setattr(db_user.subscription, field, new_value)
         await db_user.subscription.save()
         await message.answer(f"Данные подписки изменены")

@@ -13,7 +13,7 @@ async def profile(
         message: types.Message, db_user: DbUser, translation: DbTranslation
 ):  # todo 2/25/2022 12:34 AM taima:
 
-    duration: datetime.timedelta = db_user.subscription.duration - datetime.datetime.now(TZ)
+    # duration: datetime.timedelta = db_user.subscription.duration - datetime.datetime.now(TZ)
 
     await message.answer(
         translation.profile.format(
@@ -22,7 +22,7 @@ async def profile(
             remaining_daily_limit=db_user.subscription.remaining_daily_limit if db_user.subscription.remaining_daily_limit else "Unlimited",
             sub=db_user.subscription.title,
             # duration=f"{duration.days} {duration.days}:{duration.hours}:{duration.minutes}"
-            duration=f"{duration}"
+            duration=f"\nДо окончания осталось: {db_user.subscription.days_duration} дней" if db_user.subscription.is_subscribe else ""
             if db_user.subscription.is_subscribe
             else 0,
         ),

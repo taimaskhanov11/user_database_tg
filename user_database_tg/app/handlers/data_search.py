@@ -116,6 +116,7 @@ async def search_data(
                 await message.answer(answer[x:x + 4096])
         else:
             await message.answer(answer)
+
         if db_user.subscription.remaining_daily_limit is not None:
             await message.answer(translation.left_attempts.format(limit=db_user.subscription.remaining_daily_limit))
         # await message.answer(answer)
@@ -128,6 +129,11 @@ async def search_data(
         await message.answer("Некорректный email")
 
 
+async def incorrect_email(message: types.Message):
+    await message.answer("Некорректный email")
+
+
 def register_data_search_handlers(dp: Dispatcher):
     # dp.register_message_handler(search_data, lambda m: m.text[0].isalpha() and "@" in m.text)
     dp.register_message_handler(search_data, EmailFilter())
+    dp.register_message_handler(incorrect_email)

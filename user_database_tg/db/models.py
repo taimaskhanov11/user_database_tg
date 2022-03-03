@@ -128,6 +128,7 @@ class Subscription(models.Model):
             f"Название : {self.title}\n"
             f"Количество дней: {self.days_duration}\n"
             f"Дневной лимит запросов: {self.daily_limit}\n"
+            f"Оставшийся дневной лимит: {self.remaining_daily_limit} "
         )
 
 

@@ -8,6 +8,13 @@ from aiogram.types import (
 from user_database_tg.app import subscription
 from user_database_tg.app.subscription.subscription_info import SUBSCRIPTIONS_INFO
 
+admin_start = ReplyKeyboardMarkup(
+    [
+        [KeyboardButton("/start"), KeyboardButton("/admin_start")]
+    ],
+    resize_keyboard=True
+)
+
 admin_menu_main_data = [
     ("Общая информация о боте", "bot_info"),
     ("Вывести список всех пользователей", "all_users"),
@@ -16,16 +23,16 @@ admin_menu_main_data = [
 ]
 
 admin_menu_main = InlineKeyboardMarkup(
-        inline_keyboard=[
-            [
-                InlineKeyboardButton(
-                    text=text,
-                    callback_data=data,
-                )
-            ]
-            for text, data in admin_menu_main_data
+    inline_keyboard=[
+        [
+            InlineKeyboardButton(
+                text=text,
+                callback_data=data,
+            )
         ]
-    )
+        for text, data in admin_menu_main_data
+    ]
+)
 
 admin_menu_data = [
     ("Посмотреть подписки", "view_all_subscriptions"),
@@ -108,13 +115,13 @@ change_user_sub_field = InlineKeyboardMarkup(
             )
         ]
         for title, field in (
-            ("Изменить название", "title"),
+            # ("Изменить название", "title"), #todo 3/3/2022 10:14 PM taima:
             ("Изменить длительность подписки", "days_duration"),
             ("Изменить дневной лимит", "daily_limit"),
+            ("Изменить количество оставшихся запросов", "remaining_daily_limit"),
         )
     ]
 )
-
 
 MENU_FIELDS = {
     1: "start_message",
