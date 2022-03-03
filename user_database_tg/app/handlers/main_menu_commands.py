@@ -22,7 +22,7 @@ async def profile(
             remaining_daily_limit=db_user.subscription.remaining_daily_limit if db_user.subscription.remaining_daily_limit else "Unlimited",
             sub=db_user.subscription.title,
             # duration=f"{duration.days} {duration.days}:{duration.hours}:{duration.minutes}"
-            duration=f"\nДо окончания осталось: {db_user.subscription.days_duration} дней" if db_user.subscription.is_subscribe else ""
+            duration=f"\nДо окончания осталось дней: {db_user.subscription.days_duration}" if db_user.subscription.is_subscribe else ""
             if db_user.subscription.is_subscribe
             else 0,
         ),
