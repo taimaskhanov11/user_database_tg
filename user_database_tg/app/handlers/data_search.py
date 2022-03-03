@@ -98,7 +98,7 @@ async def search_data(
                 find_dict[h.service].append(f"{h.email}: {h.password}")
 
             for s, hstr in find_dict.items():
-                find_count += 1
+                find_count += len(hstr)
                 answer = answer + s + "\n" + "\n".join(hstr)
                 answer += "\n\n"
             # answer += "\n\n".join([f"{h.service}\n{h.email}: {h.password}" for h in res])
