@@ -60,6 +60,7 @@ async def search_data(
             hack_model = globals()[f"sym_file_HackedUser"]
     except Exception as e:
         logger.critical(e)
+        await message.answer("Некорректный email")
         return
 
     if TempData.CHECK_CHANNEL_SUBSCRIPTIONS:
@@ -75,51 +76,56 @@ async def search_data(
     # Включение режима блокировки пока запрос не завершиться
     db_user.is_search = True
     await db_user.save()
+    try:
+        # Поиск запроса в таблице
+        logger.debug(f"Поиск {message.text} в таблице {hack_model.__name__}")
+        find_count = 0
 
-    # Поиск запроса в таблице
-    logger.debug(f"Поиск {message.text} в таблице {hack_model.__name__}")
-    find_count = 0
-
-    if message.text in TempData.NO_FIND_EMAIL:
-        logger.info("Найден в в переменой")
-        answer = translation.data_not_found.format(email=message.text)
-        if db_user.subscription.remaining_daily_limit is not None:
-            answer += "\n" + translation.left_attempts.format(limit=db_user.subscription.remaining_daily_limit)
-    else:
-        res = await hack_model.filter(email=message.text)
-        Limit.number_day_requests += 1
-        if not res:
-            TempData.NO_FIND_EMAIL.append(message.text)
+        if message.text in TempData.NO_FIND_EMAIL:
+            logger.info("Найден в в переменой")
             answer = translation.data_not_found.format(email=message.text)
+            if db_user.subscription.remaining_daily_limit is not None:
+                answer += "\n" + translation.left_attempts.format(limit=db_user.subscription.remaining_daily_limit)
         else:
-            answer = "______________________________\n"
-            find_dict = collections.defaultdict(list)
-            for h in res:
-                find_dict[h.service].append(f"{h.email}: {h.password}")
+            res = await hack_model.filter(email=message.text)
+            Limit.number_day_requests += 1
+            if not res:
+                TempData.NO_FIND_EMAIL.append(message.text)
+                answer = translation.data_not_found.format(email=message.text)
+            else:
+                answer = "______________________________\n"
+                find_dict = collections.defaultdict(list)
+                for h in res:
+                    find_dict[h.service].append(f"{h.email}: {h.password}")
 
-            for s, hstr in find_dict.items():
-                find_count += len(hstr)
-                answer = answer + s + "\n" + "\n".join(hstr)
-                answer += "\n\n"
-            # answer += "\n\n".join([f"{h.service}\n{h.email}: {h.password}" for h in res])
+                for s, hstr in find_dict.items():
+                    find_count += len(hstr)
+                    answer = answer + s + "\n" + "\n".join(hstr)
+                    answer += "\n\n"
+                # answer += "\n\n".join([f"{h.service}\n{h.email}: {h.password}" for h in res])
 
-        # answer += f"\nОсталось попыток {db_user.subscription.remaining_daily_limit}"
-        # if db_user.subscription.remaining_daily_limit is not None:
-        #     answer += "\n" + translation.left_attempts.format(limit=db_user.subscription.remaining_daily_limit)
-    # Ответ и отключение режима поиска
-    if find_count:
-        answer += f"\nНайдено всего {find_count}"
+            # answer += f"\nОсталось попыток {db_user.subscription.remaining_daily_limit}"
+            # if db_user.subscription.remaining_daily_limit is not None:
+            #     answer += "\n" + translation.left_attempts.format(limit=db_user.subscription.remaining_daily_limit)
+        # Ответ и отключение режима поиска
+        if find_count:
+            answer += f"\nНайдено всего {find_count}"
 
-    if len(answer) > 4096:
-        for x in range(0, len(answer), 4096):
-            await message.answer(answer[x:x + 4096])
-    else:
-        await message.answer(answer)
-    if db_user.subscription.remaining_daily_limit is not None:
-        await message.answer(translation.left_attempts.format(limit=db_user.subscription.remaining_daily_limit))
-    # await message.answer(answer)
-    db_user.is_search = False
-    await db_user.save()
+        if len(answer) > 4096:
+            for x in range(0, len(answer), 4096):
+                await message.answer(answer[x:x + 4096])
+        else:
+            await message.answer(answer)
+        if db_user.subscription.remaining_daily_limit is not None:
+            await message.answer(translation.left_attempts.format(limit=db_user.subscription.remaining_daily_limit))
+        # await message.answer(answer)
+        db_user.is_search = False
+        await db_user.save()
+    except Exception as e:
+        db_user.is_search = True
+        await db_user.save()
+        logger.critical(e)
+        await message.answer("Некорректный email")
 
 
 def register_data_search_handlers(dp: Dispatcher):
