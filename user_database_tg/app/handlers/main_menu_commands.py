@@ -10,7 +10,7 @@ from user_database_tg.db.models import DbUser, DbTranslation
 
 
 async def profile(
-        message: types.Message, db_user: DbUser, translation: DbTranslation
+    message: types.Message, db_user: DbUser, translation: DbTranslation
 ):  # todo 2/25/2022 12:34 AM taima:
 
     # duration: datetime.timedelta = db_user.subscription.duration - datetime.datetime.now(TZ)
@@ -19,15 +19,20 @@ async def profile(
         translation.profile.format(
             user_id=db_user.user_id,
             username=db_user.username,
-            remaining_daily_limit=db_user.subscription.remaining_daily_limit if db_user.subscription.remaining_daily_limit else "Unlimited",
+            remaining_daily_limit=db_user.subscription.remaining_daily_limit
+            if db_user.subscription.remaining_daily_limit
+            else "Unlimited",
             sub=db_user.subscription.title,
             # duration=f"{duration.days} {duration.days}:{duration.hours}:{duration.minutes}"
-            duration=f"\nДо окончания осталось дней: {db_user.subscription.days_duration}" if db_user.subscription.is_subscribe else ""
+            duration=f"\nДо окончания осталось дней: {db_user.subscription.days_duration}"
+            if db_user.subscription.is_subscribe
+            else ""
             if db_user.subscription.is_subscribe
             else 0,
         ),
-        reply_markup=markups.renew_subscription(
-            db_user.subscription.title) if db_user.subscription.daily_limit else None
+        reply_markup=markups.renew_subscription(db_user.subscription.title)
+        if db_user.subscription.daily_limit
+        else None,
     )
 
 

@@ -4,6 +4,7 @@ from .bot_settings import register_bot_info_handler
 from .subscription_settings import register_admin_subscription_settings_handlers
 from .menu_settings import register_menu_settings_handlers
 
+
 def register_admin_handlers(dp: Dispatcher):
     register_admin_menu_handlers(dp)
     register_admin_subscription_settings_handlers(dp)

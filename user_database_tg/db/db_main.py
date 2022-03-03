@@ -6,17 +6,25 @@ from pathlib import Path
 from loguru import logger
 from tortoise import Tortoise
 
-from user_database_tg.config.config import TEST, DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT, DB_DB_NAME, BASE_DIR
+from user_database_tg.config.config import (
+    TEST,
+    DB_USERNAME,
+    DB_PASSWORD,
+    DB_HOST,
+    DB_PORT,
+    DB_DB_NAME,
+    BASE_DIR,
+)
 from user_database_tg.db import models
 from user_database_tg.db.models import Payment
 
 
 async def init_tortoise(
-        username=DB_USERNAME,
-        password=DB_PASSWORD,
-        host=DB_HOST,
-        port=DB_PORT,
-        db_name=DB_DB_NAME,
+    username=DB_USERNAME,
+    password=DB_PASSWORD,
+    host=DB_HOST,
+    port=DB_PORT,
+    db_name=DB_DB_NAME,
 ):
     logger.debug(f"Инициализация BD {host}")
     await Tortoise.init(  # todo

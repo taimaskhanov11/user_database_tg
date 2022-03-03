@@ -4,7 +4,10 @@ from aiogram.dispatcher.filters.state import StatesGroup, State
 
 from user_database_tg.app.markups.admin_menu import MENU_FIELDS
 from user_database_tg.app.translation.google_translation import translate
-from user_database_tg.app.translation.message_translation import TRANSLATIONS, init_english
+from user_database_tg.app.translation.message_translation import (
+    TRANSLATIONS,
+    init_english,
+)
 
 
 class EditMenuField(StatesGroup):
@@ -14,8 +17,10 @@ class EditMenuField(StatesGroup):
 
 async def view_menu(call: types.CallbackQuery):
     rus = TRANSLATIONS.get("russian")
-    await call.message.answer(f"В ответном сообщении отправьте цифру поля, которую хотите изменить."
-                              f" Для отмены введите /start \n\n{rus}")
+    await call.message.answer(
+        f"В ответном сообщении отправьте цифру поля, которую хотите изменить."
+        f" Для отмены введите /start \n\n{rus}"
+    )
     await EditMenuField.first()
 
 
@@ -24,7 +29,9 @@ async def edit_menu_field_start(message: types.Message, state: FSMContext):
     if field_number.isdigit():
         await state.update_data(field_number=int(field_number))
 
-        await message.answer(f"Ведите новое значение для поля {MENU_FIELDS[int(field_number)]}")
+        await message.answer(
+            f"Ведите новое значение для поля {MENU_FIELDS[int(field_number)]}"
+        )
         await EditMenuField.next()
 
     else:
@@ -42,7 +49,9 @@ async def edit_menu_field_end(message: types.Message, state: FSMContext):
     en_trans_data = await translate(MENU_FIELDS[field_number], message.text)
     setattr(en, MENU_FIELDS[field_number], en_trans_data[MENU_FIELDS[field_number]])
     await en.save()
-    await message.answer("Данные обновлены. Перевод на английский переведен автоматически")
+    await message.answer(
+        "Данные обновлены. Перевод на английский переведен автоматически"
+    )
     await state.finish()
 
 

@@ -6,7 +6,7 @@ from user_database_tg.db.models import DbUser
 
 
 async def admin_start(
-        message: types.Message, db_user: DbUser, state: FSMContext
+    message: types.Message, db_user: DbUser, state: FSMContext
 ):  # todo 2/27/2022 12:39 PM taima:
     await state.finish()
     await message.answer("Admin menu", reply_markup=admin_menu.admin_start)

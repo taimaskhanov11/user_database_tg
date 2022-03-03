@@ -8,7 +8,13 @@ from loguru import logger
 from user_database_tg.app.filters.bot_settings import EditUserFilter
 from user_database_tg.app.markups import bot_settings_markup, admin_menu
 from user_database_tg.config.config import TempData
-from user_database_tg.db.models import DbUser, Limit, Payment, SubscriptionChannel, Subscription
+from user_database_tg.db.models import (
+    DbUser,
+    Limit,
+    Payment,
+    SubscriptionChannel,
+    Subscription,
+)
 from user_database_tg.loader import bot
 
 
@@ -40,7 +46,9 @@ async def get_bot_info(call: types.CallbackQuery):
     payments = await Payment.all().order_by("-date").limit(10).select_related("db_user")
     last_pay_users = ""
     for p in payments:
-        last_pay_users += f"@{p.db_user.username}|{p.date.replace(microsecond=0)}|{p.amount}р\n"
+        last_pay_users += (
+            f"@{p.db_user.username}|{p.date.replace(microsecond=0)}|{p.amount}р\n"
+        )
     answer = (
         f"Количество запросов к бд за последние сутки:\n{Limit.number_day_requests}\n"
         f"___________________\n"
@@ -66,7 +74,7 @@ async def get_all_users(call: types.CallbackQuery):
 
     if len(users) > 4096:
         for x in range(0, len(users), 4096):
-            await call.message.answer(users[x:x + 4096])
+            await call.message.answer(users[x : x + 4096])
     else:
         await call.message.answer(users)
 
@@ -82,12 +90,14 @@ async def get_user_info_end(message: types.Message, state: FSMContext):
     field = message.text
     field = field[1:] if message.text[0] == "@" else field
     if field[0].isdigit() or field[0].isalpha():
-        search_field = {
-            "user_id": int(field)
-        } if field[0].isdigit() else {
-            "username": field
-        }
-        user: DbUser = await DbUser.get(**search_field).select_related("subscription").prefetch_related("payments")
+        search_field = (
+            {"user_id": int(field)} if field[0].isdigit() else {"username": field}
+        )
+        user: DbUser = (
+            await DbUser.get(**search_field)
+            .select_related("subscription")
+            .prefetch_related("payments")
+        )
         # user: DbUser = await DbUser.get(**search_field).select_related("subscription")
         # payments: list[Payment] = await DbUser.payments.all()
         logger.info(user.payments)
@@ -103,7 +113,9 @@ async def get_user_info_end(message: types.Message, state: FSMContext):
             f"Подписка: {user.subscription.title}\n"
             f"Совершенные платежи:\n{payments_str or 'Пусто'}\n"
         )
-        await message.answer(user_data, reply_markup=bot_settings_markup.get_edit_user(user.user_id))
+        await message.answer(
+            user_data, reply_markup=bot_settings_markup.get_edit_user(user.user_id)
+        )
         await state.finish()
     else:
         await message.answer("Некорректное имя пользователя или id")
@@ -117,7 +129,8 @@ async def edit_user_sub(call: types.CallbackQuery, state: FSMContext):
     await call.message.answer(
         f"🔑 ID: {db_user.user_id}\n"
         f"👤 Логин: @{db_user.username}\n"
-        f"Подписка:\n{db_user.subscription}", reply_markup=admin_menu.change_user_sub_field
+        f"Подписка:\n{db_user.subscription}",
+        reply_markup=admin_menu.change_user_sub_field
         # f"{subscription}", reply_markup=admin_menu.change_field
     )
     await state.update_data(db_user=db_user)
@@ -153,7 +166,7 @@ async def edit_user_sub_end(message: types.Message, state: FSMContext):
             f"🔑 ID: {db_user.user_id}\n"
             f"👤 Логин: @{db_user.username}\n"
             f"Подписка:\n{db_user.subscription}",
-            reply_markup=admin_menu.change_user_sub_field
+            reply_markup=admin_menu.change_user_sub_field,
         )
         # await state.finish()
         await EditUserSubStates.first()
@@ -165,9 +178,19 @@ async def edit_user_sub_end(message: types.Message, state: FSMContext):
 
 async def sub_channel_status(call: types.CallbackQuery):
     await call.message.delete()
-    channel = f"Канал для подписки @{TempData.SUB_CHANNEL.chat_id}" if TempData.SUB_CHANNEL else "Нет группы для подписки"
-    channel_check = f"Проверка подписки включена" if TempData.CHECK_CHANNEL_SUBSCRIPTIONS else "Проверка подписки отключена"
-    await call.message.answer(f"{channel}\n{channel_check}", reply_markup=bot_settings_markup.channel_status)
+    channel = (
+        f"Канал для подписки @{TempData.SUB_CHANNEL.chat_id}"
+        if TempData.SUB_CHANNEL
+        else "Нет группы для подписки"
+    )
+    channel_check = (
+        f"Проверка подписки включена"
+        if TempData.CHECK_CHANNEL_SUBSCRIPTIONS
+        else "Проверка подписки отключена"
+    )
+    await call.message.answer(
+        f"{channel}\n{channel_check}", reply_markup=bot_settings_markup.channel_status
+    )
 
 
 async def edit_sub_channel_status(call: types.CallbackQuery):
@@ -176,11 +199,18 @@ async def edit_sub_channel_status(call: types.CallbackQuery):
     else:
         TempData.CHECK_CHANNEL_SUBSCRIPTIONS = False
 
-    channel = f"Канал для подписки @{TempData.SUB_CHANNEL.chat_id}" if TempData.SUB_CHANNEL else "Нет группы для подписки"
-    channel_check = f"Проверка подписки отключена" if TempData.CHECK_CHANNEL_SUBSCRIPTIONS else "Проверка подписки включена"
+    channel = (
+        f"Канал для подписки @{TempData.SUB_CHANNEL.chat_id}"
+        if TempData.SUB_CHANNEL
+        else "Нет группы для подписки"
+    )
+    channel_check = (
+        f"Проверка подписки отключена"
+        if TempData.CHECK_CHANNEL_SUBSCRIPTIONS
+        else "Проверка подписки включена"
+    )
 
-    await call.message.answer("Статус подписки изменен\n"
-                              f"{channel}\n{channel_check}")
+    await call.message.answer("Статус подписки изменен\n" f"{channel}\n{channel_check}")
 
 
 async def change_sub_channel_start(call: types.CallbackQuery):
@@ -228,10 +258,16 @@ def register_bot_info_handler(dp: Dispatcher):
     dp.register_message_handler(get_user_info_end, state=GetUserInfoStates.start)
 
     dp.register_callback_query_handler(edit_user_sub, EditUserFilter())
-    dp.register_callback_query_handler(edit_user_sub_start, state=EditUserSubStates.start)
+    dp.register_callback_query_handler(
+        edit_user_sub_start, state=EditUserSubStates.start
+    )
     dp.register_message_handler(edit_user_sub_end, state=EditUserSubStates.end)
 
     dp.register_callback_query_handler(sub_channel_status, text="sub_channel_status")
-    dp.register_callback_query_handler(edit_sub_channel_status, text="change_sub_status")
-    dp.register_callback_query_handler(change_sub_channel_start, text="change_sub_channel")
+    dp.register_callback_query_handler(
+        edit_sub_channel_status, text="change_sub_status"
+    )
+    dp.register_callback_query_handler(
+        change_sub_channel_start, text="change_sub_channel"
+    )
     dp.register_message_handler(change_sub_channel_end, state=EditChannelStates.start)

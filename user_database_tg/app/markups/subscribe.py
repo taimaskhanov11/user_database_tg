@@ -6,7 +6,9 @@ from user_database_tg.db.models import DbTranslation
 
 def get_subscribe_menu_pay(pk: int, translation: DbTranslation):
     btn_pay = [
-        InlineKeyboardButton(text=translation.go_payment_b, callback_data=f"subscribe_{pk}")
+        InlineKeyboardButton(
+            text=translation.go_payment_b, callback_data=f"subscribe_{pk}"
+        )
     ]
 
     subscribe_menu = InlineKeyboardMarkup(

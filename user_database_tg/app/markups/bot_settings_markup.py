@@ -22,9 +22,12 @@ channel_status_data = [
 
 channel_status = InlineKeyboardMarkup(
     inline_keyboard=[
-        [InlineKeyboardButton(
-            text=text,
-            callback_data=data,
-        )] for text, data in channel_status_data
+        [
+            InlineKeyboardButton(
+                text=text,
+                callback_data=data,
+            )
+        ]
+        for text, data in channel_status_data
     ]
 )

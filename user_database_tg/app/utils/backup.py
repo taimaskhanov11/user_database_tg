@@ -28,7 +28,9 @@ async def making_backup(interval):
             data["billing"].append(dict(b))
 
         data["datetime"] = datetime.now(TZ)
-        with open(Path(BASE_DIR, "backup", f"{now_time}.json"), "w", encoding="utf-8") as f:
+        with open(
+            Path(BASE_DIR, "backup", f"{now_time}.json"), "w", encoding="utf-8"
+        ) as f:
             json.dump(data, f, sort_keys=True, default=str)
 
         logger.info(f"Резервное копирование завершено {now_time}")

@@ -186,7 +186,7 @@ class DbUser(models.Model):
 
 
 class Payment(models.Model):
-    db_user = fields.ForeignKeyField("models.DbUser", related_name='payments')
+    db_user = fields.ForeignKeyField("models.DbUser", related_name="payments")
     date = fields.DatetimeField()
     amount = fields.IntField()
 

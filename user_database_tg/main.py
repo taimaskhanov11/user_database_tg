@@ -15,8 +15,10 @@ from user_database_tg.app.handlers import (
     register_main_menu_handlers,
     register_subscriptions_handlers,
 )
-from user_database_tg.app.handlers.admin_handlers import register_admin_handlers, \
-    register_admin_subscription_settings_handlers
+from user_database_tg.app.handlers.admin_handlers import (
+    register_admin_handlers,
+    register_admin_subscription_settings_handlers,
+)
 from user_database_tg.app.middleware.father_middleware import FatherMiddleware
 from user_database_tg.app.subscription.subscription_info import init_subscriptions_info
 from user_database_tg.app.translation.message_translation import init_translations
@@ -52,7 +54,9 @@ logging.basicConfig(
     level=logging.DEBUG,
     handlers=[
         logging.StreamHandler(),
-        logging.FileHandler(filename=Path(BASE_DIR, "logs/aiolog.log"), encoding="utf-8"),
+        logging.FileHandler(
+            filename=Path(BASE_DIR, "logs/aiolog.log"), encoding="utf-8"
+        ),
     ],
 )
 logger = logging.getLogger(__name__)

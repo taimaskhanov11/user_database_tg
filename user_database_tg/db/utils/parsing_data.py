@@ -86,7 +86,7 @@ class DataParser:
                                 f"{current_process().name}| Повторный парс файла c {encode} {self.service}|{data_file.name}"
                             )
                         with open(
-                                data_file, encoding=encode
+                            data_file, encoding=encode
                         ) as f:  # todo 2/24/2022 12:40 AM taima:
                             t = time.monotonic()
                             for line in f:
@@ -122,9 +122,8 @@ class DataParser:
                 logger.warning(f"Ошибка при удалении файла {data_file.name}")
 
 
-
 @logger.catch
-async def create_users(path:Path):
+async def create_users(path: Path):
     if TEST:
         await init_tortoise(host="localhost", password="postgres")
     else:
@@ -175,9 +174,7 @@ def run_process_create_users(main_path, processes=3):
     logger.info(f"Полученные папки {[d.name for d in data_dirs]}")
     logger.info("Запуск процессов...")
     time.sleep(5)
-    prs = [
-        Process(target=run_async_create_users, args=(path,)) for path in data_dirs
-    ]
+    prs = [Process(target=run_async_create_users, args=(path,)) for path in data_dirs]
     start_prs = []
     while True:
         if len(start_prs) >= processes:
@@ -227,8 +224,8 @@ def args_parce():
 
 if __name__ == "__main__":
     init_logging()
-    parser = argparse.ArgumentParser(description='Upload data in db')
-    parser.add_argument('--path', type=str)
+    parser = argparse.ArgumentParser(description="Upload data in db")
+    parser.add_argument("--path", type=str)
     args = parser.parse_args()
     print(args.path)
     run_process_create_users(args.path)

@@ -22,7 +22,9 @@ async def check_payment(bill_id, db_user):  # todo 2/28/2022 8:53 PM taima: по
         db_bill = await Billing.get(bill_id=bill_id).prefetch_related("subscription")
 
         Limit.lats_day_amount_payments += db_bill.amount
-        await Payment.create(db_user=db_user, date=datetime.now(TZ), amount=db_bill.amount)
+        await Payment.create(
+            db_user=db_user, date=datetime.now(TZ), amount=db_bill.amount
+        )
 
         db_bill.subscription.is_paid = True  ##todo 2/28/2022 9:20 PM taima: Добавить оставшиеся дни в новую подписку
         old_sub = db_user.subscription
@@ -38,7 +40,7 @@ async def check_payment(bill_id, db_user):  # todo 2/28/2022 8:53 PM taima: по
 
 @logger.catch
 async def check_payment2(
-        bill_id, user_id, message: types.Message
+    bill_id, user_id, message: types.Message
 ):  # todo 2/27/2022 3:08 PM taima:  translation
     for _ in range(30):
         bill = await p2p.check(bill_id=bill_id)

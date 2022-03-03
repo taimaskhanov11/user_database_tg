@@ -9,7 +9,8 @@ from user_database_tg.app import markups
 from user_database_tg.app.filters.payment_filters import (
     RejectPaymentFilter,
     SubscribeFilter,
-    AcceptPaymentFilter, ViewSubscriptionFilter,
+    AcceptPaymentFilter,
+    ViewSubscriptionFilter,
 )
 from user_database_tg.app.subscription.subscription_info import SUBSCRIPTIONS_INFO
 from user_database_tg.app.translation.message_translation import Translation
@@ -24,16 +25,22 @@ class BuySubscription(StatesGroup):
 
 async def view_subscription(call: types.CallbackQuery, translation: DbTranslation):
     try:
-        sub_info = SUBSCRIPTIONS_INFO.get(int(re.findall(r"view_buy_(\d*)", call.data)[0]))
+        sub_info = SUBSCRIPTIONS_INFO.get(
+            int(re.findall(r"view_buy_(\d*)", call.data)[0])
+        )
         await call.message.delete()
-        await call.message.answer(f"{sub_info}", reply_markup=markups.get_subscribe_menu_pay(sub_info.pk, translation))
+        await call.message.answer(
+            f"{sub_info}",
+            reply_markup=markups.get_subscribe_menu_pay(sub_info.pk, translation),
+        )
     except ValueError as e:
         logger.critical(e)
         await call.message.answer("Нет подписок")
 
+
 @logger.catch
 async def create_subscribe(
-        call: types.CallbackQuery, db_user: DbUser, translation: DbTranslation
+    call: types.CallbackQuery, db_user: DbUser, translation: DbTranslation
 ):
     logger.critical(db_user)
     bill_db = await Billing.get_or_none(db_user=db_user).select_related("subscription")
@@ -67,7 +74,7 @@ async def create_subscribe(
 
 @logger.catch
 async def reject_payment(
-        call: types.CallbackQuery, db_user: DbUser, translation: DbTranslation
+    call: types.CallbackQuery, db_user: DbUser, translation: DbTranslation
 ):
     bill_obj = await Billing.get(db_user=db_user).select_related("subscription")
     bill = await p2p.reject(bill_obj.bill_id)
@@ -83,7 +90,7 @@ async def reject_payment(
 
 
 async def accept_payment(
-        call: types.CallbackQuery, db_user: DbUser, translation: DbTranslation
+    call: types.CallbackQuery, db_user: DbUser, translation: DbTranslation
 ):
     db_bill = await Billing.get(db_user=db_user).select_related("subscription")
     is_paid = await check_payment(db_bill.bill_id, db_user)

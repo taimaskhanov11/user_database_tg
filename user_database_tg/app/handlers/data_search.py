@@ -17,7 +17,7 @@ async def channel_status_check():
         status = await bot.get_chat_member(
             # chat_id=-1001790098718,
             chat_id=chat_id,
-            user_id=1985947355
+            user_id=1985947355,
         )
         if status["status"] != "left":
             return True
@@ -30,7 +30,7 @@ async def channel_status_check():
 
 @logger.catch
 async def search_data(
-        message: types.Message, db_user: DbUser, translation: DbTranslation
+    message: types.Message, db_user: DbUser, translation: DbTranslation
 ):
     # logger.critical(db_user)
     # logger.info("6.Handler")
@@ -41,7 +41,9 @@ async def search_data(
         await message.answer(translation.wait_search)
         return
 
-    if db_user.subscription.remaining_daily_limit == 0:  # todo 2/27/2022 5:39 PM taima: Вынести в бд
+    if (
+        db_user.subscription.remaining_daily_limit == 0
+    ):  # todo 2/27/2022 5:39 PM taima: Вынести в бд
         await message.answer(
             # f"Закончился дневной лимит. Осталось запросов {db_user.subscription.remaining_daily_limit}.\n"
             # f"Купите подписку или ожидайте пополнения запросов в 00:00"
@@ -65,7 +67,9 @@ async def search_data(
 
     if TempData.CHECK_CHANNEL_SUBSCRIPTIONS:
         if not db_user.subscription.is_subscribe:
-            await message.answer(translation.subscribe_channel.format(channel=TempData.SUB_CHANNEL))
+            await message.answer(
+                translation.subscribe_channel.format(channel=TempData.SUB_CHANNEL)
+            )
             return
 
     # Уменьшение дневного запроса на 1 при каждом запросе
@@ -85,7 +89,9 @@ async def search_data(
             logger.info("Найден в в переменой")
             answer = translation.data_not_found.format(email=message.text)
             if db_user.subscription.remaining_daily_limit is not None:
-                answer += "\n" + translation.left_attempts.format(limit=db_user.subscription.remaining_daily_limit)
+                answer += "\n" + translation.left_attempts.format(
+                    limit=db_user.subscription.remaining_daily_limit
+                )
         else:
             res = await hack_model.filter(email=message.text)
             Limit.number_day_requests += 1
@@ -113,12 +119,16 @@ async def search_data(
 
         if len(answer) > 4096:
             for x in range(0, len(answer), 4096):
-                await message.answer(answer[x:x + 4096])
+                await message.answer(answer[x : x + 4096])
         else:
             await message.answer(answer)
 
         if db_user.subscription.remaining_daily_limit is not None:
-            await message.answer(translation.left_attempts.format(limit=db_user.subscription.remaining_daily_limit))
+            await message.answer(
+                translation.left_attempts.format(
+                    limit=db_user.subscription.remaining_daily_limit
+                )
+            )
         # await message.answer(answer)
         db_user.is_search = False
         await db_user.save()

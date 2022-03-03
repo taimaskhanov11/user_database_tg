@@ -9,10 +9,7 @@ from user_database_tg.app import subscription
 from user_database_tg.app.subscription.subscription_info import SUBSCRIPTIONS_INFO
 
 admin_start = ReplyKeyboardMarkup(
-    [
-        [KeyboardButton("/start"), KeyboardButton("/admin_start")]
-    ],
-    resize_keyboard=True
+    [[KeyboardButton("/start"), KeyboardButton("/admin_start")]], resize_keyboard=True
 )
 
 admin_menu_main_data = [
@@ -56,23 +53,17 @@ menu = InlineKeyboardMarkup(inline_keyboard=btn_admin_menu)
 # ********************
 # create subscription
 class KBRSubscriptionField:
-    days = ReplyKeyboardMarkup(
-        [["10", "30", "45"]],
-        resize_keyboard=True
-    )
+    days = ReplyKeyboardMarkup([["10", "30", "45"]], resize_keyboard=True)
 
     daily_limit = ReplyKeyboardMarkup(
-        [["20", "100", "Unlimited"]],
-        resize_keyboard=True
+        [["20", "100", "Unlimited"]], resize_keyboard=True
     )
 
-    price = ReplyKeyboardMarkup(
-        [["100", "500", "1500"]],
-        resize_keyboard=True
-    )
+    price = ReplyKeyboardMarkup([["100", "500", "1500"]], resize_keyboard=True)
 
 
 # ******************
+
 
 def get_current_sub_info():
     current_sub_info = InlineKeyboardMarkup(

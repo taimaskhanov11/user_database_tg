@@ -30,9 +30,11 @@ async def view_all_subscriptions(call: types.CallbackQuery):
     for pk, sub_info in SUBSCRIPTIONS_INFO.items():
         subscription_info += f"{sub_info}\n"
     await call.message.delete()
-    await call.message.answer(f"Текущие подписки {len(SUBSCRIPTIONS_INFO)}."
-                              f" Для изменения нажмите на соответствующую подписку\n",
-                              reply_markup=admin_menu.get_current_sub_info())
+    await call.message.answer(
+        f"Текущие подписки {len(SUBSCRIPTIONS_INFO)}."
+        f" Для изменения нажмите на соответствующую подписку\n",
+        reply_markup=admin_menu.get_current_sub_info(),
+    )
     # await call.message.edit_text(f"Текущие подписки {len(SUBSCRIPTIONS_INFO)}:\n")
     # await call.message.edit_reply_markup(admin_menu.get_current_sub_info())
 
@@ -43,16 +45,17 @@ async def view_subscription_info(call: types.CallbackQuery, state: FSMContext):
     await state.update_data(sub_info=sub_info)
 
     await call.message.delete()
-    await call.message.answer(f"{sub_info}",
-                              reply_markup=admin_menu.change_field)
+    await call.message.answer(f"{sub_info}", reply_markup=admin_menu.change_field)
     await ChangeSubscriptionState.first()
 
 
 async def change_subscription_info_start(call: types.CallbackQuery, state: FSMContext):
     field = call.data
     await state.update_data(field=field)
-    await call.message.answer(f"Введите новое значение для поля {field}",
-                              reply_markup=getattr(KBRSubscriptionField, field, None))
+    await call.message.answer(
+        f"Введите новое значение для поля {field}",
+        reply_markup=getattr(KBRSubscriptionField, field, None),
+    )
     await ChangeSubscriptionState.next()
 
 
@@ -67,7 +70,9 @@ async def change_subscription_info_end(message: types.Message, state: FSMContext
         new_value = int(new_value)
     setattr(sub_info, field, new_value)
     await sub_info.save()
-    await message.answer("Данные подписки успешно изменены", reply_markup=ReplyKeyboardRemove())
+    await message.answer(
+        "Данные подписки успешно изменены", reply_markup=ReplyKeyboardRemove()
+    )
     await ChangeSubscriptionState.choice_field.set()
 
 
@@ -83,31 +88,35 @@ async def create_subscription_start(call: types.CallbackQuery, state: FSMContext
 @logger.catch
 async def create_subscription_title(message: types.Message, state: FSMContext):
     await state.update_data(title=message.text)
-    await message.answer("Укажите длительность подписки в днях", reply_markup=KBRSubscriptionField.days)
+    await message.answer(
+        "Укажите длительность подписки в днях", reply_markup=KBRSubscriptionField.days
+    )
     await CreateSubscriptionState.next()
 
 
 @logger.catch
 async def create_subscription_duration(message: types.Message, state: FSMContext):
     await state.update_data(days=int(message.text))
-    await message.answer("Укажите количество запросов в день (Unlimited чтобы сделать Анлим)",
-                         reply_markup=KBRSubscriptionField.daily_limit)
+    await message.answer(
+        "Укажите количество запросов в день (Unlimited чтобы сделать Анлим)",
+        reply_markup=KBRSubscriptionField.daily_limit,
+    )
     await CreateSubscriptionState.next()
 
 
 async def create_subscription_daily_limit(message: types.Message, state: FSMContext):
     daily_limit = None if message.text == "Unlimited" else int(message.text)
     await state.update_data(daily_limit=daily_limit)
-    await message.answer("Укажите цену за подписку", reply_markup=KBRSubscriptionField.price)
+    await message.answer(
+        "Укажите цену за подписку", reply_markup=KBRSubscriptionField.price
+    )
     await CreateSubscriptionState.next()
 
 
 async def create_subscription_price(message: types.Message, state: FSMContext):
     data = await state.get_data()
     data["price"] = int(message.text)
-    new_sub_info = await SubscriptionInfo.create(
-        **data
-    )
+    new_sub_info = await SubscriptionInfo.create(**data)
     SUBSCRIPTIONS_INFO[new_sub_info.pk] = new_sub_info
     await message.answer("Подписка успешно создана")
     await state.finish()
@@ -115,11 +124,19 @@ async def create_subscription_price(message: types.Message, state: FSMContext):
 
 def register_admin_subscription_settings_handlers(dp: Dispatcher):
     # user_id = [1985947355, 2014301618]
-    dp.register_callback_query_handler(view_all_subscriptions, text="view_all_subscriptions")
-    dp.register_callback_query_handler(view_subscription_info, text_startswith="view_subscription_")
+    dp.register_callback_query_handler(
+        view_all_subscriptions, text="view_all_subscriptions"
+    )
+    dp.register_callback_query_handler(
+        view_subscription_info, text_startswith="view_subscription_"
+    )
 
-    dp.register_callback_query_handler(change_subscription_info_start, state=ChangeSubscriptionState.choice_field)
-    dp.register_message_handler(change_subscription_info_end, state=ChangeSubscriptionState.edit_field)
+    dp.register_callback_query_handler(
+        change_subscription_info_start, state=ChangeSubscriptionState.choice_field
+    )
+    dp.register_message_handler(
+        change_subscription_info_end, state=ChangeSubscriptionState.edit_field
+    )
 
     dp.register_callback_query_handler(
         create_subscription_start, text="create_subscription"
