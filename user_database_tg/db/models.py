@@ -2,7 +2,6 @@ from datetime import datetime, timedelta
 
 from aiogram import types
 from loguru import logger
-from playhouse.sqlite_udf import duration
 from tortoise import fields, models
 
 from user_database_tg.config.config import TZ
