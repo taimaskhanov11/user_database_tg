@@ -27,8 +27,8 @@ async def profile(
             duration=f"\nДо окончания осталось дней: {db_user.subscription.days_duration}"
             if db_user.subscription.is_subscribe
             else ""
-            if db_user.subscription.is_subscribe
-            else 0,
+            # if db_user.subscription.is_subscribe
+            # else 0,
         ),
         reply_markup=markups.renew_subscription(db_user.subscription.title)
         if db_user.subscription.daily_limit
