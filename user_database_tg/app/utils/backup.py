@@ -7,7 +7,7 @@ from pathlib import Path
 from loguru import logger
 
 from user_database_tg.config.config import BASE_DIR, TZ
-from user_database_tg.db.models import Subscription, Payment, DbUser
+from user_database_tg.db.models import Subscription, Payment, DbUser, Billing
 
 
 async def making_backup(interval):
@@ -24,6 +24,8 @@ async def making_backup(interval):
             data["payments"].append(dict(p))
         for u in await DbUser.all():
             data["users"].append(dict(u))
+        for b in await Billing.all():
+            data["billing"].append(dict(b))
 
         data["datetime"] = datetime.now(TZ)
         with open(Path(BASE_DIR, "backup", f"{now_time}.json"), "w", encoding="utf-8") as f:

@@ -163,7 +163,7 @@ async def edit_user_sub_end(message: types.Message, state: FSMContext):
 async def sub_channel_status(call: types.CallbackQuery):
     await call.message.delete()
     channel = f"Канал для подписки @{TempData.SUB_CHANNEL.chat_id}" if TempData.SUB_CHANNEL else "Нет группы для подписки"
-    channel_check = f"Проверка подписки отключена" if TempData.CHECK_CHANNEL_SUBSCRIPTIONS else "Проверка подписки включена"
+    channel_check = f"Проверка подписки включена" if TempData.CHECK_CHANNEL_SUBSCRIPTIONS else "Проверка подписки отключена"
     await call.message.answer(f"{channel}\n{channel_check}", reply_markup=bot_settings_markup.channel_status)
 
 

@@ -114,9 +114,17 @@ class DataParser:
                         )
                         continue
 
+            try:
+                data_file.unlink()
+                logger.info(f"Файл успешно {data_file.name} удален")
+            except Exception as e:
+                logger.warning(e)
+                logger.warning(f"Ошибка при удалении файла {data_file.name}")
+
+
 
 @logger.catch
-async def create_users(path):
+async def create_users(path:Path):
     if TEST:
         await init_tortoise(host="localhost", password="postgres")
     else:
@@ -129,6 +137,11 @@ async def create_users(path):
     data_parser = DataParser(path)
     try:
         await data_parser.parce_datafiles()
+
+        logger.debug(f"Удаление паки {service} ")
+        path.rmdir()
+        logger.debug(f"Папка {service} успешно удалена")
+
     except Exception as e:
         logger.critical(e)
         # raise e
