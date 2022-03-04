@@ -214,21 +214,6 @@ async def edit_sub_channel_status(call: types.CallbackQuery):
     if TempData.SUB_CHANNEL:
         await TempData.SUB_CHANNEL.save()
 
-
-    channel = (
-        f"Канал для подписки @{TempData.SUB_CHANNEL.chat_id}"
-        if TempData.SUB_CHANNEL
-        else "Нет группы для подписки"
-    )
-    channel_check = ""
-    if TempData.SUB_CHANNEL:
-        channel_check = (
-            f"Проверка подписки включена"
-            if TempData.SUB_CHANNEL.checking
-            else "Проверка подписки отключена"
-        )
-
-    await call.message.delete()
     await call.message.answer(f"Статус подписки изменен\n{channel}\n{channel_check}",
                               reply_markup=bot_settings_markup.channel_status)
 
@@ -264,7 +249,21 @@ async def change_sub_channel_end(message: types.Message, state: FSMContext):
         TempData.SUB_CHANNEL = await SubscriptionChannel.create(
             chat_id=chat_info["username"],
         )
-        await message.answer("Данные обновлены", reply_markup=bot_settings_markup.channel_status)
+
+        channel = (
+            f"Канал для подписки @{TempData.SUB_CHANNEL.chat_id}"
+            if TempData.SUB_CHANNEL
+            else "Нет группы для подписки"
+        )
+        channel_check = ""
+        if TempData.SUB_CHANNEL:
+            channel_check = (
+                f"Проверка подписки включена"
+                if TempData.SUB_CHANNEL.checking
+                else "Проверка подписки отключена"
+            )
+        await message.answer(f"Данные обновлены\n{channel}\n{channel_check}",
+                             reply_markup=bot_settings_markup.channel_status)
         await state.finish()
 
     except Exception as e:
