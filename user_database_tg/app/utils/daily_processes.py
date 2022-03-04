@@ -39,7 +39,7 @@ async def everyday_processes(start=True):
         sub.days_duration -= 1
 
         # Проверка подписки
-        if sub.is_subscribe and (now_dt > sub.duration or sub.duration <= 0):
+        if sub.is_subscribe and (now_dt > sub.duration or sub.days_duration <= 0):
             logger.debug(f"Подписка закончилась {repr(sub.db_user)} ")
             await bot.send_message(
                 sub.db_user.user_id, f"Подписка {sub.title} закончилась"

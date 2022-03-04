@@ -1,5 +1,5 @@
 import asyncio
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from aiogram import types
 from loguru import logger
@@ -25,22 +25,34 @@ async def check_payment(bill_id, db_user):  # todo 2/28/2022 8:53 PM taima: по
         await Payment.create(
             db_user=db_user, date=datetime.now(TZ), amount=db_bill.amount
         )
+        if db_user.subscription.title == db_bill.subscription.title:
+            db_user.subscription.days_duration += db_bill.subscription.days_duration
+            db_user.subscription.duration += timedelta(db_bill.subscription.days_duration)
 
-        db_bill.subscription.is_paid = True  ##todo 2/28/2022 9:20 PM taima: Добавить оставшиеся дни в новую подписку
-        old_sub = db_user.subscription
-        db_user.subscription = db_bill.subscription
+            await db_user.subscription.save()
+            await db_user.save()
+            await db_bill.delete()
+            logger.info("Обновлена существующая подписка")
 
-        await db_user.subscription.save()
-        await db_user.save()
-        await db_bill.delete()
-        await old_sub.delete()
+        else:
+            db_bill.subscription.is_paid = True  ##todo 2/28/2022 9:20 PM taima: Добавить оставшиеся дни в новую подписку
+            old_sub = db_user.subscription
+            db_user.subscription = db_bill.subscription
+
+            await db_user.subscription.save()
+            await db_user.save()
+            await db_bill.delete()
+            await old_sub.delete()
+            logger.info("Создана новая подписка")
+
+        logger.info("Информация о подписке успешно обновлена")
         return True
     return False
 
 
 @logger.catch
 async def check_payment2(
-    bill_id, user_id, message: types.Message
+        bill_id, user_id, message: types.Message
 ):  # todo 2/27/2022 3:08 PM taima:  translation
     for _ in range(30):
         bill = await p2p.checking(bill_id=bill_id)
