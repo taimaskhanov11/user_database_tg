@@ -44,7 +44,7 @@ async def create_subscribe(
     logger.critical(db_user)
     bill_db = await Billing.get_or_none(db_user=db_user).select_related("subscription")
     if bill_db:
-        bill = await p2p.checking(bill_db.bill_id)
+        bill = await p2p.check(bill_db.bill_id)
         await call.message.delete()
         await call.message.answer(
             f"{translation.wait_payment}\n{bill_db.subscription.title}",

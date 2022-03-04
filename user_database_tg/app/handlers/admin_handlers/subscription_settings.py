@@ -119,7 +119,7 @@ async def create_subscription_price(message: types.Message, state: FSMContext):
     data["price"] = int(message.text)
     new_sub_info = await SubscriptionInfo.create(**data)
     SUBSCRIPTIONS_INFO[new_sub_info.pk] = new_sub_info
-    await message.answer("Подписка успешно создана")
+    await message.answer("Подписка успешно создана", reply_markup=admin_menu.admin_start)
     await state.finish()
 
 

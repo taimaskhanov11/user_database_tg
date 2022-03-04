@@ -33,6 +33,7 @@ async def check_payment(bill_id, db_user):  # todo 2/28/2022 8:53 PM taima: по
             await db_user.save()
             await db_bill.delete()
             logger.info("Обновлена существующая подписка")
+            await bot.send_message(db_user.user_id, "Обновлена существующая подписка")
 
         else:
             db_bill.subscription.is_paid = True  ##todo 2/28/2022 9:20 PM taima: Добавить оставшиеся дни в новую подписку
