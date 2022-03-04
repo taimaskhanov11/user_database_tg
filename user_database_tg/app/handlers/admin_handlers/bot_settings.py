@@ -190,7 +190,6 @@ async def sub_channel_status(call: types.CallbackQuery):
             if TempData.SUB_CHANNEL.checking
             else "Проверка подписки отключена"
         )
-        await TempData.SUB_CHANNEL.save()
     await call.message.answer(
         f"{channel}\n{channel_check}", reply_markup=bot_settings_markup.channel_status
     )
@@ -215,7 +214,22 @@ async def edit_sub_channel_status(call: types.CallbackQuery):
     if TempData.SUB_CHANNEL:
         await TempData.SUB_CHANNEL.save()
 
-    await call.message.answer("Статус подписки изменен\n" f"{channel}\n{channel_check}",
+
+    channel = (
+        f"Канал для подписки @{TempData.SUB_CHANNEL.chat_id}"
+        if TempData.SUB_CHANNEL
+        else "Нет группы для подписки"
+    )
+    channel_check = ""
+    if TempData.SUB_CHANNEL:
+        channel_check = (
+            f"Проверка подписки включена"
+            if TempData.SUB_CHANNEL.checking
+            else "Проверка подписки отключена"
+        )
+
+    await call.message.delete()
+    await call.message.answer(f"Статус подписки изменен\n{channel}\n{channel_check}",
                               reply_markup=bot_settings_markup.channel_status)
 
 
