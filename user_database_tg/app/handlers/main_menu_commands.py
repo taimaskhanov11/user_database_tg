@@ -4,7 +4,6 @@ from aiogram import Dispatcher, types
 from loguru import logger
 
 from user_database_tg.app import markups
-from user_database_tg.app.translation.message_translation import Translation
 from user_database_tg.config.config import TZ
 from user_database_tg.db.models import DbUser, DbTranslation
 

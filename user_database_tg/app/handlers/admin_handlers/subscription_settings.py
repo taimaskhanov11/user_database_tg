@@ -61,17 +61,18 @@ async def change_subscription_info_start(call: types.CallbackQuery, state: FSMCo
 
 async def change_subscription_info_end(message: types.Message, state: FSMContext):
     data = await state.get_data()
-    sub_info = data["sub_info"]
+    sub_info: SubscriptionInfo = data["sub_info"]
+    # await sub_info.refresh_from_db()
     field = data["field"]
     new_value = message.text
     if message.text == "Unlimited":
         new_value = None
-    elif field in ("days", "daily_limit"):
-        new_value = int(new_value)
     setattr(sub_info, field, new_value)
     await sub_info.save()
+    await SUBSCRIPTIONS_INFO[sub_info.pk].refresh_from_db()
+
     await message.answer(
-        "Данные подписки успешно изменены", reply_markup=ReplyKeyboardRemove()
+        "Данные подписки успешно изменены", reply_markup=admin_menu.admin_start
     )
     await ChangeSubscriptionState.choice_field.set()
 

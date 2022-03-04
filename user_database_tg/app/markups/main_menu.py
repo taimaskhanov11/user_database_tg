@@ -5,7 +5,6 @@ from aiogram.types import (
     ReplyKeyboardMarkup,
 )
 
-from user_database_tg.app.translation.message_translation import Translation
 from user_database_tg.db.models import DbTranslation
 
 btn_ru = KeyboardButton("🇷🇺 Русский")

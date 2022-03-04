@@ -13,7 +13,6 @@ from user_database_tg.app.filters.payment_filters import (
     ViewSubscriptionFilter,
 )
 from user_database_tg.app.subscription.subscription_info import SUBSCRIPTIONS_INFO
-from user_database_tg.app.translation.message_translation import Translation
 from user_database_tg.app.utils.payment_processes import check_payment
 from user_database_tg.config.config import p2p
 from user_database_tg.db.models import Billing, DbUser, DbTranslation, Limit

@@ -58,6 +58,7 @@ logging.basicConfig(
             filename=Path(BASE_DIR, "logs/aiolog.log"), encoding="utf-8"
         ),
     ],
+
 )
 logger = logging.getLogger(__name__)
 

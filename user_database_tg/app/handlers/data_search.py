@@ -4,7 +4,7 @@ from aiogram import Dispatcher, types
 from loguru import logger
 
 from user_database_tg.app.filters.email_filter import EmailFilter
-from user_database_tg.app.translation.message_translation import Translation
+
 from user_database_tg.config.config import TempData
 from user_database_tg.db.models import *
 from user_database_tg.db.models import Limit
@@ -100,9 +100,9 @@ async def search_data(
                 answer = translation.data_not_found.format(email=message.text)
             else:
                 answer = "______________________________\n"
-                find_dict = collections.defaultdict(list)
+                find_dict = collections.defaultdict(set)
                 for h in res:
-                    find_dict[h.service].append(f"{h.email}: {h.password}")
+                    find_dict[h.service].add(f"{h.email}: {h.password}")
 
                 for s, hstr in find_dict.items():
                     find_count += len(hstr)

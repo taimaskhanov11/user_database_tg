@@ -6,7 +6,6 @@ from loguru import logger
 
 from user_database_tg.app import markups
 from user_database_tg.app.translation.message_translation import (
-    Translation,
     TRANSLATIONS,
 )
 from user_database_tg.db.models import DbUser, DbTranslation
