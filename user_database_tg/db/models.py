@@ -93,6 +93,10 @@ class DbTranslation(models.Model):  # todo 2/26/2022 4:40 PM taima:
 
 class SubscriptionChannel(models.Model):
     chat_id = fields.CharField(max_length=255)
+    checking = fields.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.chat_id}"
 
 
 class SubscriptionInfo(models.Model):

@@ -1,7 +1,10 @@
 import datetime
 from pathlib import Path
+from typing import Optional
+
 from environs import Env
 from pyqiwip2p.AioQiwip2p import AioQiwiP2P
+
 
 env = Env()
 env.read_env()
@@ -23,5 +26,4 @@ BASE_DIR = Path(__file__).parent.parent.parent
 
 class TempData:
     NO_FIND_EMAIL = []
-    CHECK_CHANNEL_SUBSCRIPTIONS = False
-    SUB_CHANNEL = None
+    SUB_CHANNEL= None

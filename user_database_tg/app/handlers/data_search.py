@@ -11,14 +11,17 @@ from user_database_tg.db.models import Limit
 from user_database_tg.loader import bot
 
 
-async def channel_status_check():
+async def channel_status_check(user_id):
     chat_id = f"@{TempData.SUB_CHANNEL}"
+    print(chat_id)
     try:
         status = await bot.get_chat_member(
             # chat_id=-1001790098718,
             chat_id=chat_id,
-            user_id=1985947355,
+            # user_id=1985947355,
+            user_id=user_id,
         )
+        logger.trace(status)
         if status["status"] != "left":
             return True
         return False
@@ -30,7 +33,7 @@ async def channel_status_check():
 
 @logger.catch
 async def search_data(
-    message: types.Message, db_user: DbUser, translation: DbTranslation
+        message: types.Message, db_user: DbUser, translation: DbTranslation
 ):
     # logger.critical(db_user)
     # logger.info("6.Handler")
@@ -42,7 +45,7 @@ async def search_data(
         return
 
     if (
-        db_user.subscription.remaining_daily_limit == 0
+            db_user.subscription.remaining_daily_limit == 0
     ):  # todo 2/27/2022 5:39 PM taima: Вынести в бд
         await message.answer(
             # f"Закончился дневной лимит. Осталось запросов {db_user.subscription.remaining_daily_limit}.\n"
@@ -65,12 +68,18 @@ async def search_data(
         await message.answer("Некорректный email")
         return
 
-    if TempData.CHECK_CHANNEL_SUBSCRIPTIONS:
+    # Проверка подписки на канал
+    if TempData.SUB_CHANNEL.checking:
         if not db_user.subscription.is_subscribe:
-            await message.answer(
-                translation.subscribe_channel.format(channel=TempData.SUB_CHANNEL)
-            )
-            return
+            try:
+                if not await channel_status_check(db_user.user_id):
+                    await message.answer(
+                        f'{translation.subscribe_channel.format(channel=f"@{TempData.SUB_CHANNEL}")}'
+                    )
+                    return
+                logger.info(f"Пользователь подписан на канал {TempData.SUB_CHANNEL}")
+            except Exception as e:
+                logger.critical(e)
 
     # Уменьшение дневного запроса на 1 при каждом запросе
     if db_user.subscription.daily_limit is not None:
@@ -119,7 +128,7 @@ async def search_data(
 
         if len(answer) > 4096:
             for x in range(0, len(answer), 4096):
-                await message.answer(answer[x : x + 4096])
+                await message.answer(answer[x: x + 4096])
         else:
             await message.answer(answer)
 

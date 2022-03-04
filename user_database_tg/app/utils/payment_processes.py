@@ -15,7 +15,7 @@ async def create_bill(call: types.CallbackQuery):
 
 @logger.catch
 async def check_payment(bill_id, db_user):  # todo 2/28/2022 8:53 PM taima: поправить
-    bill = await p2p.check(bill_id=bill_id)
+    bill = await p2p.checking(bill_id=bill_id)
 
     if bill.status == "PAID":
         logger.info(f"{db_user.user_id}|{bill.bill_id} успешно оплачен")
@@ -43,7 +43,7 @@ async def check_payment2(
     bill_id, user_id, message: types.Message
 ):  # todo 2/27/2022 3:08 PM taima:  translation
     for _ in range(30):
-        bill = await p2p.check(bill_id=bill_id)
+        bill = await p2p.checking(bill_id=bill_id)
         if bill.status == "PAID":
             # if True:
             logger.info(f"{user_id}|{bill.bill_id} успешно оплачен")

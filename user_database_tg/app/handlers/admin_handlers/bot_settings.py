@@ -74,7 +74,7 @@ async def get_all_users(call: types.CallbackQuery):
 
     if len(users) > 4096:
         for x in range(0, len(users), 4096):
-            await call.message.answer(users[x : x + 4096])
+            await call.message.answer(users[x: x + 4096])
     else:
         await call.message.answer(users)
 
@@ -95,8 +95,8 @@ async def get_user_info_end(message: types.Message, state: FSMContext):
         )
         user: DbUser = (
             await DbUser.get(**search_field)
-            .select_related("subscription")
-            .prefetch_related("payments")
+                .select_related("subscription")
+                .prefetch_related("payments")
         )
         # user: DbUser = await DbUser.get(**search_field).select_related("subscription")
         # payments: list[Payment] = await DbUser.payments.all()
@@ -183,21 +183,24 @@ async def sub_channel_status(call: types.CallbackQuery):
         if TempData.SUB_CHANNEL
         else "Нет группы для подписки"
     )
-    channel_check = (
-        f"Проверка подписки включена"
-        if TempData.CHECK_CHANNEL_SUBSCRIPTIONS
-        else "Проверка подписки отключена"
-    )
+    channel_check = ""
+    if TempData.SUB_CHANNEL:
+        channel_check = (
+            f"Проверка подписки включена"
+            if TempData.SUB_CHANNEL.checking
+            else "Проверка подписки отключена"
+        )
+        await TempData.SUB_CHANNEL.save()
     await call.message.answer(
         f"{channel}\n{channel_check}", reply_markup=bot_settings_markup.channel_status
     )
 
 
 async def edit_sub_channel_status(call: types.CallbackQuery):
-    if TempData.CHECK_CHANNEL_SUBSCRIPTIONS is False:
-        TempData.CHECK_CHANNEL_SUBSCRIPTIONS = True
+    if TempData.SUB_CHANNEL.checking is False:
+        TempData.SUB_CHANNEL.checking = True
     else:
-        TempData.CHECK_CHANNEL_SUBSCRIPTIONS = False
+        TempData.SUB_CHANNEL.checking = False
 
     channel = (
         f"Канал для подписки @{TempData.SUB_CHANNEL.chat_id}"
@@ -205,12 +208,15 @@ async def edit_sub_channel_status(call: types.CallbackQuery):
         else "Нет группы для подписки"
     )
     channel_check = (
-        f"Проверка подписки отключена"
-        if TempData.CHECK_CHANNEL_SUBSCRIPTIONS
-        else "Проверка подписки включена"
+        f"Проверка подписки включена"
+        if TempData.SUB_CHANNEL.checking
+        else "Проверка подписки отключена"
     )
+    if TempData.SUB_CHANNEL:
+        await TempData.SUB_CHANNEL.save()
 
-    await call.message.answer("Статус подписки изменен\n" f"{channel}\n{channel_check}")
+    await call.message.answer("Статус подписки изменен\n" f"{channel}\n{channel_check}",
+                              reply_markup=bot_settings_markup.channel_status)
 
 
 async def change_sub_channel_start(call: types.CallbackQuery):
@@ -244,8 +250,9 @@ async def change_sub_channel_end(message: types.Message, state: FSMContext):
         TempData.SUB_CHANNEL = await SubscriptionChannel.create(
             chat_id=chat_info["username"],
         )
-        await message.answer("Данные обновлены")
+        await message.answer("Данные обновлены", reply_markup=bot_settings_markup.channel_status)
         await state.finish()
+
     except Exception as e:
         logger.critical(e)
         await message.answer("Ошибка")
