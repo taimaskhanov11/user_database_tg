@@ -48,7 +48,6 @@ is_search(Это блокировка во время поиска если true
 
 12.После каждого  изменения текста или описания в админ панели, автоматически переводиться на английский вариант и загружается в бд.
 
-____
 13. Резервная копия создается каждый час.
 Выгрузка backup в базу командой:
 1. cd /home/user/user_database_tg/
@@ -57,3 +56,18 @@ ____
 
 *****
 14.Для выгрузки на другую машину:
+1.1| sudo apt update && sudo apt upgrade
+1.2| sudo add-apt-repository ppa:deadsnakes/ppa
+1.3| sudo apt update
+1.4| sudo apt install python3.10
+1.5| sudo apt install python3.10-venv
+1.6| curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python3.10 -
+
+2.зайти в нужную папку c помощью: cd /home/
+2.1 git clone https://github.com/taimaskhanov11/user_database_tg.git
+2.2 cd user_database_tg
+2.3 Заполнить данные в файле конфига .env
+2.3 poetry install --no-dev
+2.4 poetry update --no-dev
+2.4.1 (если нужно перенести данные) poetry run python user_database_tg/app/utils/backup.py
+2.5 poetry run python user_database_tg/main.py(При первом запуске может выскочить ошибка, просто заупстите еще раз)
