@@ -69,17 +69,18 @@ async def search_data(
         return
 
     # Проверка подписки на канал
-    if TempData.SUB_CHANNEL.checking:
-        if not db_user.subscription.is_subscribe:
-            try:
-                if not await channel_status_check(db_user.user_id):
-                    await message.answer(
-                        f'{translation.subscribe_channel.format(channel=f"@{TempData.SUB_CHANNEL}")}'
-                    )
-                    return
-                logger.info(f"Пользователь подписан на канал {TempData.SUB_CHANNEL}")
-            except Exception as e:
-                logger.critical(e)
+    if TempData.SUB_CHANNEL:
+        if TempData.SUB_CHANNEL.checking:
+            if not db_user.subscription.is_subscribe:
+                try:
+                    if not await channel_status_check(db_user.user_id):
+                        await message.answer(
+                            f'{translation.subscribe_channel.format(channel=f"@{TempData.SUB_CHANNEL}")}'
+                        )
+                        return
+                    logger.info(f"Пользователь подписан на канал {TempData.SUB_CHANNEL}")
+                except Exception as e:
+                    logger.critical(e)
 
     # Уменьшение дневного запроса на 1 при каждом запросе
     if db_user.subscription.daily_limit is not None:
