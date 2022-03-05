@@ -53,6 +53,7 @@ async def change_subscription_info_start(call: types.CallbackQuery, state: FSMCo
         sub_info: SubscriptionInfo = data["sub_info"]
         await sub_info.delete()
         del SUBSCRIPTIONS_INFO[sub_info.pk]
+        await call.message.delete()
         await call.message.answer("Подписка успешно удалена")
         return
     field = call.data
