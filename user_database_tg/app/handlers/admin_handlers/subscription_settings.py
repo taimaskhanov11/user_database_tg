@@ -132,6 +132,7 @@ async def create_subscription_price(message: types.Message, state: FSMContext):
         )
         await state.finish()
     except Exception as e:
+        logger.critical(e)
         await message.answer("Ошибка при создании")
 
 
