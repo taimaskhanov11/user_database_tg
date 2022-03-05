@@ -119,16 +119,20 @@ async def create_subscription_daily_limit(message: types.Message, state: FSMCont
     await CreateSubscriptionState.next()
 
 
+@logger.catch
 async def create_subscription_price(message: types.Message, state: FSMContext):
-    data = await state.get_data()
-    data["price"] = int(message.text)
-    print(data)
-    new_sub_info = await SubscriptionInfo.create(**data)
-    SUBSCRIPTIONS_INFO[new_sub_info.pk] = new_sub_info
-    await message.answer(
-        "Подписка успешно создана", reply_markup=admin_menu.admin_start
-    )
-    await state.finish()
+    try:
+        data = await state.get_data()
+        data["price"] = int(message.text)
+        print(data)
+        new_sub_info = await SubscriptionInfo.create(**data)
+        SUBSCRIPTIONS_INFO[new_sub_info.pk] = new_sub_info
+        await message.answer(
+            "Подписка успешно создана", reply_markup=admin_menu.admin_start
+        )
+        await state.finish()
+    except Exception as e:
+        await message.answer("Ошибка при создании")
 
 
 def register_admin_subscription_settings_handlers(dp: Dispatcher):
