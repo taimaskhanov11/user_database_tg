@@ -4,7 +4,6 @@ from aiogram import Dispatcher, types
 from loguru import logger
 
 from user_database_tg.app.filters.email_filter import EmailFilter
-
 from user_database_tg.config.config import TempData
 from user_database_tg.db.models import *
 from user_database_tg.db.models import Limit
@@ -33,7 +32,7 @@ async def channel_status_check(user_id):
 
 @logger.catch
 async def search_data(
-        message: types.Message, db_user: DbUser, translation: DbTranslation
+    message: types.Message, db_user: DbUser, translation: DbTranslation
 ):
     # logger.critical(db_user)
     # logger.info("6.Handler")
@@ -45,7 +44,7 @@ async def search_data(
         return
 
     if (
-            db_user.subscription.remaining_daily_limit == 0
+        db_user.subscription.remaining_daily_limit == 0
     ):  # todo 2/27/2022 5:39 PM taima: Вынести в бд
         await message.answer(
             # f"Закончился дневной лимит. Осталось запросов {db_user.subscription.remaining_daily_limit}.\n"
@@ -78,7 +77,9 @@ async def search_data(
                             f'{translation.subscribe_channel.format(channel=f"@{TempData.SUB_CHANNEL}")}'
                         )
                         return
-                    logger.info(f"Пользователь подписан на канал {TempData.SUB_CHANNEL}")
+                    logger.info(
+                        f"Пользователь подписан на канал {TempData.SUB_CHANNEL}"
+                    )
                 except Exception as e:
                     logger.critical(e)
 
@@ -129,7 +130,7 @@ async def search_data(
 
         if len(answer) > 4096:
             for x in range(0, len(answer), 4096):
-                await message.answer(answer[x: x + 4096])
+                await message.answer(answer[x : x + 4096])
         else:
             await message.answer(answer)
 

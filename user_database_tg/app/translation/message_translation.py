@@ -1,11 +1,8 @@
 import asyncio
-from pprint import pprint
-from typing import Optional
 
 from loguru import logger
-from pydantic import BaseModel
+
 from user_database_tg.app.translation.google_translation import translate
-from user_database_tg.db.db_main import init_db
 from user_database_tg.db.models import DbTranslation
 
 

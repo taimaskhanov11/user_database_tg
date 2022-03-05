@@ -1,6 +1,5 @@
 from aiogram import types
 from aiogram.dispatcher.filters import BoundFilter
-from loguru import logger
 
 from user_database_tg.app.translation.message_translation import TRANSLATIONS
 from user_database_tg.db.models import DbUser

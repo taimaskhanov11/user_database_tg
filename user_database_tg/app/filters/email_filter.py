@@ -2,7 +2,6 @@ import re
 
 from aiogram import types
 from aiogram.dispatcher.filters import BoundFilter
-from aiogram.dispatcher.handler import ctx_data
 from loguru import logger
 
 

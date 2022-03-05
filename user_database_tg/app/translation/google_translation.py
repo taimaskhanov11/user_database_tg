@@ -2,12 +2,7 @@ import asyncio
 import html
 import re
 
-# import urllib
-
 import aiohttp.helpers
-
-# from mtranslate import translate
-from loguru import logger
 
 agent = {
     "User-Agent": "Mozilla/4.0 (\

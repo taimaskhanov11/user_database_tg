@@ -5,7 +5,6 @@ from aiogram.types import (
     ReplyKeyboardMarkup,
 )
 
-from user_database_tg.app import subscription
 from user_database_tg.app.subscription.subscription_info import SUBSCRIPTIONS_INFO
 
 admin_start = ReplyKeyboardMarkup(
@@ -93,6 +92,7 @@ change_field = InlineKeyboardMarkup(
             ("Изменить длительность подписки", "days"),
             ("Изменить дневной лимит", "daily_limit"),
             ("Изменить цену", "price"),
+            ("Удалить подписку", "delete"),
         )
     ]
 )

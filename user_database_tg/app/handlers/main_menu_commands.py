@@ -1,10 +1,7 @@
-import datetime
-
 from aiogram import Dispatcher, types
 from loguru import logger
 
 from user_database_tg.app import markups
-from user_database_tg.config.config import TZ
 from user_database_tg.db.models import DbUser, DbTranslation
 
 

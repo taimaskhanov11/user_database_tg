@@ -3,14 +3,12 @@ import re
 from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
-from aiogram.types import ReplyKeyboardRemove
-
 from loguru import logger
 
 from user_database_tg.app.markups import admin_menu
 from user_database_tg.app.markups.admin_menu import KBRSubscriptionField
 from user_database_tg.app.subscription.subscription_info import SUBSCRIPTIONS_INFO
-from user_database_tg.db.models import DbUser, SubscriptionInfo
+from user_database_tg.db.models import SubscriptionInfo
 
 
 class CreateSubscriptionState(StatesGroup):
@@ -50,6 +48,13 @@ async def view_subscription_info(call: types.CallbackQuery, state: FSMContext):
 
 
 async def change_subscription_info_start(call: types.CallbackQuery, state: FSMContext):
+    if call.data == "delete":
+        data = await state.get_data()
+        sub_info: SubscriptionInfo = data["sub_info"]
+        await sub_info.delete()
+        del SUBSCRIPTIONS_INFO[sub_info.pk]
+        await call.message.answer("Подписка успешно удалена")
+        return
     field = call.data
     await state.update_data(field=field)
     await call.message.answer(
@@ -119,7 +124,9 @@ async def create_subscription_price(message: types.Message, state: FSMContext):
     data["price"] = int(message.text)
     new_sub_info = await SubscriptionInfo.create(**data)
     SUBSCRIPTIONS_INFO[new_sub_info.pk] = new_sub_info
-    await message.answer("Подписка успешно создана", reply_markup=admin_menu.admin_start)
+    await message.answer(
+        "Подписка успешно создана", reply_markup=admin_menu.admin_start
+    )
     await state.finish()
 
 

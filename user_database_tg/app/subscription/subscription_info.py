@@ -1,9 +1,6 @@
 from loguru import logger
-from pydantic import BaseModel
 
-from user_database_tg.db.db_main import init_db
 from user_database_tg.db.models import SubscriptionInfo
-
 
 SUBSCRIPTIONS_INFO: dict[int, SubscriptionInfo] = {}
 

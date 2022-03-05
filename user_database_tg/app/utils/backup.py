@@ -46,7 +46,7 @@ async def making_backup(interval):
 
         data["datetime"] = datetime.now(TZ)
         with open(
-                Path(BASE_DIR, "backup", f"{backup_name}.json"), "w", encoding="utf-8"
+            Path(BASE_DIR, "backup", f"{backup_name}.json"), "w", encoding="utf-8"
         ) as f:
             json.dump(
                 data, f, sort_keys=True, default=str, indent=4, ensure_ascii=False
@@ -60,8 +60,8 @@ async def restore_backup():
     await init_db()
     # await making_backup(1)
     with open(
-            Path(BASE_DIR, "backup", f"{backup_name}.json"),
-            encoding="utf8",
+        Path(BASE_DIR, "backup", f"{backup_name}.json"),
+        encoding="utf8",
     ) as f:
         data = json.load(f)
     logger.info(f"Восстановление backup... {data['datetime']}")

@@ -14,6 +14,10 @@ async def admin_start(
     # сохранить последние изменения
 
 
+async def no_admin_start(message: types.Message):
+    await message.answer("Вы не администратор!")
+
+
 async def bot_settings(call: types.CallbackQuery, state: FSMContext):
     await state.finish()
     await call.message.delete()
@@ -29,3 +33,8 @@ def register_admin_menu_handlers(dp: Dispatcher):
         state="*",
     )
     dp.register_callback_query_handler(bot_settings, text="bot_settings")
+    dp.register_message_handler(
+        admin_start,
+        commands="admin_start",
+        state="*",
+    )

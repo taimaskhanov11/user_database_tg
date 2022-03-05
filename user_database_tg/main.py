@@ -17,19 +17,17 @@ from user_database_tg.app.handlers import (
 )
 from user_database_tg.app.handlers.admin_handlers import (
     register_admin_handlers,
-    register_admin_subscription_settings_handlers,
 )
 from user_database_tg.app.middleware.father_middleware import FatherMiddleware
 from user_database_tg.app.subscription.subscription_info import init_subscriptions_info
 from user_database_tg.app.translation.message_translation import init_translations
 from user_database_tg.app.utils.backup import making_backup
-from user_database_tg.app.utils.sub_channel import init_sub_channel
 from user_database_tg.app.utils.daily_processes import (
     everyday_processes,
 )
+from user_database_tg.app.utils.sub_channel import init_sub_channel
 from user_database_tg.config.config import BASE_DIR
 from user_database_tg.db.db_main import init_db
-from user_database_tg.db.models import SubscriptionChannel
 from user_database_tg.loader import bot, dp
 
 log.remove()
@@ -58,7 +56,6 @@ logging.basicConfig(
             filename=Path(BASE_DIR, "logs/aiolog.log"), encoding="utf-8"
         ),
     ],
-
 )
 logger = logging.getLogger(__name__)
 

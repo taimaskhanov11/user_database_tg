@@ -15,7 +15,7 @@ from user_database_tg.app.filters.payment_filters import (
 from user_database_tg.app.subscription.subscription_info import SUBSCRIPTIONS_INFO
 from user_database_tg.app.utils.payment_processes import check_payment
 from user_database_tg.config.config import p2p
-from user_database_tg.db.models import Billing, DbUser, DbTranslation, Limit
+from user_database_tg.db.models import Billing, DbUser, DbTranslation
 
 
 class BuySubscription(StatesGroup):

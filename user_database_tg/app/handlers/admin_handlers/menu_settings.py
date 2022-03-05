@@ -6,7 +6,6 @@ from user_database_tg.app.markups.admin_menu import MENU_FIELDS
 from user_database_tg.app.translation.google_translation import translate
 from user_database_tg.app.translation.message_translation import (
     TRANSLATIONS,
-    init_english,
 )
 
 

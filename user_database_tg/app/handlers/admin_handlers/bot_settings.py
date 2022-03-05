@@ -13,7 +13,6 @@ from user_database_tg.db.models import (
     Limit,
     Payment,
     SubscriptionChannel,
-    Subscription,
 )
 from user_database_tg.loader import bot
 
@@ -74,7 +73,7 @@ async def get_all_users(call: types.CallbackQuery):
 
     if len(users) > 4096:
         for x in range(0, len(users), 4096):
-            await call.message.answer(users[x: x + 4096])
+            await call.message.answer(users[x : x + 4096])
     else:
         await call.message.answer(users)
 
@@ -95,8 +94,8 @@ async def get_user_info_end(message: types.Message, state: FSMContext):
         )
         user: DbUser = (
             await DbUser.get(**search_field)
-                .select_related("subscription")
-                .prefetch_related("payments")
+            .select_related("subscription")
+            .prefetch_related("payments")
         )
         # user: DbUser = await DbUser.get(**search_field).select_related("subscription")
         # payments: list[Payment] = await DbUser.payments.all()
@@ -214,8 +213,10 @@ async def edit_sub_channel_status(call: types.CallbackQuery):
     if TempData.SUB_CHANNEL:
         await TempData.SUB_CHANNEL.save()
 
-    await call.message.answer(f"Статус подписки изменен\n{channel}\n{channel_check}",
-                              reply_markup=bot_settings_markup.channel_status)
+    await call.message.answer(
+        f"Статус подписки изменен\n{channel}\n{channel_check}",
+        reply_markup=bot_settings_markup.channel_status,
+    )
 
 
 async def change_sub_channel_start(call: types.CallbackQuery):
@@ -262,8 +263,10 @@ async def change_sub_channel_end(message: types.Message, state: FSMContext):
                 if TempData.SUB_CHANNEL.checking
                 else "Проверка подписки отключена"
             )
-        await message.answer(f"Данные обновлены\n{channel}\n{channel_check}",
-                             reply_markup=bot_settings_markup.channel_status)
+        await message.answer(
+            f"Данные обновлены\n{channel}\n{channel_check}",
+            reply_markup=bot_settings_markup.channel_status,
+        )
         await state.finish()
 
     except Exception as e:
