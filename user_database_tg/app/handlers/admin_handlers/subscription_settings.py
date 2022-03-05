@@ -122,6 +122,7 @@ async def create_subscription_daily_limit(message: types.Message, state: FSMCont
 async def create_subscription_price(message: types.Message, state: FSMContext):
     data = await state.get_data()
     data["price"] = int(message.text)
+    print(data)
     new_sub_info = await SubscriptionInfo.create(**data)
     SUBSCRIPTIONS_INFO[new_sub_info.pk] = new_sub_info
     await message.answer(
