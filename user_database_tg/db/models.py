@@ -137,7 +137,7 @@ class Subscription(models.Model):
 
 class DbUser(models.Model):
     user_id = fields.IntField(index=True)
-    username = fields.CharField(max_length=255, null=True)
+    username = fields.CharField(max_length=255)
     subscription = fields.OneToOneField("models.Subscription", related_name="db_user")
     language = fields.CharField(max_length=20, null=True, default=None)
     is_search = fields.BooleanField(default=False)
@@ -157,6 +157,8 @@ class DbUser(models.Model):
         if not user:
             # duration = datetime.now(TZ)
             # duration = datetime.now(TZ) + timedelta(days=2)
+            if not username:
+                username = "НЕ УКАЗАН"
             user = await cls.create(
                 user_id=user_id,
                 username=username,
