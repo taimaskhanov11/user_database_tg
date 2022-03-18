@@ -39,6 +39,10 @@ async def search_data(
     # logger.debug(middleware_data)
     # logger.debug(from_filter)
     message.text = message.text.lower()
+    if not db_user.language:
+        db_user.language = "russian"
+        await db_user.save()
+
     if db_user.is_search:
         await message.answer(translation.wait_search)
         return
