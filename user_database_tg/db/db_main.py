@@ -16,7 +16,7 @@ from user_database_tg.config.config import (
     BASE_DIR,
 )
 from user_database_tg.db import models
-from user_database_tg.db.models import Payment
+from user_database_tg.db.models import DbUser
 
 
 async def init_tortoise(
@@ -39,7 +39,7 @@ async def init_db():
     if TEST:
         await init_tortoise(host="localhost", password="postgres")
     else:
-        await init_tortoise(host="95.105.113.65")
+        await init_tortoise(host="localhost")
     logger.debug(f"База данных инициализирована")
 
 
@@ -102,9 +102,8 @@ async def dell_all():
 
 async def main():
     await init_db()
-    ps = await Payment.all().order_by("-date").limit(10)
+    ps = await DbUser.all()
     print(ps)
-
 
 if __name__ == "__main__":
     init_logging()
