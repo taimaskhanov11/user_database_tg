@@ -148,7 +148,7 @@ async def search_data(
         db_user.is_search = False
         await db_user.save()
     except Exception as e:
-        db_user.is_search = True
+        db_user.is_search = False
         await db_user.save()
         logger.critical(e)
         await message.answer("Некорректный email")
