@@ -57,10 +57,10 @@ is_search(Это блокировка во время поиска если true
 *****
 14.Для выгрузки на другую машину:
 1.1| sudo apt update && sudo apt upgrade
-1.2| sudo add-apt-repository ppa:deadsnakes/ppa
-1.3| sudo apt update
-1.4| sudo apt install python3.10
-1.5| sudo apt install python3.10-venv
+1.2| sudo add-apt-repository ppa:deadsnakes/ppa && sudo apt update && sudo apt install python3.10 && sudo apt install python3.10-venv
+1.3|
+1.4|
+1.5|
 1.6| curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python3.10 -
 
 2.зайти в нужную папку c помощью: cd /home/

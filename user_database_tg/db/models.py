@@ -136,7 +136,7 @@ class Subscription(models.Model):
 
 
 class DbUser(models.Model):
-    user_id = fields.IntField(index=True)
+    user_id = fields.BigIntField(index=True)
     username = fields.CharField(max_length=255)
     subscription = fields.OneToOneField("models.Subscription", related_name="db_user")
     language = fields.CharField(max_length=20, null=True, default=None)
