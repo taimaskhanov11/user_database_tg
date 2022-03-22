@@ -16,6 +16,7 @@ environs = "^9.5.0"
 pydantic = "^1.9.0"
 mtranslate = "^1.8"
 aiohttp = "^3.8.1"
+socid-extractor = "^0.0.23"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
