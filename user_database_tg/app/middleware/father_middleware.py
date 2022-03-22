@@ -26,9 +26,7 @@ class FatherMiddleware(BaseMiddleware):
     # 3
     async def on_process_message(self, message: types.Message, data: dict):
         # logger.info(f"3.Process Message, {data=}")
-        db_user = await DbUser.get_or_new(
-            message.from_user.id, message.from_user.username
-        )
+        db_user = await DbUser.get_or_new(message.from_user.id, message.from_user.username)
         data["db_user"] = db_user
         data["translation"] = TRANSLATIONS.get(db_user.language)
         if not data["translation"]:

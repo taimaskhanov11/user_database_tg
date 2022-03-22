@@ -22,14 +22,10 @@ async def check_payment(bill_id, db_user):  # todo 2/28/2022 8:53 PM taima: по
         db_bill = await Billing.get(bill_id=bill_id).prefetch_related("subscription")
 
         Limit.lats_day_amount_payments += db_bill.amount
-        await Payment.create(
-            db_user=db_user, date=datetime.now(TZ), amount=db_bill.amount
-        )
+        await Payment.create(db_user=db_user, date=datetime.now(TZ), amount=db_bill.amount)
         if db_user.subscription.title == db_bill.subscription.title:
             db_user.subscription.days_duration += db_bill.subscription.days_duration
-            db_user.subscription.duration += timedelta(
-                db_bill.subscription.days_duration
-            )
+            db_user.subscription.duration += timedelta(db_bill.subscription.days_duration)
 
             await db_user.subscription.save()
             await db_user.save()
@@ -40,7 +36,9 @@ async def check_payment(bill_id, db_user):  # todo 2/28/2022 8:53 PM taima: по
             await bot.send_message(db_user.user_id, "Обновлена существующая подписка")
 
         else:
-            db_bill.subscription.is_paid = True  ##todo 2/28/2022 9:20 PM taima: Добавить оставшиеся дни в новую подписку
+            db_bill.subscription.is_paid = (
+                True  ##todo 2/28/2022 9:20 PM taima: Добавить оставшиеся дни в новую подписку
+            )
             old_sub = db_user.subscription
             db_user.subscription = db_bill.subscription
 
@@ -56,17 +54,13 @@ async def check_payment(bill_id, db_user):  # todo 2/28/2022 8:53 PM taima: по
 
 
 @logger.catch
-async def check_payment2(
-    bill_id, user_id, message: types.Message
-):  # todo 2/27/2022 3:08 PM taima:  translation
+async def check_payment2(bill_id, user_id, message: types.Message):  # todo 2/27/2022 3:08 PM taima:  translation
     for _ in range(30):
         bill = await p2p.check(bill_id=bill_id)
         if bill.status == "PAID":
             # if True:
             logger.info(f"{user_id}|{bill.bill_id} успешно оплачен")
-            db_bill = await Billing.get(bill_id=bill_id).prefetch_related(
-                "subscription"
-            )
+            db_bill = await Billing.get(bill_id=bill_id).prefetch_related("subscription")
             db_user = await DbUser.get(user_id=user_id).select_related("subscription")
             db_bill.subscription.is_paid = True
             old_sub = db_user.subscription
@@ -77,9 +71,7 @@ async def check_payment2(
             await db_bill.delete()
             await old_sub.delete()
             await message.delete()
-            await bot.send_message(
-                user_id, f"Подписка [{db_bill.subscription.title}] успешно оплачена!"
-            )
+            await bot.send_message(user_id, f"Подписка [{db_bill.subscription.title}] успешно оплачена!")
             break
 
         elif bill.status == "REJECTED":

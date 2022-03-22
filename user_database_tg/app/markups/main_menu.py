@@ -15,7 +15,5 @@ def get_menu(translation: DbTranslation):
     btn_buy = KeyboardButton(translation.subscribe_b)
     btn_des = KeyboardButton(translation.description_b)
     btn_supp = KeyboardButton(translation.support_b)
-    menu = ReplyKeyboardMarkup(
-        [[btn_prof, btn_buy, btn_des], [btn_supp]], resize_keyboard=True
-    )
+    menu = ReplyKeyboardMarkup([[btn_prof, btn_buy, btn_des], [btn_supp]], resize_keyboard=True)
     return menu

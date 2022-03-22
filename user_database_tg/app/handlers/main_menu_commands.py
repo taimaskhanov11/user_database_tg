@@ -34,21 +34,15 @@ async def profile(
 
 @logger.catch
 async def buy(message: types.Message, translation: DbTranslation):
-    await message.answer(
-        translation.subscribe, reply_markup=markups.get_subscribe_menu_view()
-    )
+    await message.answer(translation.subscribe, reply_markup=markups.get_subscribe_menu_view())
 
 
 async def description(message: types.Message, translation: DbTranslation):
-    await message.answer(
-        translation.description, reply_markup=markups.get_menu(translation)
-    )
+    await message.answer(translation.description, reply_markup=markups.get_menu(translation))
 
 
 async def support(message: types.Message, translation: DbTranslation):
-    await message.answer(
-        translation.support, reply_markup=markups.get_menu(translation)
-    )
+    await message.answer(translation.support, reply_markup=markups.get_menu(translation))
 
 
 def register_main_menu_handlers(dp: Dispatcher):

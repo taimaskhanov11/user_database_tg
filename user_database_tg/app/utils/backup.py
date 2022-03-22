@@ -45,12 +45,8 @@ async def making_backup(interval):
             data["translations"].append(dict(tr))
 
         data["datetime"] = datetime.now(TZ)
-        with open(
-            Path(BASE_DIR, "backup", f"{backup_name}.json"), "w", encoding="utf-8"
-        ) as f:
-            json.dump(
-                data, f, sort_keys=True, default=str, indent=4, ensure_ascii=False
-            )
+        with open(Path(BASE_DIR, "backup", f"{backup_name}.json"), "w", encoding="utf-8") as f:
+            json.dump(data, f, sort_keys=True, default=str, indent=4, ensure_ascii=False)
 
         logger.info(f"Резервное копирование завершено {backup_name}")
 
@@ -98,9 +94,7 @@ async def restore_backup():
             for b in data.get("billing", ()):
                 if b["db_user_id"] == user.pk:
                     await Billing.create(**b)
-                    logger.debug(
-                        f"Неоплаченный платеж для пользователя {user.username} создан"
-                    )
+                    logger.debug(f"Неоплаченный платеж для пользователя {user.username} создан")
             # for payments
     for tr in data.get("translations", ()):
         trans, is_created = await DbTranslation.get_or_create(**tr)

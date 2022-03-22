@@ -20,16 +20,17 @@ from user_database_tg.db.models import DbUser
 
 
 async def init_tortoise(
-        username=DB_USERNAME,
-        password=DB_PASSWORD,
-        host=DB_HOST,
-        port=DB_PORT,
-        db_name=DB_DB_NAME,
+    username=DB_USERNAME,
+    password=DB_PASSWORD,
+    host=DB_HOST,
+    port=DB_PORT,
+    db_name=DB_DB_NAME,
 ):
     logger.debug(f"Инициализация BD {host}")
-    data = {"db_url": f"postgres://{username}:{password}@{host}:{port}/{db_name}",
-            "modules": {"models": ["user_database_tg.db.models"]}
-            }
+    data = {
+        "db_url": f"postgres://{username}:{password}@{host}:{port}/{db_name}",
+        "modules": {"models": ["user_database_tg.db.models"]},
+    }
     try:
         await Tortoise.init(**data)
     except Exception as e:

@@ -7,9 +7,7 @@ from aiogram.types import (
 
 from user_database_tg.app.subscription.subscription_info import SUBSCRIPTIONS_INFO
 
-admin_start = ReplyKeyboardMarkup(
-    [[KeyboardButton("/start"), KeyboardButton("/admin_start")]], resize_keyboard=True
-)
+admin_start = ReplyKeyboardMarkup([[KeyboardButton("/start"), KeyboardButton("/admin_start")]], resize_keyboard=True)
 
 admin_menu_main_data = [
     ("Общая информация о боте", "bot_info"),
@@ -54,9 +52,7 @@ menu = InlineKeyboardMarkup(inline_keyboard=btn_admin_menu)
 class KBRSubscriptionField:
     days = ReplyKeyboardMarkup([["10", "30", "45"]], resize_keyboard=True)
 
-    daily_limit = ReplyKeyboardMarkup(
-        [["20", "100", "Unlimited"]], resize_keyboard=True
-    )
+    daily_limit = ReplyKeyboardMarkup([["20", "100", "Unlimited"]], resize_keyboard=True)
 
     price = ReplyKeyboardMarkup([["100", "500", "1500"]], resize_keyboard=True)
 

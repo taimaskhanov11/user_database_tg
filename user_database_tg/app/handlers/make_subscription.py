@@ -24,9 +24,7 @@ class BuySubscription(StatesGroup):
 
 async def view_subscription(call: types.CallbackQuery, translation: DbTranslation):
     try:
-        sub_info = SUBSCRIPTIONS_INFO.get(
-            int(re.findall(r"view_buy_(\d*)", call.data)[0])
-        )
+        sub_info = SUBSCRIPTIONS_INFO.get(int(re.findall(r"view_buy_(\d*)", call.data)[0]))
         await call.message.delete()
         await call.message.answer(
             f"{sub_info}",
@@ -38,9 +36,7 @@ async def view_subscription(call: types.CallbackQuery, translation: DbTranslatio
 
 
 @logger.catch
-async def create_subscribe(
-    call: types.CallbackQuery, db_user: DbUser, translation: DbTranslation
-):
+async def create_subscribe(call: types.CallbackQuery, db_user: DbUser, translation: DbTranslation):
     logger.critical(db_user)
     bill_db = await Billing.get_or_none(db_user=db_user).select_related("subscription")
     if bill_db:
@@ -56,12 +52,8 @@ async def create_subscribe(
 
         comment = f"{call.from_user.id}_{sub_info.days}_{random.randint(1000, 9999)}"
         bill_id = f"{str(call.from_user.id)[-6:-1]}{random.randint(1, 9999)}"
-        bill = await p2p.bill(
-            bill_id=int(bill_id), amount=sub_info.price, lifetime=15, comment=comment
-        )
-        db_bill = await Billing.create_bill(
-            db_user, bill.bill_id, sub_info
-        )  # todo 2/26/2022 7:07 PM taima:
+        bill = await p2p.bill(bill_id=int(bill_id), amount=sub_info.price, lifetime=15, comment=comment)
+        db_bill = await Billing.create_bill(db_user, bill.bill_id, sub_info)  # todo 2/26/2022 7:07 PM taima:
 
         await call.message.delete()
         await call.message.answer(
@@ -72,25 +64,17 @@ async def create_subscribe(
 
 
 @logger.catch
-async def reject_payment(
-    call: types.CallbackQuery, db_user: DbUser, translation: DbTranslation
-):
+async def reject_payment(call: types.CallbackQuery, db_user: DbUser, translation: DbTranslation):
     bill_obj = await Billing.get(db_user=db_user).select_related("subscription")
     bill = await p2p.reject(bill_obj.bill_id)
     await bill_obj.delete()
     await bill_obj.subscription.delete()
     await call.message.delete()
-    logger.info(
-        f"{call.from_user.id}|Оплата {bill_obj.bill_id}|{bill.status} отменена "
-    )
-    await call.message.answer(
-        translation.reject_payment.format(title=bill_obj.subscription.title)
-    )
+    logger.info(f"{call.from_user.id}|Оплата {bill_obj.bill_id}|{bill.status} отменена ")
+    await call.message.answer(translation.reject_payment.format(title=bill_obj.subscription.title))
 
 
-async def accept_payment(
-    call: types.CallbackQuery, db_user: DbUser, translation: DbTranslation
-):
+async def accept_payment(call: types.CallbackQuery, db_user: DbUser, translation: DbTranslation):
     db_bill = await Billing.get(db_user=db_user).select_related("subscription")
     is_paid = await check_payment(db_bill.bill_id, db_user)
 

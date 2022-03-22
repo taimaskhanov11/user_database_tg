@@ -44,23 +44,16 @@ class DataParser:
         for sign, data in self.users_data.items():
             # logger.critical(f"{sign}|{data}")
             data = list(map(self.validate_data, data))
-            logger.debug(
-                f"{current_process().name}|{self.service}|Буква {sign}| Создание объектов {len(data)}"
-            )
+            logger.debug(f"{current_process().name}|{self.service}|Буква {sign}| Создание объектов {len(data)}")
             try:
                 hacked_user = getattr(models, f"{sign}_HackedUser")
                 logger.debug(hacked_user)
-                objs = (
-                    hacked_user(email=x[0], password=x[1], service=self.service)
-                    for x in data
-                )
+                objs = (hacked_user(email=x[0], password=x[1], service=self.service) for x in data)
                 await hacked_user.bulk_create(
                     objs,
                     batch_size=self.batch_size,
                 )
-                logger.debug(
-                    f"{current_process().name}|{self.service}|{sign}| Объекты созданы {len(data)}"
-                )
+                logger.debug(f"{current_process().name}|{self.service}|{sign}| Объекты созданы {len(data)}")
 
             except Exception as e:
                 logger.critical(e)
@@ -72,11 +65,7 @@ class DataParser:
     async def parce_datafiles(self):
         for data_file in self.path.iterdir():
             if data_file.name != "err_file.dd":
-                sign = (
-                    data_file.stem
-                    if data_file.stem in ["dig_file", "sym_file"]
-                    else data_file.name[0]
-                )
+                sign = data_file.stem if data_file.stem in ["dig_file", "sym_file"] else data_file.name[0]
                 logger.trace(f"{current_process().name}| Парс файла {data_file.name}")
                 for encode in ("utf-8", "cp1251"):
                     try:
@@ -84,9 +73,7 @@ class DataParser:
                             logger.warning(
                                 f"{current_process().name}| Повторный парс файла c {encode} {self.service}|{data_file.name}"
                             )
-                        with open(
-                            data_file, encoding=encode
-                        ) as f:  # todo 2/24/2022 12:40 AM taima:
+                        with open(data_file, encoding=encode) as f:  # todo 2/24/2022 12:40 AM taima:
                             t = time.monotonic()
                             for line in f:
                                 self.all_count += 1
@@ -108,9 +95,7 @@ class DataParser:
                                 await self.create_users_obj(data_file.name)
                         break
                     except UnicodeDecodeError as e:
-                        logger.critical(
-                            f"{current_process().name}| {e}|not UTF8|{self.service}|{data_file.name}"
-                        )
+                        logger.critical(f"{current_process().name}| {e}|not UTF8|{self.service}|{data_file.name}")
                         continue
 
             try:
@@ -183,9 +168,7 @@ def run_process_create_users(main_path, processes=3):
                     start_prs.remove(start_pr)
                     try:
                         pr = prs.pop()
-                        logger.success(
-                            f"Создание процесса {pr.name}. Оставшиеся {prs}.Запущенные {start_prs}"
-                        )
+                        logger.success(f"Создание процесса {pr.name}. Оставшиеся {prs}.Запущенные {start_prs}")
                         pr.start()
                         start_prs.append(pr)
                     except IndexError as e:
@@ -193,25 +176,19 @@ def run_process_create_users(main_path, processes=3):
         else:
             if not prs:
                 if not start_prs:
-                    logger.critical(
-                        f"Завершение хендлера процессов {prs=}|{start_prs=}"
-                    )
+                    logger.critical(f"Завершение хендлера процессов {prs=}|{start_prs=}")
                     break
                 else:
                     for start_pr in start_prs:
                         if not start_pr.is_alive():
-                            logger.warning(
-                                f"Завершение старого процесса {start_pr.name}"
-                            )
+                            logger.warning(f"Завершение старого процесса {start_pr.name}")
                             start_prs.remove(start_pr)
 
                     logger.info(f"Ожидание завершения {start_prs=}")
 
             else:
                 pr = prs.pop()
-                logger.success(
-                    f"Создание процесса {pr.name}. Оставшиеся {prs}.Запущенные {start_prs}"
-                )
+                logger.success(f"Создание процесса {pr.name}. Оставшиеся {prs}.Запущенные {start_prs}")
                 pr.start()
                 start_prs.append(pr)
         time.sleep(5)

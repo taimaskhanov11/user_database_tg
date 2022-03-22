@@ -29,20 +29,14 @@ async def start(
         )
         await LangChoice.first()
         return
-    await message.answer(
-        translation.start_message, reply_markup=markups.get_menu(translation)
-    )
+    await message.answer(translation.start_message, reply_markup=markups.get_menu(translation))
 
 
-async def lang_choice(
-    message: types.Message, state: FSMContext, db_user: DbUser
-):  # todo 2/24/2022 11:41 PM taima:
+async def lang_choice(message: types.Message, state: FSMContext, db_user: DbUser):  # todo 2/24/2022 11:41 PM taima:
     if message.text.startswith("🇷🇺"):
         db_user.language = "russian"
         translation = TRANSLATIONS[db_user.language]
-        await message.answer(
-            "Язык интерфейса выбран 🇷🇺 ✅", reply_markup=markups.get_menu(translation)
-        )
+        await message.answer("Язык интерфейса выбран 🇷🇺 ✅", reply_markup=markups.get_menu(translation))
 
     elif message.text.startswith("🇬🇧"):
         db_user.language = "english"
