@@ -1,0 +1,31 @@
+# Netscape HTTP Cookie File
+# http://curl.haxx.se/rfc/cookie_spec.html
+# This is a generated file!  Do not edit.
+
+.yandex.ru	TRUE	/	TRUE	1963307126	yandexuid	4431849391647947190
+.yandex.ru	TRUE	/	TRUE	1711019125	is_gdpr	0
+.yandex.ru	TRUE	/	TRUE	1711019125	is_gdpr_b	CLfGQxD2aA==
+mc.yandex.ru	FALSE	/	TRUE	0	yabs-sid	1141329661647947191
+.yandex.ru	TRUE	/	TRUE	1963307126	i	/3FhTOUhMFgudPb76EJlvd4pgqrbjjC0Sf7nvzcqmHzfX3T+F+4y/wLb/oVuiFp2tpY82f+RGEbB6IZg6PC0TXD0pOs=
+.yandex.ru	TRUE	/	TRUE	1963307126	yuidss	4431849391647947190
+.yandex.ru	TRUE	/	TRUE	1679483126	ymex	1963307191.yrts.1647947191#1963307191.yrtsi.1647947191
+.yandex.ru	TRUE	/	TRUE	1679483227	gdpr	0
+.yandex.ru	TRUE	/	TRUE	1679483126	_ym_uid	1647947126404462311
+.yandex.ru	TRUE	/	TRUE	1679483126	_ym_d	1647947127
+.yandex.ru	TRUE	/	TRUE	1647948987	_ym_visorc	b
+.yandex.ru	TRUE	/	TRUE	1648019130	_ym_isad	2
+passport.yandex.ru	FALSE	/	TRUE	1963307143	uniqueuid	604323291647947208
+.yandex.ru	TRUE	/	TRUE	1650539209	_yasc	MJKfwa2uSgBLJj5hNHVN5+7nLUygaAqEYVgs0JwI+zHmrmev4L0=
+.yandex.ru	TRUE	/	TRUE	2147483582	Session_id	3:1647947251.5.0.1647947251428:Ivc7uQ:52.1.2:1|1588989471.0.2|3:249803.283594.8eYo2S9evMGW3cRhbiGo4Cg4E3o
+.yandex.ru	TRUE	/	TRUE	2147483582	sessionid2	3:1647947251.5.0.1647947251428:Ivc7uQ:52.1.2:1|1588989471.0.2|3:249803.283594.8eYo2S9evMGW3cRhbiGo4Cg4E3o
+.passport.yandex.ru	TRUE	/	TRUE	2147483582	sessguard	1.1647947251.1647947251428:Ivc7uQ:52..3:249803.500:24608.elGom-Ue.wFpV82FWO7wWXtxK2Jw0TINkzsM
+.yandex.ru	TRUE	/	TRUE	2147483582	yp	1963307251.udn.cDphbmRyZWFzLnB1bHlh
+.yandex.ru	TRUE	/	TRUE	0	ys	udn.cDphbmRyZWFzLnB1bHlh
+.yandex.ru	TRUE	/	FALSE	2147483582	L	cy53fFUMAAwKfnZcekFIR30CQXlAXH1cWAQ1IyhVGUUDQAIKNQ==.1647947251.14924.38871.2d0c2b823a3bb56566b6bb98e50d6ab5
+.yandex.ru	TRUE	/	TRUE	1679483186	yandex_login	andreas.pulya
+.passport.yandex.ru	TRUE	/	TRUE	2147483582	lah	2:1711019251.12730.tXUan_pjK0-ivsq5.mJ7rWw2TnsIt1ya-gkQEqQGncTQyQtMZmsLFUwA3a1Tb5j6P3xoPq8lVBJI.AK8DPq_OukhjA2v_pasAXg
+.passport.yandex.ru	TRUE	/	TRUE	2147483582	mda2_beacon	1647947251446
+mail.yandex.ru	FALSE	/	TRUE	1963577227	stngs	stngs.1%3Acolorful%3A%3Atrue%3Atrue
+mail.yandex.ru	FALSE	/	FALSE	1648552035	ymai_iale	0
+.yandex.ru	TRUE	/	TRUE	1649156793	cycada	+GKmWCEqqqabuxDTRZhwcwENp1/wdgetQm6sze5+X1o=
+mail.yandex.ru	FALSE	/	FALSE	1647947262	app_badge_up_to_date_1588989471	1
