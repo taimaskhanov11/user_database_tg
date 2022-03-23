@@ -10,7 +10,7 @@ from loguru import logger
 
 from user_database_tg.config.config import TEST
 from user_database_tg.db import models
-from user_database_tg.db.db_main import init_tortoise, init_logging
+from user_database_tg.db.db_main import init_tortoise, init_logging, close_db_connection
 
 
 class DataParser:
@@ -133,6 +133,8 @@ async def create_users(path: Path):
     logger.info(
         f"{current_process().name}|{service}| Все данные сохранены {t2}s.Всего запарсено {data_parser.all_count} {errors}"
     )
+    logger.info("Закрытие соединения")
+    await close_db_connection()
 
 
 @logger.catch
