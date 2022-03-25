@@ -6,6 +6,45 @@ from tortoise import fields, models
 
 from user_database_tg.config.config import TZ
 
+__all__ = [
+    "DbUser",
+    "Subscription",
+    "Billing",
+    "DbTranslation",
+    "SubscriptionInfo",
+    "Limit",
+    "Payment",
+    "SubscriptionChannel",
+    "dig_file_HackedUser",
+    "sym_file_HackedUser",
+    "a_HackedUser",
+    "b_HackedUser",
+    "c_HackedUser",
+    "d_HackedUser",
+    "e_HackedUser",
+    "f_HackedUser",
+    "g_HackedUser",
+    "h_HackedUser",
+    "i_HackedUser",
+    "j_HackedUser",
+    "k_HackedUser",
+    "l_HackedUser",
+    "m_HackedUser",
+    "n_HackedUser",
+    "o_HackedUser",
+    "p_HackedUser",
+    "q_HackedUser",
+    "r_HackedUser",
+    "s_HackedUser",
+    "t_HackedUser",
+    "u_HackedUser",
+    "v_HackedUser",
+    "w_HackedUser",
+    "x_HackedUser",
+    "y_HackedUser",
+    "z_HackedUser",
+]
+
 
 class HackedUser:
     email = fields.CharField(max_length=255, index=True)
@@ -134,16 +173,35 @@ class Subscription(models.Model):
             f"Оставшийся дневной лимит: {self.remaining_daily_limit} "
         )
 
+    async def decr(self):
+        if self.daily_limit is not None:
+            self.remaining_daily_limit -= 1
+            await self.save()
+
 
 class DbUser(models.Model):
     user_id = fields.BigIntField(index=True)
     username = fields.CharField(max_length=255)
-    subscription = fields.OneToOneField("models.Subscription", related_name="db_user")
+    subscription: Subscription = fields.OneToOneField("models.Subscription", related_name="db_user")
     language = fields.CharField(max_length=20, null=True, default=None)
     is_search = fields.BooleanField(default=False)
     register_data = fields.DatetimeField()
 
     # translation = None
+
+    async def __aenter__(self):
+        # Включение режима блокировки пока запрос не завершиться
+        self.is_search = True
+        await self.save()
+        return self
+
+    # async def __aexit__(self, exc_type, exc_val, exc_tb):
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        # Отключение режима поиска
+        self.is_search = False
+        await self.save()
+        if exc_type:
+            logger.exception(f"{exc_type}, {exc_val}, {exc_tb}")
 
     @classmethod
     async def new(cls, message: types.Message):
@@ -191,7 +249,7 @@ class DbUser(models.Model):
 
 
 class Payment(models.Model):
-    db_user = fields.ForeignKeyField("models.DbUser", related_name="payments")
+    db_user: DbUser = fields.ForeignKeyField("models.DbUser", related_name="payments")
     date = fields.DatetimeField()
     amount = fields.IntField()
 
@@ -212,7 +270,7 @@ class Limit:
 
 
 class Billing(models.Model):
-    db_user = fields.OneToOneField(
+    db_user: DbUser = fields.OneToOneField(
         "models.DbUser",
     )
     # bill_id = fields.BigIntField(index=True)
@@ -267,39 +325,3 @@ def create_alphabet_tables():
 
 
 create_alphabet_tables()  # todo 2/26/2022 3:58 PM taima:
-
-__all__ = [
-    "DbUser",
-    "Subscription",
-    "Billing",
-    "DbTranslation",
-    "SubscriptionInfo",
-    "dig_file_HackedUser",
-    "sym_file_HackedUser",
-    "a_HackedUser",
-    "b_HackedUser",
-    "c_HackedUser",
-    "d_HackedUser",
-    "e_HackedUser",
-    "f_HackedUser",
-    "g_HackedUser",
-    "h_HackedUser",
-    "i_HackedUser",
-    "j_HackedUser",
-    "k_HackedUser",
-    "l_HackedUser",
-    "m_HackedUser",
-    "n_HackedUser",
-    "o_HackedUser",
-    "p_HackedUser",
-    "q_HackedUser",
-    "r_HackedUser",
-    "s_HackedUser",
-    "t_HackedUser",
-    "u_HackedUser",
-    "v_HackedUser",
-    "w_HackedUser",
-    "x_HackedUser",
-    "y_HackedUser",
-    "z_HackedUser",
-]

@@ -38,9 +38,9 @@ async def init_tortoise(
         await Tortoise.init(_create_db=True, **data)
     await Tortoise.generate_schemas()
 
+
 async def close_db_connection():
     await Tortoise.close_connections()
-
 
 
 async def init_db():

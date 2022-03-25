@@ -1,142 +1,56 @@
-import collections
+import asyncio
 
 from aiogram import Dispatcher, types
 from loguru import logger
 
 from user_database_tg.app.filters.email_filter import EmailFilter
-from user_database_tg.config.config import TempData
-from user_database_tg.db.models import *
-from user_database_tg.db.models import Limit
-from user_database_tg.loader import bot
+from user_database_tg.app.utils.data_search_helpers import search_in_table, search_in_yandex, search_in_google
+from user_database_tg.app.utils.validations import is_validated
+from user_database_tg.db.models import DbUser, DbTranslation
 
 
-async def channel_status_check(user_id):
-    chat_id = f"@{TempData.SUB_CHANNEL}"
-    print(chat_id)
-    try:
-        status = await bot.get_chat_member(
-            # chat_id=-1001790098718,
-            chat_id=chat_id,
-            # user_id=1985947355,
-            user_id=user_id,
-        )
-        logger.trace(status)
-        if status["status"] != "left":
-            return True
-        return False
-
-    except Exception as e:
-        logger.critical(e)
-        return True
+async def part_sending(message, answer):
+    if len(answer) > 4096:
+        for x in range(0, len(answer), 4096):
+            await message.answer(answer[x : x + 4096])
+    else:
+        await message.answer(answer)
 
 
 @logger.catch
 async def search_data(message: types.Message, db_user: DbUser, translation: DbTranslation):
-    # logger.critical(db_user)
-    # logger.info("6.Handler")
-    # logger.debug(middleware_data)
-    # logger.debug(from_filter)
     message.text = message.text.lower()
     if not db_user.language:
         db_user.language = "russian"
         await db_user.save()
 
-    if db_user.is_search:
-        await message.answer(translation.wait_search)
+    # Валидация
+    if not await is_validated(message, db_user, translation):
         return
 
-    if db_user.subscription.remaining_daily_limit == 0:  # todo 2/27/2022 5:39 PM taima: Вынести в бд
-        await message.answer(
-            # f"Закончился дневной лимит. Осталось запросов {db_user.subscription.remaining_daily_limit}.\n"
-            # f"Купите подписку или ожидайте пополнения запросов в 00:00"
-            translation.daily_limit_ended
-        )
-        return
-
-    try:
-        # Проверка буквы запроса для поиска в определенной таблице
-        sign = message.text[0]
-        if sign.isalpha():
-            hack_model = globals()[f"{sign}_HackedUser"]
-        elif sign.isdigit():
-            hack_model = globals()[f"dig_file_HackedUser"]
-        else:
-            hack_model = globals()[f"sym_file_HackedUser"]
-    except Exception as e:
-        logger.critical(e)
-        await message.answer("Некорректный email")
-        return
-
-    # Проверка подписки на канал
-    if TempData.SUB_CHANNEL:
-        if TempData.SUB_CHANNEL.checking:
-            if not db_user.subscription.is_subscribe:
-                try:
-                    if not await channel_status_check(db_user.user_id):
-                        await message.answer(
-                            f'{translation.subscribe_channel.format(channel=f"@{TempData.SUB_CHANNEL}")}'
-                        )
-                        return
-                    logger.info(f"Пользователь подписан на канал {TempData.SUB_CHANNEL}")
-                except Exception as e:
-                    logger.critical(e)
-
-    # Уменьшение дневного запроса на 1 при каждом запросе
-    if db_user.subscription.daily_limit is not None:
-        db_user.subscription.remaining_daily_limit -= 1
-        await db_user.subscription.save()
-
-    # Включение режима блокировки пока запрос не завершиться
-    db_user.is_search = True
-    await db_user.save()
-    try:
+    async with db_user:
         # Поиск запроса в таблице
-        logger.debug(f"Поиск {message.text} в таблице {hack_model.__name__}")
-        find_count = 0
+        table_result, yandex_result, google_result = await asyncio.gather(
+            search_in_table(message, translation),
+            search_in_yandex(message.text),
+            search_in_google(message.text),
+        )
 
-        if message.text in TempData.NO_FIND_EMAIL:
-            logger.info("Найден в в переменой")
-            answer = translation.data_not_found.format(email=message.text)
-        else:
-            res = await hack_model.filter(email=message.text)
-            Limit.number_day_requests += 1
-            if not res:
-                TempData.NO_FIND_EMAIL.append(message.text)
-                answer = translation.data_not_found.format(email=message.text)
-            else:
-                answer = "______________________________\n"
-                find_dict = collections.defaultdict(set)
-                for h in res:
-                    find_dict[h.service].add(f"{h.email}: {h.password}")
+        answer = f"{table_result}\n\n{yandex_result}\n\n{google_result}"
 
-                for s, hstr in find_dict.items():
-                    find_count += len(hstr)
-                    answer = answer + s + "\n" + "\n".join(hstr)
-                    answer += "\n\n"
+        # Отправка частями
+        await part_sending(message, answer)
 
-        # Ответ и отключение режима поиска
-        if find_count:
-            answer += f"\nНайдено всего {find_count}"
-
-        if len(answer) > 4096:
-            for x in range(0, len(answer), 4096):
-                await message.answer(answer[x : x + 4096])
-        else:
-            await message.answer(answer)
-
+        # Отправка оставшегося лимита
         if db_user.subscription.remaining_daily_limit is not None:
             await message.answer(translation.left_attempts.format(limit=db_user.subscription.remaining_daily_limit))
-        # await message.answer(answer)
-        db_user.is_search = False
-        await db_user.save()
-    except Exception as e:
-        db_user.is_search = False
-        await db_user.save()
-        logger.critical(e)
-        await message.answer("Некорректный email")
+
+        # Уменьшение дневного запроса на 1 при каждом запросе
+        await db_user.subscription.decr()
 
 
 async def incorrect_email(message: types.Message):
+    logger.debug(f"Некорректный email. {message.text}")
     await message.answer("Некорректный email")
 
 

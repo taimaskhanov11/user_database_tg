@@ -45,7 +45,7 @@ async def get_bot_info(call: types.CallbackQuery):
     payments = await Payment.all().order_by("-date").limit(10).select_related("db_user")
     last_pay_users = ""
     for p in payments:
-        last_pay_users += f"@{p.db_user.username}|{p.date.replace(microsecond=0)}|{p.amount}р\n"
+        last_pay_users += f"@{p.db_user.username or p.db_user.user_id}|{p.date.replace(microsecond=0)}|{p.amount}р\n"
     answer = (
         f"Количество запросов к бд за последние сутки:\n{Limit.number_day_requests}\n"
         f"___________________\n"

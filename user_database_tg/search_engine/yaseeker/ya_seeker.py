@@ -57,7 +57,7 @@ class IdTypeInfoAggregator:
                 self.info[k] = v
 
     async def simple_get_info_request(
-            self, url: str, headers_updates: dict = None, orig_url: str = None, session: ClientSession = None
+        self, url: str, headers_updates: dict = None, orig_url: str = None, session: ClientSession = None
     ) -> dict:
         headers = dict(HEADERS)
         headers.update(headers_updates if headers_updates else {})
@@ -86,7 +86,7 @@ class IdTypeInfoAggregator:
                 method_names.append(name)
         async with ClientSession() as session:
             info_result = await asyncio.gather(*[method(session=session) for method in get_methods])
-            logger.info(info_result)
+            # logger.info(info_result)
 
             for name, info in zip(method_names, info_result):
                 logger.trace(f"{name}{info}")
@@ -141,7 +141,7 @@ class YaUsername(IdTypeInfoAggregator):
         }
 
         async with session.post(
-                url, headers=HEADERS, cookies=self.cookies, data={"request": (None, json.dumps(data))}
+            url, headers=HEADERS, cookies=self.cookies, data={"request": (None, json.dumps(data))}
         ) as response:
             text = await response.text()
             # r = requests.post(url, headers=HEADERS, cookies=self.cookies, files={'request': (None, json.dumps(data))})
@@ -202,7 +202,7 @@ class YaMessengerGuid(IdTypeInfoAggregator):
         url = "https://yandex.ru/messenger/api/registry/api/"
         data = {"method": "get_users_data", "params": {"guids": [self.identifier]}}
         async with session.post(
-                url, headers=HEADERS, cookies=self.cookies, data={"request": (None, json.dumps(data))}
+            url, headers=HEADERS, cookies=self.cookies, data={"request": (None, json.dumps(data))}
         ) as response:
             text = await response.text()
             # r = requests.post(url, headers=HEADERS, cookies=self.cookies, files={'request': (None, json.dumps(data))})
@@ -230,20 +230,45 @@ async def crawl(user_data: dict, cookies: dict = None, checked_values: list = No
 
                 checked_values.append(value)
 
-                print(f"[*] Get info by {k} `{value}`...\n")
+                # print(f"[*] Get info by {k} `{value}`...\n")
                 entity_obj = e(value, cookies)
                 await entity_obj.collect()
-                pprint(entity_obj.sites_results)
-                entity_obj.print()
+                # pprint(entity_obj.sites_results)
+                # entity_obj.print()
                 info_data[f"[*] Get info by {k} `{value}`..."].update(**entity_obj.sites_results)
                 await crawl(entity_obj.info, cookies, checked_values, info_data)
     return info_data
 
 
-async def get_yandex_account_info(username: str) -> dict:
+def pretty_view(data):
+    answer = ""
+
+    for by, sites_results in data.items():
+        answer += f"\n{by}\n"
+        for sitename, data in sites_results.items():
+
+            if not data:
+                # answer += "\n\tNot found.\n"
+                continue
+            answer += f"\n[+] Yandex.{sitename.capitalize()}"
+
+            if "URL" in data:
+                answer += f'\n\tURL: {data.get("URL")}'
+            for k, v in data.items():
+                if k != "URL":
+                    answer += f"\n\t{k.capitalize()}: {v}"
+            answer += "\n"
+    return answer
+
+
+async def get_yandex_account_info(username: str) -> str:
     user_data = {"username": username.split("@")[0]}
     info_data = collections.defaultdict(dict)
-    return await crawl(user_data, cookies, info_data=info_data)
+    try:
+        return pretty_view(await crawl(user_data, cookies, info_data=info_data))
+    except Exception as e:
+        logger.warning(e)
+        return str(e)
 
 
 def main():
@@ -265,8 +290,9 @@ def main():
     res = asyncio.get_event_loop().run_until_complete(crawl(user_data, cookies, info_data=info_data))
     # res = asyncio.run(crawl(user_data, cookies, info_data={}))
     pprint(res)
+    print(pretty_view(res))
 
 
 if __name__ == "__main__":
-    # main()
-    asyncio.run(get_yandex_account_info("lala@gmail.com"), )
+    main()
+    # asyncio.run(get_yandex_account_info("lala@gmail.com"), )

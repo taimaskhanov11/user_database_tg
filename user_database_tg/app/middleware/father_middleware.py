@@ -31,7 +31,7 @@ class FatherMiddleware(BaseMiddleware):
         data["translation"] = TRANSLATIONS.get(db_user.language)
         if not data["translation"]:
             data["translation"] = TRANSLATIONS.get("russian")
-        logger.info(f"{db_user.username}[{db_user.user_id}]")
+        logger.debug(f"{db_user.username}[{db_user.user_id}]:{message.text}")
         # data["user"] = User.get_or_create(user_id=message.from_user.id, defaults={
         #
         # })
