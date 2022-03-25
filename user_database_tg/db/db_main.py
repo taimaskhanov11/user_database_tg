@@ -20,11 +20,11 @@ from user_database_tg.db.models import DbUser
 
 
 async def init_tortoise(
-    username=DB_USERNAME,
-    password=DB_PASSWORD,
-    host=DB_HOST,
-    port=DB_PORT,
-    db_name=DB_DB_NAME,
+        username=DB_USERNAME,
+        password=DB_PASSWORD,
+        host=DB_HOST,
+        port=DB_PORT,
+        db_name=DB_DB_NAME,
 ):
     logger.debug(f"Инициализация BD {host}")
     data = {
@@ -44,19 +44,13 @@ async def close_db_connection():
 
 
 async def init_db():
-    if TEST:
-        await init_tortoise(host="localhost", password="postgres")
-    else:
-        await init_tortoise(host="localhost")
+    await init_tortoise()
     logger.debug(f"База данных инициализирована")
 
 
 async def create_table():
-    if TEST:
-        await init_tortoise(host="localhost", password="postgres")
-    else:
-        await init_tortoise(host="95.105.113.65")
-        # await HackedUser.all().delete()
+    await init_tortoise()
+    # await HackedUser.all().delete()
     await Tortoise.generate_schemas()
 
 
