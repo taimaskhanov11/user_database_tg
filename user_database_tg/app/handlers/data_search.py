@@ -16,10 +16,17 @@ async def part_sending(message, answer, add_info: bool):
     # answer += "312312312312312"
     logger.trace(add_info)
     logger.trace(f"Message sign count {len(answer)}")
-    if len(answer) > 50000:
-        answer = answer[:50000]
+    limit = 50000
 
     if len(answer) > 4096:
+
+        if len(answer) > limit:
+            for i in range(50):
+                if answer[limit] == "\n":
+                    break
+                limit += 1
+            answer = answer[:limit]
+
         for x in range(0, len(answer), 4096):
             y = x + 4096
             if y >= len(answer) and add_info:
