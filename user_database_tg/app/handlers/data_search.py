@@ -14,15 +14,17 @@ from user_database_tg.db.models import DbUser, DbTranslation
 async def part_sending(message, answer, add_info: bool):
     # answer += "*" * 40000
     # answer += "312312312312312"
+    logger.trace(add_info)
     if len(answer) > 4096:
         for x in range(0, len(answer), 4096):
             y = x + 4096
-            if y > len(answer) and add_info:
+            if y >= len(answer) and add_info:
+                logger.trace("Add info")
                 await message.answer(answer[x: y], reply_markup=markups.add_info)
             else:
                 await message.answer(answer[x: y])
     else:
-        await message.answer(answer)
+        await message.answer(answer, reply_markup=markups.add_info if add_info else None)
 
 
 # @logger.catch
@@ -51,7 +53,7 @@ async def search_data(message: types.Message, db_user: DbUser, translation: DbTr
         await state.update_data(add_info=f"{yandex_result}\n\n{google_result}")
 
         # Отправка частями
-        await part_sending(message, table_result, yandex_result or google_result)
+        await part_sending(message, table_result, bool(yandex_result or google_result))
         # if yandex_result or google_result:
         #     await message.answer("Узнать дополнительную информацию по почте", reply_markup=markups.add_info)
 
