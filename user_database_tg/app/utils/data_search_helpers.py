@@ -94,6 +94,9 @@ def google_pretty_view(data: Optional[dict], language) -> str:
             if language == "russian":
                 if "YouTube channel" in key:
                     key = f"Ютуб-канал (достоверность информации {percent[0]}%)"
+                elif "Probable location" in key:
+                    percent2 = re.findall(r"=> (\w.+)\)", key)
+                    key = f"Возможное местоположение (достоверность {percent2})"
 
                 if key in russian_dict:
                     key = russian_dict.get(key)
