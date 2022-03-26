@@ -1,6 +1,8 @@
 from aiogram.types import (
     KeyboardButton,
     ReplyKeyboardMarkup,
+    InlineKeyboardMarkup,
+    InlineKeyboardButton,
 )
 
 from user_database_tg.db.models import DbTranslation
@@ -17,3 +19,15 @@ def get_menu(translation: DbTranslation):
     btn_supp = KeyboardButton(translation.support_b)
     menu = ReplyKeyboardMarkup([[btn_prof, btn_buy, btn_des], [btn_supp]], resize_keyboard=True)
     return menu
+
+
+add_info = InlineKeyboardMarkup(
+    inline_keyboard=[
+        [
+            InlineKeyboardButton(
+                text="Доп. информация по почте",
+                callback_data="add_info",
+            )
+        ]
+    ]
+)

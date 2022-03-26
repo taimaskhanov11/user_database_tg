@@ -1,4 +1,7 @@
 import collections
+import re
+from pprint import pprint
+from typing import Optional
 
 from aiogram import types
 from loguru import logger
@@ -46,18 +49,120 @@ async def search_in_table(message: types.Message, translation: DbTranslation) ->
     if find_count:
         answer += f"\nНайдено всего {find_count}"
 
-    return f"[SEARCH EMAILS]\n{answer}"
+    return answer
+    # return f"[SEARCH EMAILS]\n{answer}"
 
 
-async def search_in_yandex(email) -> str:
+# todo 26.03.2022 12:17 taima: вынести в бд
+russian_dict = {
+    "image": "фото",
+    "gender": "пол",
+    "name": "имя",
+    "fullname": "полное имя",
+    "Get info by": "Информация по",
+    "account found": "Найденных аккаунтов",
+    "Last profile edit": "Последнее редактирование профиля",
+    "Profile picture": "Фото профиля",
+    "Email": "Почта",
+    "Name": "Имя",
+}
+
+
+def google_pretty_view(data: Optional[dict], language) -> str:
+    if not data:
+        return ""
+    answer = ""
+    if language == "russian":
+        answer += f"{len(data['accounts'])} {russian_dict.get('account found')}\n"
+    else:
+        answer += f"{len(data['accounts'])} account found\n"
+    for acc in data["accounts"]:
+        for key, value in acc.items():
+            if key in ["Google Maps", "Google Calendar"]:
+                continue
+
+            if "YouTube channel" in key:
+                percent = re.findall(r"=> (\d+).\d+%", key)
+                if percent:
+                    if int(percent[0]) < 50:
+                        continue
+
+            if "Probable location" in key:
+                if "low" in key.lower():
+                    continue
+
+            if language == "russian":
+                if "YouTube channel" in key:
+                    key = f"Ютуб-канал (достоверность информации {percent[0]}%)"
+
+                if key in russian_dict:
+                    key = russian_dict.get(key)
+
+            answer += f"{key}: {value}\n"
+        answer += "\n"
+    return answer
+
+
+def yandex_pretty_view(data: Optional[dict], language):
+    if not data:
+        return ""
+    answer = ""
+    for by, sites_results in data.items():
+        if language == "russian":
+            by: str = by.replace("Get info by", russian_dict["Get info by"])
+        answer += f"\n{by}\n"
+
+        for sitename, data in sites_results.items():
+            if not data:
+                # answer += "\n\tNot found.\n"
+                continue
+            answer += f"\n[+] Yandex.{sitename.capitalize()}"
+
+            if "URL" in data:
+                answer += f'\n\tURL: {data.get("URL")}'
+            for k, v in data.items():
+                if k in [
+                    "cards",
+                    "boards",
+                    "is_passport",
+                    "is_restricted",
+                    "is_forbid",
+                    "is_km",
+                    "is_business",
+                    "is_org",
+                    "is_banned",
+                    "is_deleted",
+                    "is_hidden_name",
+                    "is_verified",
+                ]:
+                    continue
+                logger.trace(f"{k}, {v}")
+                if k != "URL":
+                    if language == "russian":
+                        if k in russian_dict:
+                            k = russian_dict.get(k)
+                    answer += f"\n\t{k.capitalize()}: {v}"
+            answer += "\n"
+    return answer
+
+
+# todo 26.03.2022 14:10 taima: поправить
+async def search_in_yandex(email: str, language: str) -> str:
     if email.split("@")[1] == "yandex.ru":
         result = await get_yandex_account_info(email)
-        return f"[SEARCH IN YANDEX ENGINE]\n{result}"
+        # pprint(result)
+        view = yandex_pretty_view(result, language)
+        return view
+        # return f"[SEARCH IN YANDEX ENGINE]\n{view}"
     return ""
 
 
-async def search_in_google(email) -> str:
+async def search_in_google(email: str, language: str) -> str:
     if email.split("@")[1] == "gmail.com":
         result = await get_google_account_info(email)
-        return f"[SEARCH IN GOOGLE ENGINE]\n{result}"
+        pprint(result)
+
+        view = google_pretty_view(result, language)
+        return view
+        # return f"[SEARCH IN GOOGLE ENGINE]\n{view}"
     return ""

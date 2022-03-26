@@ -100,7 +100,7 @@ async def is_email_google_account(httpx_client: httpx.AsyncClient, auth, cookies
         raise CookieExpiredError("[-] Cookies/Tokens seems expired, please verify them.")
     elif "error" in data:
         raise FileNotFoundError(f"[-] Error : {data}")
-    elif not "matches" in data:
+    elif "matches" not in data:
         raise NotGoogleAccountError("[-] This email address does not belong to a Google Account.")
     return data
 

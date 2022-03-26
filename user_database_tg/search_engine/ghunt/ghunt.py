@@ -33,13 +33,18 @@ def pretty_view(data) -> str:
 
 
 # @time_track
-async def get_google_account_info(email) -> str:
+async def get_google_account_info(email) -> dict:
     try:
-        return pretty_view(await email_hunt(email))
+        return await email_hunt(email)
     except Exception as e:
         logger.warning(e)
-        # todo 25.03.2022 19:18 taima: вернуть пустой
-        return str(e)
+
+    # try:
+    #     return pretty_view(await email_hunt(email), language)
+    # except Exception as e:
+    #     logger.warning(e)
+    #     # todo 25.03.2022 19:18 taima: вернуть пустой
+    #     return str(e)
 
 
 if __name__ == "__main__":

@@ -261,14 +261,23 @@ def pretty_view(data):
     return answer
 
 
-async def get_yandex_account_info(username: str) -> str:
-    user_data = {"username": username.split("@")[0]}
-    info_data = collections.defaultdict(dict)
+async def get_yandex_account_info(username: str) -> dict:
     try:
-        return pretty_view(await crawl(user_data, cookies, info_data=info_data))
+        user_data = {"username": username.split("@")[0]}
+        info_data = collections.defaultdict(dict)
+        return await crawl(user_data, cookies, info_data=info_data)
     except Exception as e:
         logger.warning(e)
-        return str(e)
+
+    # user_data = {"username": username.split("@")[0]}
+    # info_data = collections.defaultdict(dict)
+    # return await crawl(user_data, cookies, info_data=info_data)
+
+    # try:
+    #     return pretty_view(await crawl(user_data, cookies, info_data=info_data))
+    # except Exception as e:
+    #     logger.warning(e)
+    #     return str(e)
 
 
 def main():
