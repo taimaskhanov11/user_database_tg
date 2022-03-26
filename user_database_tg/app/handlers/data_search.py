@@ -12,8 +12,8 @@ from user_database_tg.db.models import DbUser, DbTranslation
 
 
 async def part_sending(message, answer, add_info: bool):
-    answer += "*" * 40000
-    answer += "312312312312312"
+    # answer += "*" * 40000
+    # answer += "312312312312312"
     if len(answer) > 4096:
         for x in range(0, len(answer), 4096):
             y = x + 4096
