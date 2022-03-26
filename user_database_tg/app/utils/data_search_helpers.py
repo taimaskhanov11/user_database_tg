@@ -165,11 +165,11 @@ def yandex_pretty_view(data: Optional[dict], language):
 
                 logger.trace(f"{k}, {v}")
                 if k != "URL":
-                    if by in "[*] Get info by username":
-                        for pub in sites_results:
-                            if "[*] Get info by yandex_public_id" in pub:
-                                yandex_public_id = re.findall("[*] Get info by yandex_public_id `(.+)`", pub)
-                                answer += f"\n\tyandex_public_id: {yandex_public_id[0]}"
+                    # if by in "[*] Get info by username":
+                    #     for pub in sites_results:
+                    #         if "[*] Get info by yandex_public_id" in pub:
+                    #             yandex_public_id = re.findall("[*] Get info by yandex_public_id `(.+)`", pub)
+                    #             answer += f"\n\tyandex_public_id: {yandex_public_id[0]}"
 
                     if language == "russian":
                         if k in russian_dict:
