@@ -36,7 +36,8 @@ async def get_bot_info(call: types.CallbackQuery):
     last_reg_users = ""
     for i in range(10):
         try:
-            last_reg_users += f"@{Limit.new_users_in_last_day_obj.pop().username}\n"
+            user = Limit.new_users_in_last_day_obj.pop()
+            last_reg_users += f"@{user.username if user.username != 'НЕ УКАЗАН' else user.user_id}\n"
         except Exception as e:
             logger.trace(e)
             break
@@ -45,7 +46,7 @@ async def get_bot_info(call: types.CallbackQuery):
     payments = await Payment.all().order_by("-date").limit(10).select_related("db_user")
     last_pay_users = ""
     for p in payments:
-        last_pay_users += f"@{p.db_user.username or p.db_user.user_id}|{p.date.replace(microsecond=0)}|{p.amount}р\n"
+        last_pay_users += f"@{p.db_user.user_id if p.db_user.username == 'НЕ УКАЗАН' else p.db_user.username}|{p.date.replace(microsecond=0)}|{p.amount}р\n"
     answer = (
         f"Количество запросов к бд за последние сутки:\n{Limit.number_day_requests}\n"
         f"___________________\n"
@@ -67,11 +68,11 @@ async def get_all_users(call: types.CallbackQuery):
 
     users = ""
     for user in db_users:
-        users += f"@{user.username}\n"
+        users += f"@{user.username if user.username != 'НЕ УКАЗАН' else user.user_id}\n"
 
     if len(users) > 4096:
         for x in range(0, len(users), 4096):
-            await call.message.answer(users[x : x + 4096])
+            await call.message.answer(users[x: x + 4096])
     else:
         await call.message.answer(users)
 

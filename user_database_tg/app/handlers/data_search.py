@@ -50,7 +50,7 @@ async def search_data(message: types.Message, db_user: DbUser, translation: DbTr
 
         # answer = f"{table_result}\n\n"
 
-        await state.update_data(add_info=f"{yandex_result}\n\n{google_result}")
+        await state.update_data(add_info=f"{yandex_result or google_result}")
 
         # Отправка частями
         await part_sending(message, table_result, bool(yandex_result or google_result))

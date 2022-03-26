@@ -71,7 +71,7 @@ russian_dict = {
 
 def google_pretty_view(data: Optional[dict], language) -> str:
     if not data:
-        return ""
+        return "Мейл не найден в базе google."
     answer = ""
     if language == "russian":
         answer += f"{len(data['accounts'])} {russian_dict.get('account found')}\n"
@@ -109,7 +109,8 @@ def google_pretty_view(data: Optional[dict], language) -> str:
 
 def yandex_pretty_view(data: Optional[dict], language):
     if not data:
-        return ""
+        return "Мейл не найден в базе yandex."
+
     answer = ""
     for by, sites_results in data.items():
 
