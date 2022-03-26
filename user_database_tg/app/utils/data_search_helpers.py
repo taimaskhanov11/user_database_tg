@@ -184,7 +184,7 @@ def yandex_pretty_view(data: Optional[dict], language):
 async def search_in_yandex(email: str, language: str) -> str:
     if email.split("@")[1] == "yandex.ru":
         result = await get_yandex_account_info(email)
-        pprint(result)
+        logger.trace(result)
         view = yandex_pretty_view(result, language)
         return view
         # return f"[SEARCH IN YANDEX ENGINE]\n{view}"
@@ -194,8 +194,7 @@ async def search_in_yandex(email: str, language: str) -> str:
 async def search_in_google(email: str, language: str) -> str:
     if email.split("@")[1] == "gmail.com":
         result = await get_google_account_info(email)
-        pprint(result)
-
+        logger.trace(result)
         view = google_pretty_view(result, language)
         return view
         # return f"[SEARCH IN GOOGLE ENGINE]\n{view}"
