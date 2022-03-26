@@ -31,12 +31,14 @@ from user_database_tg.db.db_main import init_db
 from user_database_tg.loader import bot, dp
 
 log.remove()
+
 log.add(
     sink=sys.stderr,
-    level="TRACE",
+    level="INFO",
     enqueue=True,
     diagnose=True,
 )
+
 log.add(
     sink=Path(BASE_DIR, "logs/main.log"),
     level="TRACE",
