@@ -23,6 +23,7 @@ async def part_sending(message, answer, add_info: bool):
                 await message.answer(answer[x: y], reply_markup=markups.add_info)
             else:
                 await message.answer(answer[x: y])
+            await asyncio.sleep(0.2)
     else:
         await message.answer(answer, reply_markup=markups.add_info if add_info else None)
 
