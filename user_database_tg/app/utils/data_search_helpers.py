@@ -61,9 +61,10 @@ russian_dict = {
     "fullname": "полное имя",
     "Get info by": "Информация по",
     "account found": "Найденных аккаунтов",
+    "username": "Имя пользователя",
     "Last profile edit": "Последнее редактирование профиля",
     "Profile picture": "Фото профиля",
-    "Email": "Почта",
+    "email": "Почта",
     "Name": "Имя",
 }
 
@@ -111,9 +112,17 @@ def yandex_pretty_view(data: Optional[dict], language):
         return ""
     answer = ""
     for by, sites_results in data.items():
+
+        if "[*] Get info by yandex_messenger_guid" in by:
+            continue
+
         if language == "russian":
             by: str = by.replace("Get info by", russian_dict["Get info by"])
-        answer += f"\n{by}\n"
+
+        if "yandex_public_id" in by:
+            pass
+        else:
+            answer += f"\n{by}\n"
 
         for sitename, data in sites_results.items():
             if not data:
@@ -124,26 +133,48 @@ def yandex_pretty_view(data: Optional[dict], language):
             if "URL" in data:
                 answer += f'\n\tURL: {data.get("URL")}'
             for k, v in data.items():
-                if k in [
-                    "cards",
-                    "boards",
-                    "is_passport",
-                    "is_restricted",
-                    "is_forbid",
-                    "is_km",
-                    "is_business",
-                    "is_org",
-                    "is_banned",
-                    "is_deleted",
-                    "is_hidden_name",
-                    "is_verified",
+                # if k in [
+                #     "cards",
+                #     "boards",
+                #     "is_passport",
+                #     "is_restricted",
+                #     "is_forbid",
+                #     "is_km",
+                #     "is_business",
+                #     "is_org",
+                #     "is_banned",
+                #     "is_deleted",
+                #     "is_hidden_name",
+                #     "is_verified",
+                # ]:
+                #     continue
+                if k not in [
+                    "yandex_public_id",
+                    # "yandex_uid",
+                    "id",
+                    "username",
+                    "fullname",
+                    "URL",
+                    # "email",
+                    "image",
                 ]:
                     continue
+
+                if v in answer:
+                    continue
+
                 logger.trace(f"{k}, {v}")
                 if k != "URL":
+                    if by in "[*] Get info by username":
+                        for pub in sites_results:
+                            if "[*] Get info by yandex_public_id" in pub:
+                                yandex_public_id = re.findall("[*] Get info by yandex_public_id `(.+)`", pub)
+                                answer += f"\n\tyandex_public_id: {yandex_public_id[0]}"
+
                     if language == "russian":
                         if k in russian_dict:
                             k = russian_dict.get(k)
+
                     answer += f"\n\t{k.capitalize()}: {v}"
             answer += "\n"
     return answer
@@ -153,7 +184,7 @@ def yandex_pretty_view(data: Optional[dict], language):
 async def search_in_yandex(email: str, language: str) -> str:
     if email.split("@")[1] == "yandex.ru":
         result = await get_yandex_account_info(email)
-        # pprint(result)
+        pprint(result)
         view = yandex_pretty_view(result, language)
         return view
         # return f"[SEARCH IN YANDEX ENGINE]\n{view}"
