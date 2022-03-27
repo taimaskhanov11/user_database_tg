@@ -14,31 +14,36 @@ async def refresh_subscription():
     for sub in await Subscription.all().select_related("db_user"):
         logger.debug(f"Проверка подписки {sub}")
         if sub.db_user:
-            diff = sub.duration - now_dt
-            logger.debug(
-                f"Проверка подписки|\n{sub.db_user.username}|{sub.db_user.user_id}"
-                f"\n{sub.duration}>current {now_dt}\n"
-                f"{diff}| разница время подписки минус  сегодня\n"
-                f"{diff.total_seconds()} - сек"
-            )
-            sub.days_duration -= 1
+            try:
+                diff = sub.duration - now_dt
+                logger.debug(
+                    f"Проверка подписки|\n{sub.db_user.username}|{sub.db_user.user_id}"
+                    f"\n{sub.duration}>current {now_dt}\n"
+                    f"{diff}| разница время подписки минус  сегодня\n"
+                    f"{diff.total_seconds()} - сек"
+                )
+                sub.days_duration -= 1
 
-            # Проверка подписки
-            if sub.is_subscribe and (now_dt > sub.duration or sub.days_duration <= 0):
-                logger.debug(f"Подписка закончилась {repr(sub.db_user)} ")
-                await bot.send_message(sub.db_user.user_id, f"Подписка {sub.title} закончилась")
-                sub.db_user.subscription = await Subscription.create(duration=datetime.datetime.now(TZ),
-                                                                     )
-                await sub.db_user.save()
-                await sub.delete()
-                continue
+                # Проверка подписки
+                if sub.is_subscribe and (now_dt > sub.duration or sub.days_duration <= 0):
+                    logger.debug(f"Подписка закончилась {repr(sub.db_user)} ")
 
-            sub.remaining_daily_limit = sub.daily_limit
-            await sub.save()
-            await bot.send_message(
-                sub.db_user.user_id,
-                f"Дневной лимит запросов обновлен.\n" f"У вас сейчас {sub.daily_limit}",
-            )
+                    await bot.send_message(sub.db_user.user_id, f"Подписка {sub.title} закончилась")
+
+                    sub.db_user.subscription = await Subscription.create(duration=datetime.datetime.now(TZ),
+                                                                         )
+                    await sub.db_user.save()
+                    await sub.delete()
+                    continue
+
+                sub.remaining_daily_limit = sub.daily_limit
+                await sub.save()
+                await bot.send_message(
+                    sub.db_user.user_id,
+                    f"Дневной лимит запросов обновлен.\n" f"У вас сейчас {sub.daily_limit}",
+                )
+            except Exception as e:
+                logger.critical(e)
 
 
 @logger.catch
