@@ -89,7 +89,10 @@ async def get_user_info_end(message: types.Message, state: FSMContext):
     field = field[1:] if message.text[0] == "@" else field
     if field[0].isdigit() or field[0].isalpha():
         search_field = {"user_id": int(field)} if field[0].isdigit() else {"username": field}
-        user: DbUser = await DbUser.get(**search_field).select_related("subscription").prefetch_related("payments")
+        user: DbUser = await DbUser.get_or_none(**search_field).select_related("subscription").prefetch_related("payments")
+        if not user:
+            await message.answer("Некорректное имя пользователя или id")
+            return
         # user: DbUser = await DbUser.get(**search_field).select_related("subscription")
         # payments: list[Payment] = await DbUser.payments.all()
         logger.info(user.payments)
