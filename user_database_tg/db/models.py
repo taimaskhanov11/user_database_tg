@@ -4,6 +4,7 @@ from aiogram import types
 from loguru import logger
 from tortoise import fields, models
 
+from user_database_tg.config import config
 from user_database_tg.config.config import TZ
 
 __all__ = [
@@ -161,8 +162,8 @@ class Subscription(models.Model):
     # duration = fields.IntField(default=0)
     duration = fields.DatetimeField()
     days_duration = fields.IntField(default=0)
-    daily_limit = fields.IntField(default=3, null=True)
-    remaining_daily_limit = fields.IntField(default=3, null=True)
+    daily_limit = fields.IntField(default=config.DAILY_LIMIT, null=True)
+    remaining_daily_limit = fields.IntField(default=config.DAILY_LIMIT, null=True)
 
     def __str__(self):
         return (

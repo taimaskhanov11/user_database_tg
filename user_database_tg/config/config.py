@@ -16,7 +16,7 @@ DB_PASSWORD = env.str("DB_PASSWORD")
 DB_HOST = env.str("DB_HOST")
 DB_PORT = env.int("DB_PORT")
 DB_DB_NAME = env.str("DB_DB_NAME")
-
+DAILY_LIMIT = env.int("daily_limit")
 ADMINS = list(map(lambda x: int(x.strip()), env.list("ADMINS")))
 # if [1985947355, 2014301618]
 p2p = AioQiwiP2P(auth_key=QIWI_TOKEN)
