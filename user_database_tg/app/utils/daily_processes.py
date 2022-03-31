@@ -56,7 +56,7 @@ async def everyday_processes(start=True):
     total_seconds = update_date.total_seconds()
     logger.debug(f"Ожидание ежедневного лимита запросов  |{start=}|{update_date}|{total_seconds}s")
     await asyncio.sleep(total_seconds)  # todo 2/27/2022 2:06 PM taima:
-
+    asyncio.create_task(everyday_processes(start=False))
     logger.debug(f"Обновление ежедневного лимита запросов  |{start=}|{update_date}|{total_seconds}s")
     # await asyncio.sleep(10)
     await refresh_subscription()
@@ -66,7 +66,6 @@ async def everyday_processes(start=True):
     logger.info(
         f"Ежедневный лимит запросов обновлен |{start=}|{update_date}|{total_seconds}s. Следующая проверка через 24 часа"
     )
-    asyncio.create_task(everyday_processes(start=False))
 
 
 async def main():
