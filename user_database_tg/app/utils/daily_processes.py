@@ -3,6 +3,7 @@ import datetime
 
 from loguru import logger
 
+from user_database_tg.config import config
 from user_database_tg.config.config import TZ
 from user_database_tg.db.db_main import init_db
 from user_database_tg.db.models import Subscription, Limit
@@ -35,12 +36,11 @@ async def refresh_subscription():
                     await sub.db_user.save()
                     await sub.delete()
                     continue
-
-                sub.remaining_daily_limit = sub.daily_limit
+                sub.remaining_daily_limit = sub.daily_limit if sub.is_subscribe else config.DAILY_LIMIT
                 await sub.save()
                 await bot.send_message(
                     sub.db_user.user_id,
-                    f"Дневной лимит запросов обновлен.\n" f"У вас сейчас {sub.daily_limit}",
+                    f"Дневной лимит запросов обновлен.\n" f"У вас сейчас {sub.remaining_daily_limit}",
                 )
             except Exception as e:
                 logger.critical(e)
