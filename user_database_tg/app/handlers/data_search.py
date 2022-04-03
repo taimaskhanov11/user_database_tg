@@ -69,12 +69,12 @@ async def search_data(message: types.Message, db_user: DbUser, translation: DbTr
         # if yandex_result or google_result:
         #     await message.answer("Узнать дополнительную информацию по почте", reply_markup=markups.add_info)
 
+        # Уменьшение дневного запроса на 1 при каждом запросе
+        await db_user.subscription.decr()
+
         # Отправка оставшегося лимита
         if db_user.subscription.remaining_daily_limit is not None:
             await message.answer(translation.left_attempts.format(limit=db_user.subscription.remaining_daily_limit))
-
-        # Уменьшение дневного запроса на 1 при каждом запросе
-        await db_user.subscription.decr()
 
 
 async def get_add_info(call: types.CallbackQuery, state: FSMContext):
