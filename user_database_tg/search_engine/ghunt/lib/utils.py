@@ -2,14 +2,14 @@ import json
 import re
 import shutil
 from pathlib import Path
-from pprint import pprint
 
 import httpx
 import imagehash
 from loguru import logger
 from selenium.webdriver.chrome.options import Options
-from user_database_tg.search_engine.ghunt.lib.os_detect import Os
 from webdriver_manager.chrome import ChromeDriverManager
+
+from user_database_tg.search_engine.ghunt.lib.os_detect import Os
 
 
 class CookieExpiredError(Exception):

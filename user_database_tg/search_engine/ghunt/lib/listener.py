@@ -1,6 +1,4 @@
-import threading
 from http.server import BaseHTTPRequestHandler, HTTPServer
-from time import sleep
 
 
 class DataBridge:

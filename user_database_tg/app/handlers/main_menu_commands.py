@@ -6,7 +6,7 @@ from user_database_tg.db.models import DbUser, DbTranslation
 
 
 async def profile(
-    message: types.Message, db_user: DbUser, translation: DbTranslation
+        message: types.Message, db_user: DbUser, translation: DbTranslation
 ):  # todo 2/25/2022 12:34 AM taima:
 
     # duration: datetime.timedelta = db_user.subscription.duration - datetime.datetime.now(TZ)

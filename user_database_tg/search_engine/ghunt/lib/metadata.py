@@ -1,9 +1,8 @@
 from datetime import datetime
 
-from geopy.geocoders import Nominatim
 from PIL import ExifTags
 from PIL.ExifTags import GPSTAGS, TAGS
-
+from geopy.geocoders import Nominatim
 from lib.utils import *
 
 
@@ -126,11 +125,11 @@ class ExifEater:
             for model, data in devices.items():
                 make = data["Make"]
                 if model.lower().startswith(make.lower()):
-                    model = model[len(make) :].strip()
+                    model = model[len(make):].strip()
                 n = len(data["History"]["Valid"] + data["History"]["Invalid"])
                 for validity, dateslist in data["History"].items():
                     if dateslist and (
-                        (validity == "Valid") or (validity == "Invalid" and not data["History"]["Valid"])
+                            (validity == "Valid") or (validity == "Invalid" and not data["History"]["Valid"])
                     ):
                         if validity == "Valid":
                             dates = print_dates(data["History"]["Valid"])
@@ -148,7 +147,7 @@ class ExifEater:
                             for firmware, firmdata in data["Firmwares"].items():
                                 for validity2, dateslist2 in firmdata.items():
                                     if dateslist2 and (
-                                        (validity2 == "Valid") or (validity2 == "Invalid" and not firmdata["Valid"])
+                                            (validity2 == "Valid") or (validity2 == "Invalid" and not firmdata["Valid"])
                                     ):
                                         if validity2 == "Valid":
                                             dates2 = print_dates(firmdata["Valid"])

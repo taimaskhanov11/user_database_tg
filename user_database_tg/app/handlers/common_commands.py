@@ -16,10 +16,10 @@ class LangChoice(StatesGroup):
 
 @logger.catch
 async def start(
-    message: types.Message,
-    state: FSMContext,
-    db_user: DbUser,
-    translation: DbTranslation,
+        message: types.Message,
+        state: FSMContext,
+        db_user: DbUser,
+        translation: DbTranslation,
 ):
     await state.finish()
     if not db_user.language:

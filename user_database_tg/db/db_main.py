@@ -7,7 +7,6 @@ from loguru import logger
 from tortoise import Tortoise
 
 from user_database_tg.config.config import (
-    TEST,
     DB_USERNAME,
     DB_PASSWORD,
     DB_HOST,
@@ -20,13 +19,13 @@ from user_database_tg.db.models import DbUser
 
 
 async def init_tortoise(
-    username=DB_USERNAME,
-    password=DB_PASSWORD,
-    host=DB_HOST,
-    port=DB_PORT,
-    db_name=DB_DB_NAME,
+        username=DB_USERNAME,
+        password=DB_PASSWORD,
+        host=DB_HOST,
+        port=DB_PORT,
+        db_name=DB_DB_NAME,
 ):
-    logger.debug(f"Инициализация BD {host}")
+    logger.debug(f"Инициализация DB {host}")
     data = {
         "db_url": f"postgres://{username}:{password}@{host}:{port}/{db_name}",
         "modules": {"models": ["user_database_tg.db.models"]},
@@ -37,6 +36,7 @@ async def init_tortoise(
         logger.critical(e)
         await Tortoise.init(_create_db=True, **data)
     await Tortoise.generate_schemas()
+    logger.success(f"DB {host} инициализирована")
 
 
 async def close_db_connection():

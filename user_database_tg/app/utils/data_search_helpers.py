@@ -1,6 +1,5 @@
 import collections
 import re
-from pprint import pprint
 from typing import Optional
 
 from aiogram import types

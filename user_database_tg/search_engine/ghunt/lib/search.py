@@ -1,6 +1,4 @@
 import json
-from pprint import pprint
-from time import sleep
 
 import httpx
 

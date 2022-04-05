@@ -5,14 +5,10 @@ from lib import modwall
 modwall.check()  # We check the requirements
 
 import base64
-import json
 from copy import deepcopy
 from os.path import isfile
-from pathlib import Path
-from ssl import SSLError
 from time import time
 
-import httpx
 from bs4 import BeautifulSoup as bs
 from selenium.common.exceptions import TimeoutException as SE_TimeoutExepction
 from seleniumwire import webdriver
@@ -105,15 +101,15 @@ def drive_interceptor(request):
     if request.url.endswith((".woff2", ".css", ".png", ".jpeg", ".svg", ".gif")):
         request.abort()
     elif (
-        request.path != "/drive/my-drive"
-        and "Accept" in request.headers
-        and any([x in request.headers["Accept"] for x in ["image", "font-woff"]])
+            request.path != "/drive/my-drive"
+            and "Accept" in request.headers
+            and any([x in request.headers["Accept"] for x in ["image", "font-woff"]])
     ):
         request.abort()
     if (
-        "authorization" in request.headers
-        and "_" in request.headers["authorization"]
-        and request.headers["authorization"]
+            "authorization" in request.headers
+            and "_" in request.headers["authorization"]
+            and request.headers["authorization"]
     ):
         internal_auth = request.headers["authorization"]
 

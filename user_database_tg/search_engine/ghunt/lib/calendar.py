@@ -1,9 +1,7 @@
 import json
-import time
 from datetime import datetime, timezone
 from urllib.parse import urlencode
 
-import httpx
 from beautifultable import BeautifulTable
 from dateutil.relativedelta import relativedelta
 from loguru import logger
@@ -51,8 +49,8 @@ async def fetch(email, client, config, account_info):
         sanitizeHtml = "true"
         timeMin = (
             datetime.strptime(source.split('preloadStart":"')[1].split('"')[0], "%Y%m%d")
-            .replace(tzinfo=timezone.utc)
-            .isoformat()
+                .replace(tzinfo=timezone.utc)
+                .isoformat()
         )
         API_key = source.split('developerKey":"')[1].split('"')[0]
     except IndexError:

@@ -2,19 +2,16 @@
 
 import json
 import re
-import sys
-from datetime import date, datetime
+from datetime import date
 from io import BytesIO
 from os.path import isfile
 from pathlib import Path
-from pprint import pprint
 
 import httpx
 import wayback
+from PIL import Image
 from bs4 import BeautifulSoup as bs
 from geopy.geocoders import Nominatim
-from PIL import Image
-
 
 from user_database_tg.search_engine.ghunt import config
 from user_database_tg.search_engine.ghunt.lib import gmaps
@@ -59,10 +56,10 @@ def find_gaiaID(body):
     try:
         data = json.loads(
             str(body)
-            .split('window["ytInitialData"] = ')[1]
-            .split('window["ytInitialPlayerResponse"]')[0]
-            .strip()
-            .strip(";")
+                .split('window["ytInitialData"] = ')[1]
+                .split('window["ytInitialPlayerResponse"]')[0]
+                .strip()
+                .strip(";")
         )
         gaiaID = data["metadata"]["channelMetadataRenderer"]["plusPageLink"].split("/")[-1]
     except:

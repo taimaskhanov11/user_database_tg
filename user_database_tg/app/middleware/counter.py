@@ -11,10 +11,10 @@ class CounterMiddleware(BaseMiddleware):
         self.counter = 0
 
     async def __call__(
-        self,
-        handler: Callable[[Message, dict[str, Any]], Awaitable[Any]],
-        event: Message,
-        data: Dict[str, Any],
+            self,
+            handler: Callable[[Message, dict[str, Any]], Awaitable[Any]],
+            event: Message,
+            data: Dict[str, Any],
     ) -> Any:
         self.counter += 1
         data["counter"] = self.counter

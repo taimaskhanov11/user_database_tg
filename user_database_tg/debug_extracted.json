@@ -1,12 +1,18 @@
 {
-    "avatar": "//avatars.mds.yandex.net/get-yapic/0/0-0/islands-retina-50",
-    "avatar2x": "//avatars.mds.yandex.net/get-yapic/0/0-0/islands-200",
-    "entity": "publicUser",
-    "isDeleted": false,
-    "isDisplayNameEmpty": true,
-    "publicDisplayName": "\u041b\u0435\u0448\u0430 \u041f\u043e\u043f\u043e\u0432",
-    "publicId": "jaywynfx56vq4vn5ttmk8a30zw",
-    "social": [],
-    "uid": "1399932924",
-    "verified": false
+  "counts": {
+    "likedAlbums": 0,
+    "likedArtists": 0
+  },
+  "hasTracks": true,
+  "isRadioAvailable": false,
+  "owner": {
+    "avatarHash": "23134/enc-ec87aecc826bb8e05d0402a4e8939143082e21e87f4293ae4b54b46b4d751d81",
+    "login": "ecnyMLo",
+    "name": "\u042f\u043d \u041c\u043e\u0440\u043e\u0437\u043e\u0432",
+    "uid": "178108714"
+  },
+  "profiles": [],
+  "success": true,
+  "verified": false,
+  "visibility": "public"
 }

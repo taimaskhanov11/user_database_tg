@@ -57,7 +57,7 @@ class IdTypeInfoAggregator:
                 self.info[k] = v
 
     async def simple_get_info_request(
-        self, url: str, headers_updates: dict = None, orig_url: str = None, session: ClientSession = None
+            self, url: str, headers_updates: dict = None, orig_url: str = None, session: ClientSession = None
     ) -> dict:
         headers = dict(HEADERS)
         headers.update(headers_updates if headers_updates else {})
@@ -141,7 +141,7 @@ class YaUsername(IdTypeInfoAggregator):
         }
 
         async with session.post(
-            url, headers=HEADERS, cookies=self.cookies, data={"request": (None, json.dumps(data))}
+                url, headers=HEADERS, cookies=self.cookies, data={"request": (None, json.dumps(data))}
         ) as response:
             text = await response.text()
             # r = requests.post(url, headers=HEADERS, cookies=self.cookies, files={'request': (None, json.dumps(data))})
@@ -202,7 +202,7 @@ class YaMessengerGuid(IdTypeInfoAggregator):
         url = "https://yandex.ru/messenger/api/registry/api/"
         data = {"method": "get_users_data", "params": {"guids": [self.identifier]}}
         async with session.post(
-            url, headers=HEADERS, cookies=self.cookies, data={"request": (None, json.dumps(data))}
+                url, headers=HEADERS, cookies=self.cookies, data={"request": (None, json.dumps(data))}
         ) as response:
             text = await response.text()
             # r = requests.post(url, headers=HEADERS, cookies=self.cookies, files={'request': (None, json.dumps(data))})

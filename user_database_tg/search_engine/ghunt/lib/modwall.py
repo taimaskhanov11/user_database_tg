@@ -9,11 +9,11 @@ def print_help_and_exit():
 
 def check_versions(installed_version, op, version):
     if (
-        (op == ">" and parse_version(installed_version) > parse_version(version))
-        or (op == "<" and parse_version(installed_version) < parse_version(version))
-        or (op == "==" and parse_version(installed_version) == parse_version(version))
-        or (op == ">=" and parse_version(installed_version) >= parse_version(version))
-        or (op == "<=" and parse_version(installed_version) <= parse_version(version))
+            (op == ">" and parse_version(installed_version) > parse_version(version))
+            or (op == "<" and parse_version(installed_version) < parse_version(version))
+            or (op == "==" and parse_version(installed_version) == parse_version(version))
+            or (op == ">=" and parse_version(installed_version) >= parse_version(version))
+            or (op == "<=" and parse_version(installed_version) <= parse_version(version))
     ):
         return True
     return False

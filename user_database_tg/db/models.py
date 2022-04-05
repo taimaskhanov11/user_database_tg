@@ -164,6 +164,7 @@ class Subscription(models.Model):
     days_duration = fields.IntField(default=0)
     daily_limit = fields.IntField(default=config.DAILY_LIMIT, null=True)
     remaining_daily_limit = fields.IntField(default=config.DAILY_LIMIT, null=True)
+    db_user: "DbUser"
 
     def __str__(self):
         return (
@@ -187,6 +188,7 @@ class DbUser(models.Model):
     language = fields.CharField(max_length=20, null=True, default=None)
     is_search = fields.BooleanField(default=False)
     register_data = fields.DatetimeField()
+    payments: "Payment"
 
     # translation = None
 

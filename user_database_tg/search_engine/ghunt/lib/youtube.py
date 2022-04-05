@@ -1,9 +1,9 @@
-import json
 import urllib.parse
 from io import BytesIO
 from urllib.parse import unquote as parse_url
 
 from PIL import Image
+
 from user_database_tg.search_engine.ghunt.lib.search import search as gdoc_search
 from user_database_tg.search_engine.ghunt.lib.utils import *
 
@@ -90,8 +90,8 @@ async def youtube_channel_search(client, query):
             if avatar_link[:2] == "//":
                 avatar_link = "https:" + avatar_link
             profile_url = (
-                "https://youtube.com"
-                + channel["channelRenderer"]["navigationEndpoint"]["browseEndpoint"]["canonicalBaseUrl"]
+                    "https://youtube.com"
+                    + channel["channelRenderer"]["navigationEndpoint"]["browseEndpoint"]["canonicalBaseUrl"]
             )
             req = await client.get(avatar_link)
             img = Image.open(BytesIO(req.content))
@@ -175,7 +175,7 @@ def get_confidence(data, query, hash):
             if query in channel["name"]:
                 score += score_steps * 2
             if (source["origin"] == "youtube" and source["length"] <= 5) or (
-                source["origin"] == "google" and source["length"] <= 4
+                    source["origin"] == "google" and source["length"] <= 4
             ):
                 score += score_steps
             data[source_nb]["channels"][channel_nb]["score"] = score
