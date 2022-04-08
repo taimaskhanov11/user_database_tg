@@ -207,7 +207,8 @@ if __name__ == "__main__":
     parser.add_argument("-pr", type=int, required=False)
     args = parser.parse_args()
     logger.info(args.path)
-    logger.info(args.p)
+    logger.info(args.pr)
+    logger.info(type(args.pr))
     run_process_create_users(args.path, args.pr or 3)
     pass
     # for data in users_data):
