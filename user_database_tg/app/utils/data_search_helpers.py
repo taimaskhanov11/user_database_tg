@@ -192,6 +192,8 @@ async def search_in_yandex(email: str, language: str) -> str:
 
 
 async def search_in_google(email: str, language: str) -> str:
+    # todo 08.04.2022 11:37 taima:
+    return ""
     if email.split("@")[1] == "gmail.com":
         result = await get_google_account_info(email)
         logger.trace(result)

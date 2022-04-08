@@ -26,14 +26,13 @@ def search(query, data_path, gdocs_public_doc, size=1000):
             break
         if req.status_code == 500:
             if retry == 0:
-                exit(f"[-] Error (GDocs): request gives {req.status_code}, wait a minute and retry !")
+                raise TypeError(f"[-] Error (GDocs): request gives {req.status_code}, wait a minute and retry !")
             print(f"[-] GDocs request gives a 500 status code, retrying in 5 seconds...")
             continue
 
     output = json.loads(req.text.replace(")]}'", ""))
     if isinstance(output[0][1], str) and output[0][1].lower() == "xsrf":
-        exit(f"\n[-] Error : XSRF detected.\nIt means your cookies have expired, please generate new ones.")
-
+        raise TypeError(f"\n[-] Error : XSRF detected.\nIt means your cookies have expired, please generate new ones.")
     results = []
     for result in output[0][1]:
         link = result[0][0]
