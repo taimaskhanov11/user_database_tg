@@ -170,7 +170,7 @@ def run_process_create_users(main_path, processes=3):
                     start_prs.remove(start_pr)
                     try:
                         pr = prs.pop()
-                        logger.success(f"Создание процесса {pr.name}. Оставшиеся {prs}.Запущенные {start_prs}")
+                        logger.success(f"Создание процесса {pr.name}. Оставшиеся {len(prs)}.Запущенные {start_prs}")
                         pr.start()
                         start_prs.append(pr)
                     except IndexError as e:
