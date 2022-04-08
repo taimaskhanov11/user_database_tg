@@ -34,6 +34,7 @@ log.remove()
 
 log.add(
     sink=sys.stderr,
+    # level="TRACE",
     level="INFO",
     enqueue=True,
     diagnose=True,
@@ -51,7 +52,7 @@ log.add(
 
 logging.basicConfig(
     encoding="utf-8",
-    level=logging.DEBUG,
+    level=logging.INFO,
     handlers=[
         # logging.StreamHandler(),
         logging.FileHandler(filename=Path(BASE_DIR, "logs/aiolog.log"), encoding="utf-8"),
