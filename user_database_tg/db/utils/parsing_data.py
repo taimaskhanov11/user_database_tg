@@ -204,9 +204,11 @@ if __name__ == "__main__":
     init_logging()
     parser = argparse.ArgumentParser(description="Upload data in db")
     parser.add_argument("--path", type=str)
+    parser.add_argument("-pr", type=int, required=False)
     args = parser.parse_args()
-    print(args.path)
-    run_process_create_users(args.path)
+    logger.info(args.path)
+    logger.info(args.p)
+    run_process_create_users(args.path, args.pr or 3)
     pass
     # for data in users_data):
     #     print(data[0], data[1])
