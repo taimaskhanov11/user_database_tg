@@ -72,7 +72,7 @@ is_search(Это блокировка во время поиска если true
 2.4.1 (если нужно перенести данные) poetry run python user_database_tg/app/utils/backup.py
 2.5 poetry run python user_database_tg/main.py(При первом запуске может выскочить ошибка, просто заупстите еще раз)
 ______________________
-14.
+15.
 Для выгрузки с одной базы на другую
 cd /home/user/user_database_tg/
 poetry run python user_database_tg\db\utils\import_data.py --from_=old --username=postgres --password=Tel993917. --host=95.105.113.65 --port=5432 --db_name=users_database --to=new --username2=your_username --password2=your_password --host2=your_hosting --port2=your_port --db_name2=your_db_name

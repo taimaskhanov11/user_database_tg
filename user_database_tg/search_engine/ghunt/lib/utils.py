@@ -1,6 +1,8 @@
+import hashlib
 import json
 import re
 import shutil
+import time
 from pathlib import Path
 
 import httpx
@@ -275,3 +277,7 @@ def inject_osid(cookies, service, config):
 
     cookies["OSID"] = out["osids"][service]
     return cookies
+
+
+def gen_sapisidhash(sapisid: str, origin: str, timestamp: str = str(int(time.time()))) -> str:
+    return f"{timestamp}_{hashlib.sha1(' '.join([timestamp, sapisid, origin]).encode()).hexdigest()}"
