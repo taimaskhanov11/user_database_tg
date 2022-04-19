@@ -61,7 +61,7 @@ async def check_payment2(bill_id, user_id, message: types.Message):  # todo 2/27
             # if True:
             logger.info(f"{user_id}|{bill.bill_id} успешно оплачен")
             db_bill = await Billing.get(bill_id=bill_id).prefetch_related("subscription")
-            db_user = await DbUser.get(user_id=user_id).select_related("subscription")
+            db_user = await DbUser.filter(user_id=user_id).select_related("subscription").first()
             db_bill.subscription.is_paid = True
             old_sub = db_user.subscription
             db_user.subscription = db_bill.subscription

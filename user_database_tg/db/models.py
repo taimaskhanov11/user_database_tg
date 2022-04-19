@@ -213,7 +213,12 @@ class DbUser(models.Model):
     @classmethod
     @logger.catch
     async def get_or_new(cls, user_id, username) -> "DbUser":
-        user = await cls.get_or_none(user_id=user_id).select_related("subscription")
+        try:
+            user = await cls.filter(user_id=user_id).select_related("subscription").first()
+            logger.info(user)
+        except Exception as e:
+            user = None
+            logger.critical(e)
         is_created = False
         if not user:
             # duration = datetime.now(TZ)

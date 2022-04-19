@@ -30,7 +30,8 @@ class EditChannelStates(StatesGroup):
     start = State()
 
 
-async def get_bot_info(call: types.CallbackQuery):
+async def get_bot_info(call: types.CallbackQuery, state: FSMContext):
+    await state.finish()
     users_count = await DbUser.all().count()
     # last_reg_users_obj = "\n".join([f"@{us.username}" for us in Limit.new_users_in_last_day_obj])
     last_reg_users = ""
@@ -63,12 +64,14 @@ async def get_bot_info(call: types.CallbackQuery):
     await call.message.answer(answer)
 
 
-async def get_all_users(call: types.CallbackQuery):
+async def get_all_users(call: types.CallbackQuery, state: FSMContext):
+    await state.finish()
     db_users = await DbUser.all()
-
     users = ""
     for user in db_users:
-        users += f"@{user.username if user.username != 'НЕ УКАЗАН' else user.user_id}\n"
+        user_info = f"@{user.username if user.username != 'НЕ УКАЗАН' else user.user_id}\n"
+        if user_info not in users:
+            users += user_info
 
     if len(users) > 4096:
         for x in range(0, len(users), 4096):
@@ -77,7 +80,8 @@ async def get_all_users(call: types.CallbackQuery):
         await call.message.answer(users)
 
 
-async def get_user_info_start(call: types.CallbackQuery):
+async def get_user_info_start(call: types.CallbackQuery, state: FSMContext):
+    await state.finish()
     await call.message.delete()
     await call.message.answer("Ведите имя пользователя или id")
     await GetUserInfoStates.start.set()
@@ -89,8 +93,18 @@ async def get_user_info_end(message: types.Message, state: FSMContext):
     field = field[1:] if message.text[0] == "@" else field
     if field[0].isdigit() or field[0].isalpha():
         search_field = {"user_id": int(field)} if field[0].isdigit() else {"username": field}
-        user: DbUser = await DbUser.get_or_none(**search_field).select_related("subscription").prefetch_related(
-            "payments")
+
+        # user: DbUser = await DbUser.get_or_none(**search_field).select_related("subscription").prefetch_related(
+        #     "payments")
+        try:
+            user: DbUser = await DbUser.filter(**search_field).select_related("subscription").prefetch_related(
+                "payments").first()
+
+        except Exception as e:
+            logger.critical(e)
+            await message.answer("Некорректное имя пользователя или id")
+            return
+
         if not user:
             await message.answer("Некорректное имя пользователя или id")
             return
@@ -118,7 +132,7 @@ async def get_user_info_end(message: types.Message, state: FSMContext):
 async def edit_user_sub(call: types.CallbackQuery, state: FSMContext):
     user_id = int(re.findall(r"edit_user_(\d*)", call.data)[0])
     await state.update_data(user_id=user_id)
-    db_user = await DbUser.get(user_id=user_id).select_related("subscription")
+    db_user = await DbUser.filter(user_id=user_id).select_related("subscription").first()
     # subscription = await Subscription.get(db_user=db_user)
     await call.message.answer(
         f"🔑 ID: {db_user.user_id}\n" f"👤 Логин: @{db_user.username}\n" f"Подписка:\n{db_user.subscription}",
@@ -249,9 +263,9 @@ async def change_sub_channel_end(message: types.Message, state: FSMContext):
 
 
 def register_bot_info_handler(dp: Dispatcher):
-    dp.register_callback_query_handler(get_bot_info, text="bot_info")
-    dp.register_callback_query_handler(get_all_users, text="all_users")
-    dp.register_callback_query_handler(get_user_info_start, text="user_info")
+    dp.register_callback_query_handler(get_bot_info, text="bot_info", state="*")
+    dp.register_callback_query_handler(get_all_users, text="all_users", state="*")
+    dp.register_callback_query_handler(get_user_info_start, text="user_info", state="*")
     dp.register_message_handler(get_user_info_end, state=GetUserInfoStates.start)
 
     dp.register_callback_query_handler(edit_user_sub, EditUserFilter())

@@ -103,9 +103,13 @@ async def dell_all():
 
 
 async def main():
-    await init_db()
-    ps = await DbUser.all()
-    print(ps)
+    await init_tortoise(password="Tel993917.", host="95.105.113.65", db_name="users_database")
+    users = await DbUser.filter(username="persewerancez").prefetch_related("subscription")
+    for u in DbUser:
+        pass
+    for user in users:
+        print(user.subscription)
+    # print(ps)
 
 
 if __name__ == "__main__":

@@ -56,12 +56,15 @@ is_search(Это блокировка во время поиска если true
 
 *****
 14.Для выгрузки на другую машину:
-1.1| sudo apt update && sudo apt upgrade
-1.2| sudo add-apt-repository ppa:deadsnakes/ppa && sudo apt update && sudo apt install python3.10 && sudo apt install python3.10-venv
-1.3|
-1.4|
-1.5|
-1.6| curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python3.10 -
+sudo apt update && sudo apt upgrade
+sudo apt install screen -y
+sudo apt install software-properties-common
+sudo add-apt-repository ppa:deadsnakes/ppa && sudo apt update && sudo apt install python3.10 && sudo apt install python3.10-venv
+sudo apt-get install python3.10-distutils -y
+sudo apt-get install python3.8-distutils -y
+sudo apt-get install python-dev-tools
+sudo apt-get install python3-dev
+curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python3.10 -
 
 2.зайти в нужную папку c помощью: cd /home/
 2.1 git clone https://github.com/taimaskhanov11/user_database_tg.git

@@ -18,6 +18,7 @@ from user_database_tg.app.handlers import (
 from user_database_tg.app.handlers.admin_handlers import (
     register_admin_handlers,
 )
+from user_database_tg.app.handlers.errors_handlers import register_error_handlers
 from user_database_tg.app.middleware.father_middleware import FatherMiddleware
 from user_database_tg.app.subscription.subscription_info import init_subscriptions_info
 from user_database_tg.app.translation.message_translation import init_translations
@@ -95,6 +96,7 @@ async def main():
     register_admin_menu_handlers(dp)
     register_data_search_handlers(dp)
 
+    register_error_handlers(dp)
     # Регистрация middleware
     # dp.middleware.setup(ThrottlingMiddleware(3))
     # dp.middleware.setup(BigDaddy())
