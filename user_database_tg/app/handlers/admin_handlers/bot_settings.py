@@ -38,7 +38,9 @@ async def get_bot_info(call: types.CallbackQuery, state: FSMContext):
     for i in range(10):
         try:
             user = Limit.new_users_in_last_day_obj.pop()
-            last_reg_users += f"@{user.username if user.username != 'НЕ УКАЗАН' else user.user_id}\n"
+            user_info = f"@{user.username if user.username != 'НЕ УКАЗАН' else user.user_id}\n"
+            if user_info not in last_reg_users:
+                last_reg_users += user_info
         except Exception as e:
             logger.trace(e)
             break
