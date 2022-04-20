@@ -102,7 +102,7 @@ change_user_sub_field = InlineKeyboardMarkup(
             )
         ]
         for title, field in (
-            # ("Изменить название", "title"), #todo 3/3/2022 10:14 PM taima:
+            ("Изменить название", "title"), #todo 3/3/2022 10:14 PM taima:
             ("Изменить длительность подписки", "days_duration"),
             ("Изменить дневной лимит", "daily_limit"),
             ("Изменить количество оставшихся запросов", "remaining_daily_limit"),

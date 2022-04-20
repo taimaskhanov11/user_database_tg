@@ -30,12 +30,11 @@ async def refresh_subscription():
                     logger.debug(f"Подписка закончилась {repr(sub.db_user)} ")
 
                     await bot.send_message(sub.db_user.user_id, f"Подписка {sub.title} закончилась")
-                    sub.db_user.subscription = await Subscription.create(duration=datetime.datetime.now(TZ),
-                                                                         )
+                    sub.db_user.subscription = await Subscription.create(duration=datetime.datetime.now(TZ))
                     await sub.db_user.save()
                     await sub.delete()
                     continue
-                sub.remaining_daily_limit = sub.daily_limit if sub.is_subscribe else config.DAILY_LIMIT
+                sub.remaining_daily_limit = sub.daily_limit
                 await sub.save()
                 logger.success(
                     f"{sub.db_user.username}[{sub.db_user.user_id}]|Дневной лимит запросов обновлен.({sub.remaining_daily_limit})")
