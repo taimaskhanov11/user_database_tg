@@ -1,3 +1,4 @@
+import secrets
 from datetime import datetime, timedelta
 
 from aiogram import types
@@ -18,6 +19,7 @@ __all__ = [
     "SubscriptionChannel",
     "dig_file_HackedUser",
     "sym_file_HackedUser",
+    "HackedUser",
     "a_HackedUser",
     "b_HackedUser",
     "c_HackedUser",
@@ -47,16 +49,40 @@ __all__ = [
 ]
 
 
-class HackedUser:
+class HackedUser(models.Model):
     email = fields.CharField(max_length=255, index=True)
     password = fields.CharField(max_length=255)
     service = fields.CharField(max_length=255)
+
+    # async def filter(self):
+    #     pass
+    #
+    # class Meta:
+    #     abstract = True
 
 
 # class Limit(models.Model):
 #     number_day_requests = fields.IntField()
 #     new_in_last_day = fields.IntField()
 #     amount_payments = fields.IntField()
+
+# class ApiSubscription():
+#     user = fields.OneToOneField("models.DbUser", on_delete=fields.CASCADE, null=True)
+#     duration = fields.IntField(default=0)
+#
+#
+# class ApiSubscriptionInfo():
+#     title = fields.CharField(255)
+#     price = fields.IntField()
+#     duration = fields.IntField(default=0)
+#     daily_limit = fields.IntField(null=True)
+#
+#     def __str__(self):
+#         return (
+#             f"Название : {self.title}\n"
+#             f"Цена: {self.price}\n"
+#             f"Количество дней: {self.duration}\n"
+#         )
 
 
 class DbTranslation(models.Model):  # todo 2/26/2022 4:40 PM taima:
@@ -181,6 +207,24 @@ class Subscription(models.Model):
             await self.save()
 
 
+class ApiSubscription(Subscription):
+    db_user: 'DbUser' = fields.OneToOneField("models.DbUser", null=True, related_name="api_subscription")
+    token = fields.CharField(32, default=secrets.token_hex(16))
+
+    def __str__(self):
+        return (
+            # f"ID: {self.pk}\n"
+            f"Название : {self.title}\n"
+            f"Количество дней: {self.days_duration}\n"
+            f"Дневной лимит запросов: Unlimited\n"
+            # f"Оставшийся дневной лимит: {self.remaining_daily_limit} "
+        )
+
+
+class ApiSubscriptionInfo(SubscriptionInfo):
+    pass
+
+
 class DbUser(models.Model):
     user_id = fields.BigIntField(index=True)
     username = fields.CharField(max_length=255)
@@ -189,6 +233,7 @@ class DbUser(models.Model):
     is_search = fields.BooleanField(default=False)
     register_data = fields.DatetimeField()
     payments: "Payment"
+    api_subscription: ApiSubscription
 
     # translation = None
 
@@ -211,15 +256,22 @@ class DbUser(models.Model):
         pass
 
     @classmethod
-    @logger.catch
+    # @logger.catch
     async def get_or_new(cls, user_id, username) -> "DbUser":
         try:
-            user = await cls.filter(user_id=user_id).select_related("subscription").first()
-            logger.info(user)
+            user = await cls.filter(user_id=user_id).select_related("subscription", "api_subscription").first()
+            # logger.info(user)
         except Exception as e:
             user = None
             logger.critical(e)
         is_created = False
+        if not user.api_subscription:
+            await ApiSubscription.create(
+                duration=datetime.now(TZ),
+                db_user=user
+            ),
+            await user.refresh_from_db()
+            await user.fetch_related("api_subscription")
         if not user:
             # duration = datetime.now(TZ)
             # duration = datetime.now(TZ) + timedelta(days=2)
@@ -233,6 +285,13 @@ class DbUser(models.Model):
                 ),
                 register_data=datetime.now(TZ),
             )
+            await ApiSubscription.create(
+                duration=datetime.now(TZ),
+                db_user=user
+            )
+            await user.refresh_from_db()
+            await user.fetch_related("api_subscription")
+
             is_created = True
             Limit.new_users_in_last_day += 1
             Limit.new_users_in_last_day_obj.append(user)
@@ -302,6 +361,38 @@ class Billing(models.Model):
             bill_id=bill_id,
             amount=sub_info.price,
             subscription=subscription,
+        )
+
+
+class APIBilling(models.Model):
+    db_user: DbUser = fields.OneToOneField(
+        "models.DbUser",
+    )
+    # bill_id = fields.BigIntField(index=True)
+    bill_id = fields.IntField(index=True)
+    amount = fields.IntField()
+    api_subscription: ApiSubscription = fields.OneToOneField("models.ApiSubscription")
+
+    @classmethod
+    async def create_bill(cls, db_user, bill_id, sub_info: ApiSubscriptionInfo):
+        subscription = await ApiSubscription.create(
+            title=sub_info.title,
+            is_subscribe=True,
+            is_paid=False,
+            duration=datetime.now(TZ) + timedelta(int(sub_info.days)),
+            days_duration=sub_info.days,
+            daily_limit=sub_info.daily_limit,
+            remaining_daily_limit=sub_info.daily_limit,
+            # db_user=db_user,
+        )
+        # print(dict(subscription))
+        # subscription.db_user = db_user
+        # await subscription.save()
+        return await cls.create(
+            db_user=db_user,
+            bill_id=bill_id,
+            amount=sub_info.price,
+            api_subscription=subscription,
         )
 
 

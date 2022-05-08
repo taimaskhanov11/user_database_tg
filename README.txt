@@ -59,7 +59,7 @@ is_search(Это блокировка во время поиска если true
 sudo apt update && sudo apt upgrade
 sudo apt install screen -y
 sudo apt install software-properties-common
-sudo add-apt-repository ppa:deadsnakes/ppa && sudo apt update && sudo apt install python3.10 && sudo apt install python3.10-venv
+sudo add-apt-repository ppa:deadsnakes/ppa && sudo apt update && sudo apt install python3.10 && sudo apt install python3.10-venv -y
 sudo apt-get install python3.10-distutils -y
 sudo apt-get install python3.8-distutils -y
 sudo apt-get install python-dev-tools

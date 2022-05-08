@@ -19,7 +19,6 @@ async def part_sending(message, answer, add_info: bool):
     limit = 50000
 
     if len(answer) > 4096:
-
         if len(answer) > limit:
             for i in range(50):
                 if answer[limit] == "\n":
@@ -74,7 +73,8 @@ async def search_data(message: types.Message, db_user: DbUser, translation: DbTr
 
         # Отправка оставшегося лимита
         if db_user.subscription.remaining_daily_limit is not None:
-            await message.answer(translation.left_attempts.format(limit=db_user.subscription.remaining_daily_limit))
+            await message.answer(translation.left_attempts.format(limit=db_user.subscription.remaining_daily_limit),
+                                 reply_markup=markups.get_menu(translation))
 
 
 async def get_add_info(call: types.CallbackQuery, state: FSMContext):

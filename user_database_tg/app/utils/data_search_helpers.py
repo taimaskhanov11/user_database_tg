@@ -7,29 +7,35 @@ from loguru import logger
 
 from user_database_tg.config.config import TempData
 from user_database_tg.db.models import *
+from user_database_tg.db.models import HackedUser
 from user_database_tg.search_engine.ghunt.ghunt import get_google_account_info
 from user_database_tg.search_engine.yaseeker.ya_seeker import get_yandex_account_info
 
 
-async def search_in_table(message: types.Message, translation: DbTranslation) -> str:
-    # Проверка буквы запроса для поиска в определенной таблице
-
-    sign = message.text[0]
+async def get_hack_model(text) -> HackedUser:
+    sign = text[0]
     if sign.isalpha():
         hack_model = globals()[f"{sign}_HackedUser"]
     elif sign.isdigit():
         hack_model = globals()[f"dig_file_HackedUser"]
     else:
         hack_model = globals()[f"sym_file_HackedUser"]
+    return hack_model
 
-    logger.debug(f"Поиск {message.text} в таблице {hack_model.__name__}")
+
+async def search_in_table(message: types.Message, translation: DbTranslation) -> str:
+    # Проверка буквы запроса для поиска в определенной таблице
+
     find_count = 0
 
     if message.text in TempData.NO_FIND_EMAIL:
         logger.info("Найден в в переменой")
         answer = translation.data_not_found.format(email=message.text)
     else:
+        hack_model = await get_hack_model(message.text)
         db_res = await hack_model.filter(email=message.text)
+        logger.debug(f"Поиск {message.text} в таблице {hack_model.__name__}")
+
         Limit.number_day_requests += 1
         if not db_res:
             TempData.NO_FIND_EMAIL.append(message.text)
@@ -192,7 +198,7 @@ async def search_in_yandex(email: str, language: str) -> str:
 
 
 async def search_in_google(email: str, language: str) -> str:
-    if email.split("@")[1] == "gmail.com":
+    if email.split("@")[1] in ("google.com", "gmail.com"):
         result = await get_google_account_info(email)
         logger.trace(result)
         view = google_pretty_view(result, language)

@@ -1,3 +1,4 @@
+import asyncio
 import re
 
 from aiogram import Dispatcher, types
@@ -5,8 +6,10 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import StatesGroup, State
 from loguru import logger
 
-from user_database_tg.app.filters.bot_settings import EditUserFilter
+from user_database_tg.app.filters.bot_settings import EditUserFilter, EditUserFilterAPI
 from user_database_tg.app.markups import bot_settings_markup, admin_menu
+from user_database_tg.app.utils.daily_processes import delete_api_token
+from user_database_tg.app.utils.payment_processes import add_api_token
 from user_database_tg.config.config import TempData
 from user_database_tg.db.models import (
     DbUser,
@@ -22,6 +25,11 @@ class GetUserInfoStates(StatesGroup):
 
 
 class EditUserSubStates(StatesGroup):
+    start = State()
+    end = State()
+
+
+class EditUserSubAPIStates(StatesGroup):
     start = State()
     end = State()
 
@@ -125,7 +133,14 @@ async def get_user_info_end(message: types.Message, state: FSMContext):
             f"Подписка: {user.subscription.title}\n"
             f"Совершенные платежи:\n{payments_str or 'Пусто'}\n"
         )
+
+        user_data2 = (
+            f"API PROFILE\n"
+            f"Подписка: {user.subscription.title}\n"
+        )
         await message.answer(user_data, reply_markup=bot_settings_markup.get_edit_user(user.user_id))
+        await message.answer(user_data2, reply_markup=bot_settings_markup.get_edit_user_api(user.user_id))
+
         await state.finish()
     else:
         await message.answer("Некорректное имя пользователя или id")
@@ -167,6 +182,7 @@ async def edit_user_sub_end(message: types.Message, state: FSMContext):
         #     setattr(db_user.subscription, "remaining_daily_limit", new_value)
 
         setattr(db_user.subscription, field, new_value)
+        db_user.subscription.is_subscribe = True
         await db_user.subscription.save()
         await message.answer(f"Данные подписки изменены")
 
@@ -176,6 +192,64 @@ async def edit_user_sub_end(message: types.Message, state: FSMContext):
         )
         # await state.finish()
         await EditUserSubStates.first()
+
+    except Exception as e:
+        logger.critical(e)
+        await message.answer("Ошибка! Неправильный ввод")
+
+
+async def edit_user_sub_api(call: types.CallbackQuery, state: FSMContext):
+    user_id = int(re.findall(r"edit_user_api_(\d*)", call.data)[0])
+    await state.update_data(user_id=user_id)
+    db_user = await DbUser.filter(user_id=user_id).first().select_related("api_subscription")
+    # subscription = await Subscription.get(db_user=db_user)
+    await call.message.answer(
+        f"🔑 ID: {db_user.user_id}\n" f"👤 Логин: @{db_user.username}\n" f"Подписка:\n{db_user.api_subscription}",
+        reply_markup=admin_menu.change_user_sub_field
+        # f"{subscription}", reply_markup=admin_menu.change_field
+    )
+    await state.update_data(db_user=db_user)
+    await EditUserSubAPIStates.first()
+
+
+async def edit_user_sub_start_api(call: types.CallbackQuery, state: FSMContext):
+    field = call.data
+    await state.update_data(field=field)
+    await call.message.answer(f"Введите новое значения для поля {field}")
+    await EditUserSubAPIStates.next()
+
+
+@logger.catch
+async def edit_user_sub_end_api(message: types.Message, state: FSMContext):
+    try:
+        data = await state.get_data()
+        db_user: DbUser = data["db_user"]
+        field = data["field"]
+        await db_user.api_subscription.refresh_from_db()
+        new_value = message.text
+        if message.text == "Unlimited":
+            new_value = None
+        # elif field == "daily_limit":
+        #     new_value = int(new_value)
+        #     setattr(db_user.subscription, "remaining_daily_limit", new_value)
+        if field == "days_duration":
+            if not db_user.api_subscription.days_duration:
+                if int(new_value) > 0:
+                    asyncio.create_task(add_api_token(db_user.api_subscription.token))
+
+            elif int(new_value) == 0 or int(new_value) < 0:
+                asyncio.create_task(delete_api_token(db_user.api_subscription.token))
+
+        setattr(db_user.api_subscription, field, new_value)
+        await db_user.api_subscription.save()
+        await message.answer(f"Данные подписки изменены")
+
+        await message.answer(
+            f"🔑 ID: {db_user.user_id}\n" f"👤 Логин: @{db_user.username}\n" f"Подписка:\n{db_user.api_subscription}",
+            reply_markup=admin_menu.change_user_sub_field,
+        )
+        # await state.finish()
+        await EditUserSubAPIStates.first()
 
     except Exception as e:
         logger.critical(e)
@@ -269,6 +343,10 @@ def register_bot_info_handler(dp: Dispatcher):
     dp.register_callback_query_handler(get_all_users, text="all_users", state="*")
     dp.register_callback_query_handler(get_user_info_start, text="user_info", state="*")
     dp.register_message_handler(get_user_info_end, state=GetUserInfoStates.start)
+
+    dp.register_callback_query_handler(edit_user_sub_api, EditUserFilterAPI())
+    dp.register_callback_query_handler(edit_user_sub_start_api, state=EditUserSubAPIStates.start)
+    dp.register_message_handler(edit_user_sub_end_api, state=EditUserSubAPIStates.end)
 
     dp.register_callback_query_handler(edit_user_sub, EditUserFilter())
     dp.register_callback_query_handler(edit_user_sub_start, state=EditUserSubStates.start)

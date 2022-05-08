@@ -18,7 +18,9 @@ from user_database_tg.app.handlers import (
 from user_database_tg.app.handlers.admin_handlers import (
     register_admin_handlers,
 )
+from user_database_tg.app.handlers.api_handlers import register_api_handlers
 from user_database_tg.app.handlers.errors_handlers import register_error_handlers
+from user_database_tg.app.handlers.make_api_subscription import register_subscriptions_api_handlers
 from user_database_tg.app.middleware.father_middleware import FatherMiddleware
 from user_database_tg.app.subscription.subscription_info import init_subscriptions_info
 from user_database_tg.app.translation.message_translation import init_translations
@@ -91,6 +93,9 @@ async def main():
 
     # Регистрация хэндлеров
     register_common_handlers(dp)
+    register_api_handlers(dp)
+    register_subscriptions_api_handlers(dp)
+
     register_main_menu_handlers(dp)
     register_subscriptions_handlers(dp)
     register_admin_menu_handlers(dp)

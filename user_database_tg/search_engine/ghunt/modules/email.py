@@ -214,19 +214,14 @@ async def get_profile_pic_and_youtube(client, account, account_info, email, name
 
 async def email_hunt(email):
     info_data = collections.OrderedDict()
-    if not email:
-        logger.critical("Please give a valid email.\nExample : larry@google.com")
-        return
-
     hangouts_auth, hangouts_token, internal_auth, internal_token, cookies = config.data
 
     # client = httpx.Client(cookies=cookies, headers=config.headers)
     async with httpx.AsyncClient(cookies=cookies, headers=config.headers) as client:
-
         try:
             data = await is_email_google_account(client, hangouts_auth, cookies, email, hangouts_token)
-        except (CookieExpiredError, FileNotFoundError, NotGoogleAccountError) as e:
-            raise e
+        except (CookieExpiredError, FileNotFoundError, NotGoogleAccountError):
+            raise
 
         geolocator = Nominatim(user_agent="nominatim")
 
@@ -272,7 +267,9 @@ async def email_hunt(email):
                 logger.trace(f"Locations : {locations}")
 
             await asyncio.gather(
-                get_profile_pic_and_youtube(client, account, account_info, email, name, infos),
+                # todo 5/8/2022 4:06 PM taima: Восстановить
+
+                # get_profile_pic_and_youtube(client, account, account_info, email, name, infos),
                 get_cover_profile_pic(client, account, account_info, email),
                 get_last_edit(account_info, infos),
                 get_email(account, account_info, infos, email, gaiaID),

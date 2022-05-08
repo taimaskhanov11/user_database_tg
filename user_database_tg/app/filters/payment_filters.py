@@ -34,3 +34,27 @@ class AcceptPaymentFilter(MainPaymentFilter):
     async def check(self, call: types.CallbackQuery):
         if call.data == "accept_payment":
             return await super().check(call)
+
+
+class ViewSubscriptionFilterAPI(MainPaymentFilter):
+    async def check(self, call: types.CallbackQuery):
+        if call.data.startswith("view_buy_api_"):
+            return await super().check(call)
+
+
+class SubscribeFilterAPI(MainPaymentFilter):
+    async def check(self, call: types.CallbackQuery):
+        if call.data.startswith("subscribe_api_"):
+            return await super().check(call)
+
+
+class RejectPaymentFilterAPI(MainPaymentFilter):
+    async def check(self, call: types.CallbackQuery):
+        if call.data == "reject_payment_api":
+            return await super().check(call)
+
+
+class AcceptPaymentFilterAPI(MainPaymentFilter):
+    async def check(self, call: types.CallbackQuery):
+        if call.data == "accept_payment_api":
+            return await super().check(call)

@@ -1,15 +1,100 @@
-import hashlib
-import time
+import asyncio
 from datetime import datetime
 
 from dateutil.relativedelta import relativedelta
 from geopy import distance
+from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from seleniumwire import webdriver
 
 from user_database_tg.search_engine.ghunt.lib.utils import *
+
+
+def get_reviews():
+    pass
+
+
+def get_tab_info(source, is_headless, headers, config, base_url, cookies):
+    try:
+        logger.info(f"Запуск get_tab_info")
+        data = source.split(";window.APP_INITIALIZATION_STATE=")[1].split(";window.APP_FLAGS")[0].replace("\\", "")
+        if "/maps/reviews/data" not in data:
+            # tmprinter.out("")
+            logger.trace("[-] No reviews")
+            return False
+
+        chrome_options = get_chrome_options_args(is_headless)
+        options = {"connection_timeout": None}  # Never timeout, otherwise it floods errors
+
+        # tmprinter.out("Starting browser...")
+        logger.trace("Starting browser...")
+
+        driverpath = get_driverpath()
+        driver = webdriver.Chrome(executable_path=driverpath, seleniumwire_options=options, options=chrome_options)
+        driver.header_overrides = headers
+        wait = WebDriverWait(driver, 15)
+
+        logger.trace("Setting cookies...")
+        # tmprinter.out("Setting cookies...")
+        driver.get("https://www.google.com/robots.txt")
+        # todo 5/5/2022 9:41 PM taima: launch the browser in a separate thread
+        if not config.gmaps_cookies:
+            cookies = {"CONSENT": config.default_consent_cookie}
+        for k, v in cookies.items():
+            driver.add_cookie({"name": k, "value": v})
+
+        # tmprinter.out("Fetching reviews page...")
+
+        logger.trace("Fetching reviews page...")
+        driver.get(base_url)
+        wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "div.section-scrollbox")))
+        # scrollbox = driver.find_element(By.CSS_SELECTOR, "div.section-scrollbox")
+        # tab_info = scrollbox.find_element(By.TAG_NAME, "div")
+        tab_info = None
+        try:
+            tab_info = driver.find_element(by=By.XPATH,
+                                           value="//span[contains(@aria-label, 'review') and contains(@aria-label, 'rating')]")
+        except NoSuchElementException:
+            pass
+
+        if tab_info and tab_info.text:
+            scroll_max = sum([int(x) for x in tab_info.text.split() if x.isdigit()])
+        else:
+            return False
+
+        # tmprinter.clear()
+        logger.trace(f"[+] {scroll_max} reviews found !")
+
+        timeout = scroll_max * 1.25
+        timeout_start = time.time()
+        reviews_elements = driver.find_elements_by_xpath("//div[@data-review-id][@aria-label]")
+        # tmprinter.out(f"Fetching reviews... ({len(reviews_elements)}/{scroll_max})")
+        scrollbox = tab_info.find_element(By.XPATH, "../../../..")
+        timeout = scroll_max * 2.5
+        timeout_start = time.time()
+        reviews_elements = driver.find_elements(by=By.XPATH, value="//div[@data-review-id][@aria-label]")
+        logger.trace(f"Fetching reviews... ({len(reviews_elements)}/{scroll_max})")
+        while len(reviews_elements) < scroll_max:
+            driver.execute_script("arguments[0].scrollTop = arguments[0].scrollHeight", scrollbox)
+            reviews_elements = driver.find_elements_by_xpath("//div[@data-review-id][@aria-label]")
+            # tmprinter.out(f"Fetching reviews... ({len(reviews_elements)}/{scroll_max})")
+            logger.trace(f"Fetching reviews... ({len(reviews_elements)}/{scroll_max})")
+            if time.time() > timeout_start + timeout:
+                # tmprinter.out(f"Timeout while fetching reviews !")
+                logger.trace(f"Timeout while fetching reviews !")
+                break
+
+        # tmprinter.out("Fetching internal requests history...")
+        logger.trace("Fetching internal requests history...")
+        requests = [r.url for r in driver.requests if "locationhistory" in r.url]
+        # tmprinter.out(f"Fetching internal requests... (0/{len(requests)})")
+        logger.trace(f"Fetching internal requests... (0/{len(requests)})")
+        return requests, data, reviews_elements
+    except Exception as e:
+        logger.critical(e)
+        return False
 
 
 async def scrape(gaiaID, client, cookies, config, headers, regex_rev_by_id, is_headless, account_info):
@@ -39,73 +124,29 @@ async def scrape(gaiaID, client, cookies, config, headers, regex_rev_by_id, is_h
     base_url = f"https://www.google.com/maps/contrib/{gaiaID}/reviews?hl=en"
     account_info["Google Maps"] = {base_url.replace("?hl=en", "")}
     logger.trace(f"\nGoogle Maps : {base_url.replace('?hl=en', '')}")
-
-    tmprinter.out("Initial request...")
-
+    # tmprinter.out("Initial request...")
+    logger.trace("Initial request...")
     req = await client.get(base_url)
-    source = req.text
 
-    data = source.split(";window.APP_INITIALIZATION_STATE=")[1].split(";window.APP_FLAGS")[0].replace("\\", "")
+    result = await asyncio.to_thread(
+        get_tab_info, req.text, is_headless, headers, config, base_url, cookies
+    )
 
-    if "/maps/reviews/data" not in data:
-        tmprinter.out("")
-        logger.trace("[-] No reviews")
+    logger.critical(result)
+    # result = get_tab_info(req.text, is_headless, headers, config, base_url, cookies)
+
+    logger.critical(result)
+    if result is False:
         return False
-
-    chrome_options = get_chrome_options_args(is_headless)
-    options = {"connection_timeout": None}  # Never timeout, otherwise it floods errors
-
-    tmprinter.out("Starting browser...")
-
-    driverpath = get_driverpath()
-    driver = webdriver.Chrome(executable_path=driverpath, seleniumwire_options=options, options=chrome_options)
-    driver.header_overrides = headers
-    wait = WebDriverWait(driver, 15)
-
-    tmprinter.out("Setting cookies...")
-    driver.get("https://www.google.com/robots.txt")
-
-    if not config.gmaps_cookies:
-        cookies = {"CONSENT": config.default_consent_cookie}
-    for k, v in cookies.items():
-        driver.add_cookie({"name": k, "value": v})
-
-    tmprinter.out("Fetching reviews page...")
-    driver.get(base_url)
-
-    wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "div.section-scrollbox")))
-    scrollbox = driver.find_element(By.CSS_SELECTOR, "div.section-scrollbox")
-
-    tab_info = scrollbox.find_element(By.TAG_NAME, "div")
-    if tab_info and tab_info.text:
-        scroll_max = sum([int(x) for x in tab_info.text.split() if x.isdigit()])
     else:
-        return False
+        requests, data, reviews_elements = result
 
-    tmprinter.clear()
-    logger.trace(f"[+] {scroll_max} reviews found !")
-
-    timeout = scroll_max * 1.25
-    timeout_start = time.time()
-    reviews_elements = driver.find_elements_by_xpath("//div[@data-review-id][@aria-label]")
-    tmprinter.out(f"Fetching reviews... ({len(reviews_elements)}/{scroll_max})")
-    while len(reviews_elements) < scroll_max:
-        driver.execute_script("arguments[0].scrollTop = arguments[0].scrollHeight", scrollbox)
-        reviews_elements = driver.find_elements_by_xpath("//div[@data-review-id][@aria-label]")
-        tmprinter.out(f"Fetching reviews... ({len(reviews_elements)}/{scroll_max})")
-        if time.time() > timeout_start + timeout:
-            tmprinter.out(f"Timeout while fetching reviews !")
-            break
-
-    tmprinter.out("Fetching internal requests history...")
-    requests = [r.url for r in driver.requests if "locationhistory" in r.url]
-    tmprinter.out(f"Fetching internal requests... (0/{len(requests)})")
     for nb, load in enumerate(requests):
         req = await client.get(load)
         data += req.text.replace("\n", "")
         tmprinter.out(f"Fetching internal requests... ({nb + 1}/{len(requests)})")
-
     tmprinter.out(f"Fetching reviews location... (0/{len(reviews_elements)})")
+
     reviews = []
     rating = 0
     for nb, review in enumerate(reviews_elements):

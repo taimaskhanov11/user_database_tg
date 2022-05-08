@@ -37,6 +37,7 @@ async def get_google_account_info(email) -> dict:
     try:
         return await email_hunt(email)
     except Exception as e:
+        raise
         logger.warning(e)
 
     # try:

@@ -1,11 +1,13 @@
 import asyncio
 from datetime import datetime, timedelta
 
+import aiohttp
 from aiogram import types
 from loguru import logger
 
+from user_database_tg.config import config
 from user_database_tg.config.config import p2p, TZ
-from user_database_tg.db.models import Billing, DbUser, Limit, Payment
+from user_database_tg.db.models import Billing, DbUser, Limit, Payment, APIBilling
 from user_database_tg.loader import bot
 
 
@@ -46,6 +48,60 @@ async def check_payment(bill_id, db_user):  # todo 2/28/2022 8:53 PM taima: по
             await db_user.save()
             await db_bill.delete()
             await old_sub.delete()
+            logger.info("Создана новая подписка")
+
+        logger.info("Информация о подписке успешно обновлена")
+        return True
+    return False
+
+
+async def add_api_token(user_token):
+    async with aiohttp.ClientSession() as session:
+        data = {
+            "token": config.MAIN_API_TOKEN,
+            "user_token": user_token
+        }
+        async with session.post(f"http://localhost:8000/api/v1/token/", json=data) as res:
+            logger.info(await res.text())
+
+
+@logger.catch
+async def check_payment_api(bill_id, db_user: DbUser):  # todo 2/28/2022 8:53 PM taima: поправить
+    bill = await p2p.check(bill_id=bill_id)
+
+    if bill.status == "PAID":
+        logger.info(f"{db_user.user_id}|{bill.bill_id} успешно оплачен")
+        db_bill: APIBilling = await APIBilling.get(bill_id=bill_id).prefetch_related("api_subscription")
+        Limit.lats_day_amount_payments += db_bill.amount
+        await Payment.create(db_user=db_user, date=datetime.now(TZ), amount=db_bill.amount)
+
+        if db_user.api_subscription.title == db_bill.api_subscription.title:
+            db_user.api_subscription.days_duration += db_bill.api_subscription.days_duration
+            db_user.api_subscription.duration += timedelta(db_bill.api_subscription.days_duration)
+
+            await db_user.api_subscription.save()
+            await db_user.save()
+            await db_bill.api_subscription.delete()
+            await db_bill.delete()
+
+            logger.info("Обновлена существующая подписка")
+            await bot.send_message(db_user.user_id, "Обновлена существующая подписка")
+
+        else:
+            db_bill.api_subscription.is_paid = (
+                True  ##todo 2/28/2022 9:20 PM taima: Добавить оставшиеся дни в новую подписку
+            )
+            old_sub = db_user.api_subscription
+            await old_sub.delete()
+            # await db_user.refresh_from_db()
+            db_bill.api_subscription.db_user = db_user
+            # db_user.api_subscription = db_bill.api_subscription
+            # await db_user.api_subscription.save()
+            await db_bill.api_subscription.save()
+            await db_user.save()
+            await db_bill.delete()
+            asyncio.create_task(add_api_token(db_bill.api_subscription.token))
+
             logger.info("Создана новая подписка")
 
         logger.info("Информация о подписке успешно обновлена")

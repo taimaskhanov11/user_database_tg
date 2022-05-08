@@ -2,8 +2,13 @@ from aiogram import Dispatcher
 from loguru import logger
 
 
+# logger = logging.getLogger(__name__)
+
+
 async def error_handler(update, exception):
-    logger.exception(f"{exception}|{update}")
+    # logger.exception(f"{exception}")
+    logger.error(f"{exception}|{update}")
+    # print(exception)
     return True
 
 
