@@ -8,7 +8,7 @@ from user_database_tg.db.models import DbUser
 
 async def api(message: types.Message, state: FSMContext):
     await state.finish()
-    await message.answer("Выберите меню:", reply_markup=markups.api.get_api_menu())
+    await message.answer("Сайт", reply_markup=markups.api.get_api_menu())
 
 
 async def buy(call: types.CallbackQuery):
