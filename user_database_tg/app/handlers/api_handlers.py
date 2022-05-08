@@ -4,13 +4,13 @@ from aiogram.dispatcher import FSMContext
 from user_database_tg.api.server import API_SERVER
 from user_database_tg.app import markups
 from user_database_tg.app.translation.message_translation import TRANSLATIONS
-from user_database_tg.db.models import DbUser
+from user_database_tg.db.models import DbUser, Limit
 
 
 async def api(message: types.Message, state: FSMContext):
     await state.finish()
     await message.answer("Документация к API\n"
-                         f"{API_SERVER}/docs", reply_markup=markups.api.get_api_menu())
+                         f"{Limit.API_SERVER}/docs", reply_markup=markups.api.get_api_menu())
 
 
 async def buy(call: types.CallbackQuery):

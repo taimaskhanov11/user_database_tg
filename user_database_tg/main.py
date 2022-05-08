@@ -31,6 +31,7 @@ from user_database_tg.app.utils.daily_processes import (
 from user_database_tg.app.utils.sub_channel import init_sub_channel
 from user_database_tg.config.config import BASE_DIR
 from user_database_tg.db.db_main import init_db
+from user_database_tg.db.models import Limit
 from user_database_tg.db.utils.backup import making_backup
 from user_database_tg.loader import bot, dp
 
@@ -79,7 +80,7 @@ async def main():
 
     # Получение сервер для API
     await get_server_host()
-
+    logger.info(f"API SERVER {Limit.API_SERVER}")
     log.info("Starting bot")
     # Парсинг файла конфигурации
     # config = load_config("config/bot.ini")

@@ -5,6 +5,7 @@ from aiohttp import ClientSession
 from loguru import logger
 
 from user_database_tg.config.config import NGROCK_API
+from user_database_tg.db.models import Limit
 
 API_SERVER = None
 
@@ -22,15 +23,14 @@ async def request(session: ClientSession, url):
 
 
 async def get_server_host():
-    global API_SERVER
     async with aiohttp.ClientSession(headers=headers, ) as session:
         res = await request(session, url)
         while not res["tunnels"]:
             res = await request(session, url)
             logger.info(res)
             await asyncio.sleep(1)
-    API_SERVER = res["tunnels"][0]["public_url"]
-    logger.info(f"API SERVER {API_SERVER}")
+    Limit.API_SERVER = res["tunnels"][0]["public_url"]
+
 
 
 if __name__ == '__main__':

@@ -327,7 +327,7 @@ class Limit:
     lats_day_amount_payments = 0
     new_users_in_last_day_obj: list = []
     last_pay_users = []
-
+    API_SERVER = None
     @classmethod
     def daily_process(cls):
         Limit.number_day_requests = 0
