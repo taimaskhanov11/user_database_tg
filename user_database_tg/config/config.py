@@ -17,6 +17,7 @@ DB_HOST = env.str("DB_HOST")
 DB_PORT = env.int("DB_PORT")
 DB_DB_NAME = env.str("DB_DB_NAME")
 MAIN_API_TOKEN = env.str("MAIN_API_TOKEN")
+NGROCK_API = env.str("NGROCK_API")
 DAILY_LIMIT = env.int("daily_limit")
 ADMINS = list(map(lambda x: int(x.strip()), env.list("ADMINS")))
 # if [1985947355, 2014301618]

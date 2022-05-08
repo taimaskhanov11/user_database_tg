@@ -7,6 +7,7 @@ from aiogram import Bot
 from aiogram.types import BotCommand
 from loguru import logger as log
 
+from user_database_tg.api.server import get_server_host
 from user_database_tg.app.filters.email_filter import EmailFilter
 from user_database_tg.app.handlers import (
     register_admin_menu_handlers,
@@ -75,11 +76,10 @@ async def set_commands(bot: Bot):
 
 
 async def main():
-    # Настройка логирования в stdout
-    # logging.basicConfig(
-    #     level=logging.INFO,
-    #     format="%(asctime)s - %(levelname)s - %(name)s - %(message)s",
-    # )
+
+    # Получение сервер для API
+    asyncio.create_task(get_server_host())
+
     log.info("Starting bot")
     # Парсинг файла конфигурации
     # config = load_config("config/bot.ini")
