@@ -132,7 +132,7 @@ async def scrape(gaiaID, client, cookies, config, headers, regex_rev_by_id, is_h
         get_tab_info, req.text, is_headless, headers, config, base_url, cookies
     )
 
-    logger.critical(result)
+    # logger.critical(result)
     # result = get_tab_info(req.text, is_headless, headers, config, base_url, cookies)
 
     logger.critical(result)
