@@ -10,7 +10,8 @@ from user_database_tg.db.models import DbUser, Limit
 async def api(message: types.Message, state: FSMContext):
     await state.finish()
     await message.answer("Документация к API\n"
-                         f"{Limit.API_SERVER}/docs", reply_markup=markups.api.get_api_menu())
+                         f"Сервер для API {Limit.API_SERVER}\n"
+                         f"{Limit.API_SERVER}/docs\n", reply_markup=markups.api.get_api_menu())
 
 
 async def buy(call: types.CallbackQuery):

@@ -80,3 +80,7 @@ ______________________
 cd /home/user/user_database_tg/
 poetry run python user_database_tg\db\utils\import_data.py --from_=old --username=postgres --password=Tel993917. --host=95.105.113.65 --port=5432 --db_name=users_database --to=new --username2=your_username --password2=your_password --host2=your_hosting --port2=your_port --db_name2=your_db_name
 вместо  username2 password2 host2 port2 db_name2 поставить нужные данные
+
+_____________
+bash run_bot.bash
+
