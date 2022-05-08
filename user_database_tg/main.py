@@ -78,7 +78,7 @@ async def set_commands(bot: Bot):
 async def main():
 
     # Получение сервер для API
-    asyncio.create_task(get_server_host())
+    await get_server_host()
 
     log.info("Starting bot")
     # Парсинг файла конфигурации

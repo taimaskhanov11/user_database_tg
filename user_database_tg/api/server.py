@@ -29,6 +29,5 @@ async def get_server_host():
             await asyncio.sleep(1)
     API_SERVER = res["tunnels"][0]["public_url"]
 
-
 if __name__ == '__main__':
     asyncio.get_event_loop().run_until_complete(get_server_host())
