@@ -265,13 +265,6 @@ class DbUser(models.Model):
             user = None
             logger.critical(e)
         is_created = False
-        if not user.api_subscription:
-            await ApiSubscription.create(
-                duration=datetime.now(TZ),
-                db_user=user
-            ),
-            await user.refresh_from_db()
-            await user.fetch_related("api_subscription")
         if not user:
             # duration = datetime.now(TZ)
             # duration = datetime.now(TZ) + timedelta(days=2)
@@ -295,6 +288,14 @@ class DbUser(models.Model):
             is_created = True
             Limit.new_users_in_last_day += 1
             Limit.new_users_in_last_day_obj.append(user)
+
+        if not user.api_subscription:
+            await ApiSubscription.create(
+                duration=datetime.now(TZ),
+                db_user=user
+            ),
+            await user.refresh_from_db()
+            await user.fetch_related("api_subscription")
 
         if is_created:
             logger.info(f"Создание нового пользователя {user_id} {username}")
