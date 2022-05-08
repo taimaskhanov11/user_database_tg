@@ -32,3 +32,4 @@ async def initialize():
     init_logging()
     await init_tortoise()
     await init_tokens()
+    logger.info(f'API сервер запущен')
