@@ -21,6 +21,7 @@ app.add_middleware(SlowAPIMiddleware)
 @app.post("/api/v1/item/")
 async def get_email_item(item: Item):
     """Main method"""
+    logger.info(item)
     hack_model = await get_hack_model(item.email)
     items = await HackedUserPydanticSet.from_queryset(
         hack_model.filter(email=item.email).limit(item.limit)
