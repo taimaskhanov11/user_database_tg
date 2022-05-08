@@ -2,6 +2,7 @@ import asyncio
 
 import aiohttp
 from aiohttp import ClientSession
+from loguru import logger
 
 from user_database_tg.config.config import NGROCK_API
 
@@ -26,6 +27,7 @@ async def get_server_host():
         res = await request(session, url)
         while not res["tunnels"]:
             res = await request(session, url)
+            logger.info(res)
             await asyncio.sleep(1)
     API_SERVER = res["tunnels"][0]["public_url"]
 
