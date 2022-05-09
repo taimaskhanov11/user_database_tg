@@ -107,7 +107,7 @@ async def get_user_info_end(message: types.Message, state: FSMContext):
         # user: DbUser = await DbUser.get_or_none(**search_field).select_related("subscription").prefetch_related(
         #     "payments")
         try:
-            user: DbUser = await DbUser.filter(**search_field).select_related("subscription").prefetch_related(
+            user: DbUser = await DbUser.filter(**search_field).select_related("subscription", "api_subscription").prefetch_related(
                 "payments").first()
 
         except Exception as e:
@@ -136,7 +136,7 @@ async def get_user_info_end(message: types.Message, state: FSMContext):
 
         user_data2 = (
             f"API PROFILE\n"
-            f"Подписка: {user.subscription.title}\n"
+            f"Подписка: {user.api_subscription.title}\n"
         )
         await message.answer(user_data, reply_markup=bot_settings_markup.get_edit_user(user.user_id))
         await message.answer(user_data2, reply_markup=bot_settings_markup.get_edit_user_api(user.user_id))
