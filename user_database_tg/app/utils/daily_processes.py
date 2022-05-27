@@ -38,8 +38,9 @@ async def refresh_subscription():
                     sub.days_duration -= 1
 
                 # Проверка подписки
-                if sub.is_subscribe and (now_dt > sub.duration or sub.days_duration <= 0):
-                    logger.debug(f"Подписка закончилась {repr(sub.db_user)} ")
+                # if sub.is_subscribe and (now_dt > sub.duration or sub.days_duration <= 0):
+                if sub.is_subscribe and sub.days_duration <= 0:
+                    logger.debug(f"Подписка закончилась {sub.db_user.username} ")
 
                     await bot.send_message(sub.db_user.user_id, f"Подписка {sub.title} закончилась")
                     sub.db_user.subscription = await Subscription.create(duration=datetime.datetime.now(TZ))
