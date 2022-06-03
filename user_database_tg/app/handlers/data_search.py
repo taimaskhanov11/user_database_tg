@@ -33,12 +33,12 @@ async def part_sending(message, answer, is_hash=None, add_info: bool = None):
             # if y >= len(answer) and (add_info or is_hash):
             if y >= len(answer):
                 logger.trace("Add info")
-                await message.answer(answer[x: y], "html", reply_markup=markups.get_add_info(add_info, is_hash))
+                await message.answer(answer[x: y], reply_markup=markups.get_add_info(add_info, is_hash))
             else:
-                await message.answer(answer[x: y], "html")
+                await message.answer(answer[x: y])
             await asyncio.sleep(0.2)
     else:
-        await message.answer(answer, "html",
+        await message.answer(answer,
                              reply_markup=markups.get_add_info(add_info, is_hash))
 
 
