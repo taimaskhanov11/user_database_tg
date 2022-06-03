@@ -1,4 +1,5 @@
 from aiogram import Dispatcher, types
+from aiogram.dispatcher import FSMContext
 from loguru import logger
 
 from user_database_tg.app import markups
@@ -6,11 +7,11 @@ from user_database_tg.db.models import DbUser, DbTranslation
 
 
 async def profile(
-        message: types.Message, db_user: DbUser, translation: DbTranslation
+        message: types.Message, db_user: DbUser, translation: DbTranslation, state:FSMContext
 ):  # todo 2/25/2022 12:34 AM taima:
 
     # duration: datetime.timedelta = db_user.subscription.duration - datetime.datetime.now(TZ)
-
+    await state.finish()
     await message.answer(
         translation.profile.format(
             user_id=db_user.user_id,
@@ -46,7 +47,7 @@ async def support(message: types.Message, translation: DbTranslation):
 
 
 def register_main_menu_handlers(dp: Dispatcher):
-    dp.register_message_handler(profile, text_startswith="👤")
-    dp.register_message_handler(buy, text_startswith="💳")
-    dp.register_message_handler(description, text_startswith="🗒")
-    dp.register_message_handler(support, text_startswith="🙋‍♂")
+    dp.register_message_handler(profile, text_startswith="👤", state="*")
+    dp.register_message_handler(buy, text_startswith="💳", state="*")
+    dp.register_message_handler(description, text_startswith="🗒", state="*")
+    dp.register_message_handler(support, text_startswith="🙋‍♂", state="*")

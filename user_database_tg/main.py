@@ -60,7 +60,7 @@ logging.basicConfig(
     encoding="utf-8",
     level=logging.INFO,
     handlers=[
-        logging.StreamHandler(),
+        # logging.StreamHandler(),
         logging.FileHandler(filename=Path(BASE_DIR, "logs/aiolog.log"), encoding="utf-8"),
     ],
 )
