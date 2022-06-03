@@ -4,11 +4,11 @@ from loguru import logger
 
 from user_database_tg.api.schema import auth_tokens
 from user_database_tg.config.config import BASE_DIR
-from user_database_tg.db.db_main import init_tortoise
+from user_database_tg.db.db_main import init_tortoise, init_logging
 from user_database_tg.db.models import ApiSubscription
 
 
-def init_logging():
+def init_loggings():
     logger.remove()
     logger.add(
         sink=Path(BASE_DIR, "logs/api.log"),

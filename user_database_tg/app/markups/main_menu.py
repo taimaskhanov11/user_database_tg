@@ -22,13 +22,16 @@ def get_menu(translation: DbTranslation):
     return menu
 
 
-add_info = InlineKeyboardMarkup(
-    inline_keyboard=[
-        [
-            InlineKeyboardButton(
-                text="Доп. информация по почте",
-                callback_data="add_info",
-            )
-        ]
-    ]
-)
+def get_add_info(add_info, is_hash):
+    add_info_k = InlineKeyboardMarkup()
+    if add_info:
+        add_info_k.add(InlineKeyboardButton(
+            text="Доп. информация по почте",
+            callback_data="add_info",
+        ))
+    if is_hash:
+        add_info_k.add(InlineKeyboardButton(
+            text="Расшифровать хеши",
+            callback_data="decrypt_hash",
+        ))
+    return add_info_k

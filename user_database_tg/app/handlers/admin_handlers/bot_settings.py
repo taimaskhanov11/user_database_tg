@@ -107,7 +107,8 @@ async def get_user_info_end(message: types.Message, state: FSMContext):
         # user: DbUser = await DbUser.get_or_none(**search_field).select_related("subscription").prefetch_related(
         #     "payments")
         try:
-            user: DbUser = await DbUser.filter(**search_field).select_related("subscription", "api_subscription").prefetch_related(
+            user: DbUser = await DbUser.filter(**search_field).select_related("subscription",
+                                                                              "api_subscription").prefetch_related(
                 "payments").first()
 
         except Exception as e:

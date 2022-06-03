@@ -50,12 +50,19 @@ def get_subscribe_menu_view_api():
     return subscribe_menu
 
 
+def create_subscribe_start():
+    qiwi_menu = InlineKeyboardMarkup()
+    qiwi_menu.add(InlineKeyboardButton(text="🥝 Оплата через QIWI", callback_data="qiwi"))
+    qiwi_menu.add(InlineKeyboardButton(text="₿ Оплата криптовалютой", callback_data="crypto"))
+    return qiwi_menu
+
+
 def get_subscribe_payment(url, translation: DbTranslation):
     qiwi_menu = InlineKeyboardMarkup()
     btn_url = InlineKeyboardButton(text=translation.go_payment_b, url=url)
     btn_accept = InlineKeyboardButton(
         # text="⌛️Я ОПЛАТИЛ", callback_data="accept_payment"  # todo 2/28/2022 6:15 PM taima:
-        text=translation.accept_payment_b,
+        text=f"{translation.accept_payment_b}.",
         callback_data="accept_payment",  # todo 2/28/2022 6:15 PM taima:
     )
     btn_reject = InlineKeyboardButton(text=translation.reject_payment_b, callback_data="reject_payment")

@@ -35,6 +35,7 @@ APScheduler = "^3.9.1"
 fastapi = "^0.76.0"
 uvicorn = "^0.17.6"
 slowapi = "^0.1.5"
+hashID = "^3.1.4"
 
 
 [tool.poetry.dev-dependencies]

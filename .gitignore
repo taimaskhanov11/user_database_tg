@@ -5,3 +5,4 @@ test2
 logs
 temp
 .ssh
+.env_dev

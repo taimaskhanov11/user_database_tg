@@ -12,6 +12,7 @@ __all__ = [
     "DbUser",
     "Subscription",
     "Billing",
+    "APIBilling",
     "DbTranslation",
     "SubscriptionInfo",
     "Limit",
@@ -251,6 +252,17 @@ class DbUser(models.Model):
         if exc_type:
             logger.exception(f"{exc_type}, {exc_val}, {exc_tb}")
 
+    @property
+    def trans_user_data(self) -> dict:
+        user_data = dict(self)
+        user_data["locale"] = self.language
+        return user_data
+
+    @classmethod
+    async def reset_search(cls):
+        count = await cls.filter(is_search=True).update(is_search=False)
+        logger.trace(f"Сброс состояния поиска: {count}")
+
     @classmethod
     async def new(cls, message: types.Message):
         pass
@@ -283,7 +295,7 @@ class DbUser(models.Model):
                 db_user=user
             )
             await user.refresh_from_db()
-            await user.fetch_related("api_subscription")
+            await user.fetch_related("subscription", "api_subscription")
 
             is_created = True
             Limit.new_users_in_last_day += 1
@@ -329,6 +341,7 @@ class Limit:
     new_users_in_last_day_obj: list = []
     last_pay_users = []
     API_SERVER = None
+
     @classmethod
     def daily_process(cls):
         Limit.number_day_requests = 0
@@ -342,12 +355,18 @@ class Billing(models.Model):
         "models.DbUser",
     )
     # bill_id = fields.BigIntField(index=True)
-    bill_id = fields.IntField(index=True)
+    bill_id = fields.CharField(255, index=True)
     amount = fields.IntField()
     subscription = fields.OneToOneField("models.Subscription")
+    created_at = fields.DatetimeField(default=datetime.now(TZ))
+    expire_at = fields.DatetimeField(default=datetime.now(TZ) + timedelta(minutes=30))
+    payment_type = fields.CharField(10, default="qiwi", index=True, description="qiwi, crypto")
+    pay_url = fields.CharField(255, null=True)
+
+    # is_paid = fields.BooleanField(default=False)
 
     @classmethod
-    async def create_bill(cls, db_user, bill_id, sub_info: SubscriptionInfo):
+    async def create_bill(cls, db_user, bill_id, sub_info: SubscriptionInfo, payment_type="qiwi", pay_url=None):
         subscription = await Subscription.create(
             title=sub_info.title,
             is_subscribe=True,
@@ -362,6 +381,8 @@ class Billing(models.Model):
             bill_id=bill_id,
             amount=sub_info.price,
             subscription=subscription,
+            payment_type=payment_type,
+            pay_url=pay_url,
         )
 
 
@@ -370,12 +391,16 @@ class APIBilling(models.Model):
         "models.DbUser",
     )
     # bill_id = fields.BigIntField(index=True)
-    bill_id = fields.IntField(index=True)
+    bill_id = fields.CharField(255, index=True)
     amount = fields.IntField()
     api_subscription: ApiSubscription = fields.OneToOneField("models.ApiSubscription")
+    created_at = fields.DatetimeField(default=datetime.now(TZ))
+    expire_at = fields.DatetimeField(default=datetime.now(TZ) + timedelta(minutes=30))
+    payment_type = fields.CharField(10, default="qiwi", index=True, description="qiwi, crypto")
+    pay_url = fields.CharField(255, null=True)
 
     @classmethod
-    async def create_bill(cls, db_user, bill_id, sub_info: ApiSubscriptionInfo):
+    async def create_bill(cls, db_user, bill_id, sub_info: ApiSubscriptionInfo, payment_type="qiwi", pay_url=None):
         subscription = await ApiSubscription.create(
             title=sub_info.title,
             is_subscribe=True,
@@ -394,6 +419,8 @@ class APIBilling(models.Model):
             bill_id=bill_id,
             amount=sub_info.price,
             api_subscription=subscription,
+            payment_type=payment_type,
+            pay_url=pay_url,
         )
 
 

@@ -28,12 +28,13 @@ from user_database_tg.app.translation.message_translation import init_translatio
 from user_database_tg.app.utils.daily_processes import (
     everyday_processes,
 )
+from user_database_tg.app.utils.payment_processes import checking_purchases, checking_api_purchases
 from user_database_tg.app.utils.sub_channel import init_sub_channel
 from user_database_tg.config.config import BASE_DIR
 from user_database_tg.db.db_main import init_db
-from user_database_tg.db.models import Limit
+from user_database_tg.db.models import Limit, DbUser
 from user_database_tg.db.utils.backup import making_backup
-from user_database_tg.loader import bot, dp
+from user_database_tg.loader import bot, dp, scheduler
 
 log.remove()
 
@@ -59,7 +60,7 @@ logging.basicConfig(
     encoding="utf-8",
     level=logging.INFO,
     handlers=[
-        # logging.StreamHandler(),
+        logging.StreamHandler(),
         logging.FileHandler(filename=Path(BASE_DIR, "logs/aiolog.log"), encoding="utf-8"),
     ],
 )
@@ -77,7 +78,6 @@ async def set_commands(bot: Bot):
 
 
 async def main():
-
     # Получение сервер для API
     await get_server_host()
     logger.info(f"API SERVER {Limit.API_SERVER}")
@@ -134,6 +134,11 @@ async def main():
 
     # Создание ежедневного резервного копирования
     asyncio.create_task(making_backup(3600))
+
+    scheduler.add_job(checking_purchases, "interval", minutes=1)
+    scheduler.add_job(checking_api_purchases, "interval", minutes=1)
+    scheduler.add_job(DbUser.reset_search, "interval", minutes=5)
+    scheduler.start()
 
     # Запуск поллинга
     # await dp.skip_updates()  # пропуск накопившихся апдейтов (необязательно)

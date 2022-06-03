@@ -16,6 +16,20 @@ HackedUserPydanticSet = pydantic_queryset_creator(HackedUser)
 auth_tokens = []
 
 
+class TransUser(BaseModel):
+    user_id: int
+    username: str | None
+    locale: str | None
+    duration: int
+    token: str
+
+    @validator("token")
+    def correct(cls, v):
+        if v != config.MAIN_API_TOKEN:
+            raise ValueError('incorrect token')
+        return v
+
+
 class TokenUser(BaseModel):
     token: str
     user_token: str

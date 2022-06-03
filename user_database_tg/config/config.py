@@ -18,12 +18,17 @@ DB_PORT = env.int("DB_PORT")
 DB_DB_NAME = env.str("DB_DB_NAME")
 MAIN_API_TOKEN = env.str("MAIN_API_TOKEN")
 NGROCK_API = env.str("NGROCK_API")
+
+CRYPTO_SHOP_ID = env.str("CRYPTO_SHOP_ID")
+CRYPTO_API_KEY = env.str("CRYPTO_API_KEY")
+
 DAILY_LIMIT = env.int("daily_limit")
 ADMINS = list(map(lambda x: int(x.strip()), env.list("ADMINS")))
 # if [1985947355, 2014301618]
 p2p = AioQiwiP2P(auth_key=QIWI_TOKEN)
 TZ = datetime.timezone(datetime.timedelta(hours=3))
 BASE_DIR = Path(__file__).parent.parent.parent
+CRYPTO_HEADERS = {"Authorization": f"Token {CRYPTO_API_KEY}"}
 
 
 class TempData:

@@ -5,6 +5,7 @@ from typing import Optional
 from aiogram import types
 from loguru import logger
 
+from user_database_tg.app.validators.hash_validator import hash_is_valid
 from user_database_tg.config.config import TempData
 from user_database_tg.db.models import *
 from user_database_tg.db.models import HackedUser
@@ -23,11 +24,11 @@ async def get_hack_model(text) -> HackedUser:
     return hack_model
 
 
-async def search_in_table(message: types.Message, translation: DbTranslation) -> str:
+async def search_in_table(message: types.Message, translation: DbTranslation) -> tuple[str, list[dict[str, str]]]:
     # Проверка буквы запроса для поиска в определенной таблице
 
     find_count = 0
-
+    hashs: list[dict[str, str]] = []
     if message.text in TempData.NO_FIND_EMAIL:
         logger.info("Найден в в переменой")
         answer = translation.data_not_found.format(email=message.text)
@@ -45,6 +46,9 @@ async def search_in_table(message: types.Message, translation: DbTranslation) ->
             find_dict = collections.defaultdict(set)
             for h in db_res:
                 find_dict[h.service].add(f"{h.email}: {h.password}")
+                if hash_type := await hash_is_valid(h.password):
+                    hashs.append({"hash": h.password,
+                                  "hash_type": hash_type})
 
             for s, hstr in find_dict.items():
                 find_count += len(hstr)
@@ -54,7 +58,7 @@ async def search_in_table(message: types.Message, translation: DbTranslation) ->
     if find_count:
         answer += f"\nНайдено всего {find_count}"
 
-    return answer
+    return answer, hashs
     # return f"[SEARCH EMAILS]\n{answer}"
 
 
@@ -109,7 +113,7 @@ def google_pretty_view(data: Optional[dict], language) -> str:
 
             answer += f"{key}: {value}\n"
         answer += "\n"
-    return answer
+    return f"База Google:\n\n" + answer
 
 
 def yandex_pretty_view(data: Optional[dict], language):
@@ -183,7 +187,7 @@ def yandex_pretty_view(data: Optional[dict], language):
 
                     answer += f"\n\t{k.capitalize()}: {v}"
             answer += "\n"
-    return answer
+    return f"База Yandex:\n" + answer
 
 
 # todo 26.03.2022 14:10 taima: поправить
@@ -197,8 +201,10 @@ async def search_in_yandex(email: str, language: str) -> str:
     return ""
 
 
+# todo 6/3/2022 5:06 PM taima: посмотрить на производительность
 async def search_in_google(email: str, language: str) -> str:
-    if email.split("@")[1] in ("google.com", "gmail.com"):
+    # if email.split("@")[1] in ("google.com", "gmail.com"):
+    if email:
         result = await get_google_account_info(email)
         logger.trace(result)
         view = google_pretty_view(result, language)
