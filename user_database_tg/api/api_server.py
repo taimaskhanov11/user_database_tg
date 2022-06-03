@@ -11,7 +11,7 @@ from slowapi.util import get_remote_address
 from user_database_tg.api.schema import Item, HackedUserPydanticSet, TestItem, TestHackedUser, TokenUser, TransUser
 from user_database_tg.api.utils import initialize
 from user_database_tg.app.utils.data_search_helpers import get_hack_model
-from user_database_tg.config.config import TZ
+from user_database_tg.config.config import TZ, HASH_BOT
 from user_database_tg.db.models import DbUser, Subscription
 
 limiter = Limiter(key_func=get_remote_address, default_limits=["10/second"])
@@ -62,10 +62,10 @@ async def update_subscription(trans_user: TransUser):
         await db_user.subscription.save()
         logger.success(
             f"Успешна обновлена подписка для {trans_user.user_id}  на {trans_user.duration} "
-            f"по партнерской программе с @Hash2PassBot")
+            f"по партнерской программе с {HASH_BOT}")
     else:
         new_sub = await Subscription.create(
-            title=f"Безлимит на {trans_user.duration // 30} месяц по партнерской программе с @Hash2PassBot",
+            title=f"Безлимит на {trans_user.duration // 30} месяц по партнерской программе с {HASH_BOT}",
             is_subscribe=True,
             is_paid=True,
             duration=datetime.now(TZ) + timedelta(trans_user.duration),
@@ -82,7 +82,7 @@ async def update_subscription(trans_user: TransUser):
         await old_sub.delete()
         logger.success(
             f"Успешна создана новая подписка для {trans_user.user_id}  на {trans_user.duration} "
-            f"по партнерской программе с @Hash2PassBot")
+            f"по партнерской программе с {HASH_BOT}")
 
 
 asyncio.create_task(initialize())

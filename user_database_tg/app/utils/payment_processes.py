@@ -8,7 +8,7 @@ from loguru import logger
 
 from user_database_tg.api.outgoing_requests import update_hash_requests
 from user_database_tg.config import config
-from user_database_tg.config.config import p2p, TZ, CRYPTO_API_KEY
+from user_database_tg.config.config import p2p, TZ, CRYPTO_API_KEY, HASH_BOT
 from user_database_tg.db.models import Billing, DbUser, Limit, Payment, APIBilling
 from user_database_tg.loader import bot
 
@@ -88,12 +88,12 @@ async def accept_payment(db_bill, db_user: DbUser):
         await bot.send_message(db_user.user_id, "Обновлена существующая подписка")
 
         if db_user.subscription.daily_limit is None:
-            logger.info("Обновление лимитов в @Hash2PassBot")
+            logger.info(f"Обновление лимитов в {HASH_BOT}")
             sub = db_user.subscription
 
             res = await update_hash_requests(db_user, sub.days_duration // 30)
             logger.success(f"Лимиты пользователя {db_user.user_id} обновлены на {res}")
-            await bot.send_message(db_user.user_id, "Получены бесплатные запросы в партнерском боте @Hash2PassBot")
+            await bot.send_message(db_user.user_id, f"Получены бесплатные запросы в партнерском боте {HASH_BOT}")
 
     else:
         db_bill.subscription.is_paid = (
@@ -108,12 +108,12 @@ async def accept_payment(db_bill, db_user: DbUser):
         await old_sub.delete()
 
         if db_user.subscription.daily_limit is None:
-            logger.info("Обновление лимитов в @Hash2PassBot")
+            logger.info(f"Обновление лимитов в {HASH_BOT}")
             sub = db_user.subscription
 
             res = await update_hash_requests(db_user, sub.days_duration // 30)
             logger.success(f"Лимиты пользователя {db_user.user_id} обновлены на {res}")
-            await bot.send_message(db_user.user_id, "Получены бесплатные запросы в партнерском боте @Hash2PassBot")
+            await bot.send_message(db_user.user_id, f"Получены бесплатные запросы в партнерском боте {HASH_BOT}")
 
         logger.info("Создана новая подписка")
 
