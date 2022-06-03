@@ -29,7 +29,7 @@ from user_database_tg.app.utils.daily_processes import (
     everyday_processes,
 )
 from user_database_tg.app.utils.payment_processes import checking_purchases, checking_api_purchases
-from user_database_tg.app.utils.sub_channel import init_sub_channel
+from user_database_tg.app.utils.sub_channel import init_sub_channel, start_up_message
 from user_database_tg.config.config import BASE_DIR
 from user_database_tg.db.db_main import init_db
 from user_database_tg.db.models import Limit, DbUser
@@ -80,6 +80,7 @@ async def set_commands(bot: Bot):
 async def main():
     # Получение сервер для API
     await get_server_host()
+    await start_up_message()
     logger.info(f"API SERVER {Limit.API_SERVER}")
     log.info("Starting bot")
     # Парсинг файла конфигурации
