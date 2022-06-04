@@ -56,7 +56,7 @@ async def search_in_table(message: types.Message, translation: DbTranslation) ->
                 answer += "\n\n"
 
     if find_count:
-        answer += f"\nНайдено всего {find_count}"
+        answer += f"\nНайдено всего {find_count}\nНайдено хешей паролей: {len(hashs)}"
 
     return answer, hashs
     # return f"[SEARCH EMAILS]\n{answer}"
