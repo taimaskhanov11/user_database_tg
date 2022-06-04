@@ -29,7 +29,7 @@ p2p = AioQiwiP2P(auth_key=QIWI_TOKEN)
 TZ = datetime.timezone(datetime.timedelta(hours=3))
 BASE_DIR = Path(__file__).parent.parent.parent
 CRYPTO_HEADERS = {"Authorization": f"Token {CRYPTO_API_KEY}"}
-HASH_BOT = "@QrchainTokenCheckBot"
+HASH_BOT = "@Hash2PassBot"
 
 class TempData:
     NO_FIND_EMAIL = []
