@@ -89,7 +89,7 @@ async def search_data(message: types.Message, db_user: DbUser, translation: DbTr
 
 async def get_add_info(call: types.CallbackQuery, state: FSMContext):
     info = await state.get_data()
-    await call.message.answer(info["add_info"] or "Не найдено")
+    await call.message.answer(info.get("add_info") or "Не найдено")
     await state.finish()
 
 
