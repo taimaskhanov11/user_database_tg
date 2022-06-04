@@ -17,7 +17,7 @@ async def profile(
             user_id=db_user.user_id,
             username=db_user.username,
             remaining_daily_limit=db_user.subscription.remaining_daily_limit
-            if db_user.subscription.remaining_daily_limit
+            if db_user.subscription.remaining_daily_limit is not None
             else "Unlimited",
             sub=db_user.subscription.title,
             # duration=f"{duration.days} {duration.days}:{duration.hours}:{duration.minutes}"
