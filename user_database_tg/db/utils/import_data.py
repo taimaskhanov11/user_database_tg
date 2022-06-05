@@ -67,14 +67,14 @@ def get_parser():
 def get_default_args():
     from_ = {
         "username": "postgres",
-        "password": "Tel993917.",
+        "password": "DpKeUf.0",
         "host": "95.105.113.65",
         "port": 5432,
         "db_name": "users_database",
     }
     to_ = {
         "username": "postgres",
-        "password": "T12345postgres",
+        "password": "DpKeUf.0",
         "host": "188.130.139.157",
         "port": 5432,
         "db_name": "users_database",
