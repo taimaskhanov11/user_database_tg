@@ -13,7 +13,7 @@ from user_database_tg.app.utils.validations import is_validated
 from user_database_tg.db.models import DbUser, DbTranslation
 
 
-async def part_sending(message, answer, count_info=None, is_hash=None, add_info: bool = None):
+async def part_sending(message, answer, count_info="", is_hash=None, add_info: bool = None):
     # answer += "*" * 40000
     # answer += "312312312312312"
     logger.trace(add_info)
