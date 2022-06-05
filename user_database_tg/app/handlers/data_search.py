@@ -13,7 +13,7 @@ from user_database_tg.app.utils.validations import is_validated
 from user_database_tg.db.models import DbUser, DbTranslation
 
 
-async def part_sending(message, answer, is_hash=None, add_info: bool = None):
+async def part_sending(message, answer, count_info=None, is_hash=None, add_info: bool = None):
     # answer += "*" * 40000
     # answer += "312312312312312"
     logger.trace(add_info)
@@ -33,12 +33,12 @@ async def part_sending(message, answer, is_hash=None, add_info: bool = None):
             # if y >= len(answer) and (add_info or is_hash):
             if y >= len(answer):
                 logger.trace("Add info")
-                await message.answer(answer[x: y], reply_markup=markups.get_add_info(add_info, is_hash))
+                await message.answer(answer[x: y]+f"\n{count_info}", reply_markup=markups.get_add_info(add_info, is_hash))
             else:
                 await message.answer(answer[x: y])
             await asyncio.sleep(0.2)
     else:
-        await message.answer(answer,
+        await message.answer(answer+f"\n{count_info}",
                              reply_markup=markups.get_add_info(add_info, is_hash))
 
 
@@ -64,7 +64,7 @@ async def search_data(message: types.Message, db_user: DbUser, translation: DbTr
         )
 
         # answer = f"{table_result}\n\n"
-        table_result, hashs = table_result
+        table_result, hashs, count_info = table_result
         logger.success(hashs)
 
         add_info = yandex_result
@@ -74,7 +74,7 @@ async def search_data(message: types.Message, db_user: DbUser, translation: DbTr
         await state.update_data(add_info=add_info, hashs=hashs)
 
         # Отправка частями
-        await part_sending(message, table_result, bool(hashs), bool(yandex_result or google_result))
+        await part_sending(message, table_result, count_info, bool(hashs), bool(yandex_result or google_result))
         # if yandex_result or google_result:
         #     await message.answer("Узнать дополнительную информацию по почте", reply_markup=markups.add_info)
 

@@ -24,7 +24,7 @@ async def get_hack_model(text) -> HackedUser:
     return hack_model
 
 
-async def search_in_table(message: types.Message, translation: DbTranslation) -> tuple[str, list[dict[str, str]]]:
+async def search_in_table(message: types.Message, translation: DbTranslation) -> tuple[str, list[dict[str, str], str]]:
     # Проверка буквы запроса для поиска в определенной таблице
 
     find_count = 0
@@ -57,9 +57,10 @@ async def search_in_table(message: types.Message, translation: DbTranslation) ->
     clean_hashs = [dict(t) for t in {tuple(d.items()) for d in hashs}]
 
     if find_count:
-        answer += f"\nНайдено всего {find_count}\nНайдено хешей паролей: {len(clean_hashs)}"
+        count_info = f"\nНайдено всего {find_count}\nНайдено хешей паролей: {len(clean_hashs)}"
+        # answer += f"\nНайдено всего {find_count}\nНайдено хешей паролей: {len(clean_hashs)}"
 
-    return answer, clean_hashs
+    return answer, clean_hashs,count_info
     # return f"[SEARCH EMAILS]\n{answer}"
 
 
