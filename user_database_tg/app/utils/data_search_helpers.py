@@ -55,7 +55,7 @@ async def search_in_table(message: types.Message, translation: DbTranslation) ->
                 answer = answer + s + "\n" + "\n".join(hstr)
                 answer += "\n\n"
     clean_hashs = [dict(t) for t in {tuple(d.items()) for d in hashs}]
-
+    count_info = ""
     if find_count:
         count_info = f"\nНайдено всего {find_count}\nНайдено хешей паролей: {len(clean_hashs)}"
         # answer += f"\nНайдено всего {find_count}\nНайдено хешей паролей: {len(clean_hashs)}"
